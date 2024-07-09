@@ -10,14 +10,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Airsoft Games',
+      title: 'AirOps',
       theme: ThemeData(
         primarySwatch: Colors.red,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(),
+        '/': (context) => const SplashScreen(),
         '/login': (context) => LoginScreen(),
       },
     );

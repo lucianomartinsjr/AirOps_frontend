@@ -12,7 +12,7 @@ class CreateGameScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create New Game'),
+        title: Text('Criar Novo Jogo'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

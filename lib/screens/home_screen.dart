@@ -9,10 +9,10 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Airsoft Games'),
+        title: const Text('AirOps'),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => CreateGameScreen(),
@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
         onPressed: () {
           Provider.of<AirsoftService>(context, listen: false).fetchGames();
         },
-        child: Icon(Icons.refresh),
+        child: const Icon(Icons.refresh),
       ),
     );
   }
