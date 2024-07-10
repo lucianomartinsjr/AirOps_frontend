@@ -25,7 +25,8 @@ class AirsoftService with ChangeNotifier {
         period: 'Noturno',
         organizer: 'BlackSheep',
         fee: 25.00,
-        imageUrl: 'https://example.com/game1.jpg',
+        imageUrl:
+            'https://upload.wikimedia.org/wikipedia/commons/9/98/Airsoft_squad.jpg',
       ),
       Game(
         id: '2',
@@ -37,7 +38,8 @@ class AirsoftService with ChangeNotifier {
         period: 'Noturno',
         organizer: 'BlackSheep',
         fee: 0.00,
-        imageUrl: 'https://example.com/game2.jpg',
+        imageUrl:
+            'https://upload.wikimedia.org/wikipedia/commons/9/98/Airsoft_squad.jpg',
       ),
       Game(
         id: '3',
@@ -49,7 +51,8 @@ class AirsoftService with ChangeNotifier {
         period: 'Vespertino',
         organizer: 'COC',
         fee: 75.20,
-        imageUrl: 'https://example.com/game3.jpg',
+        imageUrl:
+            'https://upload.wikimedia.org/wikipedia/commons/9/98/Airsoft_squad.jpg',
       ),
     ];
     _filteredGames = [];

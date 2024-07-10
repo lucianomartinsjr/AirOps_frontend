@@ -30,9 +30,12 @@ class HomeScreen extends StatelessWidget {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Pesquisar',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
+                fillColor: Colors.white24, // To match the theme
+                hintStyle: const TextStyle(color: Colors.white54),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide.none,
                 ),
               ),
               onChanged: (value) {
@@ -41,13 +44,14 @@ class HomeScreen extends StatelessWidget {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'Filtrar por:',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
           ),

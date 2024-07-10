@@ -27,16 +27,35 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primaryColor: const Color(0xFF222222),
           scaffoldBackgroundColor: const Color(0xFF222222),
-          primarySwatch: Colors.red,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
+          appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF222222),
+              foregroundColor: Colors.white),
+          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+            backgroundColor: Color(0xFF222222),
+            selectedItemColor: Colors.red,
+            unselectedItemColor: Colors.grey,
+          ),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.white),
+            bodyMedium: TextStyle(color: Colors.white),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: Colors.white24,
+            hintStyle: const TextStyle(color: Colors.white54),
+            prefixIconColor: Colors.white54,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide.none,
+            ),
+          ),
         ),
         initialRoute: '/',
         routes: {
           '/': (context) => const SplashScreen(),
           '/login': (context) => const LoginScreen(),
           '/forgot-password': (context) => ForgotPasswordScreen(),
-          '/home-screen': (context) =>
-              const MainScreen(), // Corrigir o nome da rota
+          '/home-screen': (context) => const MainScreen(),
         },
       ),
     );
@@ -51,12 +70,12 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   static const List<Widget> _widgetOptions = <Widget>[
+    ProfileScreen(),
     HomeScreen(),
     SearchScreen(),
-    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {

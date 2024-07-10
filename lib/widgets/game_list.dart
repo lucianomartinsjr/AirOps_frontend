@@ -5,7 +5,7 @@ import 'game_item.dart';
 class GameList extends StatelessWidget {
   final List<Game> games;
 
-  GameList({required this.games});
+  const GameList({super.key, required this.games});
 
   @override
   Widget build(BuildContext context) {
