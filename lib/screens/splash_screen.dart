@@ -6,7 +6,6 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _SplashScreenState createState() => _SplashScreenState();
 }
 
@@ -24,10 +23,19 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF222222),
       body: Center(
-        child: SvgPicture.asset(
-          'lib/assets/images/splash_logo.svg',
-          width: 400,
-          height: 400,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'lib/assets/images/splash_logo.svg',
+              width: 300,
+              height: 300,
+            ),
+            const SizedBox(height: 20),
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+            ),
+          ],
         ),
       ),
     );

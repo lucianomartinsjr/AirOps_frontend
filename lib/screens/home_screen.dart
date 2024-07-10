@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/airsoft_service.dart';
-import '../widgets/game_list.dart';
 import 'create_game_screen.dart';
+import '../widgets/game_list.dart';
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AirOps'),
+        title: const Text('Air Ops'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -21,10 +23,42 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<AirsoftService>(
-        builder: (context, airsoftService, child) {
-          return GameList(games: airsoftService.games);
-        },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Pesquisar',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              onChanged: (value) {
+                Provider.of<AirsoftService>(context, listen: false)
+                    .searchGames(value);
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Filtrar por:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Consumer<AirsoftService>(
+              builder: (context, airsoftService, child) {
+                return GameList(games: airsoftService.games);
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
