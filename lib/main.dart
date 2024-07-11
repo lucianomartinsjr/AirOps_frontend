@@ -1,9 +1,11 @@
+import 'package:airops_frontend/screens/auth/register/register_screen.dart';
+import 'package:airops_frontend/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/splash_screen.dart';
-import 'screens/forgot_password_screen.dart';
+import 'screens/auth/login/login_screen.dart';
+import 'screens/auth/login/splash_screen.dart';
+import 'screens/auth/forgot_password/forgot_password_screen.dart';
 import 'screens/search_screen.dart';
 import 'screens/profile_screen.dart';
 import 'services/airsoft_service.dart';
@@ -21,6 +23,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AirsoftService()),
+        ChangeNotifierProvider(create: (_) => ApiService()),
       ],
       child: MaterialApp(
         title: 'AirOps',
@@ -54,6 +57,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => const SplashScreen(),
           '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
           '/forgot-password': (context) => ForgotPasswordScreen(),
           '/home-screen': (context) => const MainScreen(),
         },

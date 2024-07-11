@@ -1,4 +1,3 @@
-import 'package:airops_frontend/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -92,7 +91,7 @@ class LoginScreen extends HookWidget {
                   const SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
-                      // Navegar para a tela de registro
+                      Navigator.of(context).pushNamed('/register');
                     },
                     child: const Text(
                       'Não possui conta? Registre-se',
