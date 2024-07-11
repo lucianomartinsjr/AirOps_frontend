@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ForgotPasswordScreen extends HookWidget {
+  const ForgotPasswordScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final emailController = useTextEditingController();
@@ -53,8 +55,7 @@ class ForgotPasswordScreen extends HookWidget {
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
-                              foregroundColor:
-                                  Colors.white, // Cor do texto do botão
+                              foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -67,8 +68,8 @@ class ForgotPasswordScreen extends HookWidget {
                         const SizedBox(height: 20),
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop(
-                                '/login_screen'); // Retornar à tela de login
+                            Navigator.of(context).pop('/login_screen');
+                            FocusScope.of(context).unfocus();
                           },
                           child: const Text(
                             '← Retornar ao login',

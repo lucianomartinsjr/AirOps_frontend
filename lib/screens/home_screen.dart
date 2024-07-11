@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'Pesquisar',
                 prefixIcon: const Icon(Icons.search),
-                fillColor: Colors.white24, // To match the theme
+                fillColor: Colors.white24,
                 hintStyle: const TextStyle(color: Colors.white54),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),

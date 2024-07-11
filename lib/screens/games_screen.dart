@@ -5,10 +5,10 @@ class SearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF222222),
-      body: const Center(
-        child: Text('Tela de Busca',
+    return const Scaffold(
+      backgroundColor: Color(0xFF222222),
+      body: Center(
+        child: Text('Tela de Jogos',
             style: TextStyle(color: Colors.white, fontSize: 24)),
       ),
     );

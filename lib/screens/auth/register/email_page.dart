@@ -135,8 +135,8 @@ class _EmailPageState extends State<EmailPage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context)
-                        .pop('/login_screen'); // Retornar à tela de login
+                    Navigator.of(context).pop('/login_screen');
+                    FocusScope.of(context).unfocus();
                   },
                   child: const Text(
                     '← Retornar ao login',

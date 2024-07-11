@@ -6,7 +6,7 @@ import 'screens/home_screen.dart';
 import 'screens/auth/login/login_screen.dart';
 import 'screens/auth/login/splash_screen.dart';
 import 'screens/auth/forgot_password/forgot_password_screen.dart';
-import 'screens/search_screen.dart';
+import 'screens/games_screen.dart';
 import 'screens/profile_screen.dart';
 import 'services/airsoft_service.dart';
 import 'widgets/bottom_navigation.dart';
