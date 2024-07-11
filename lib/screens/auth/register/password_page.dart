@@ -21,6 +21,8 @@ class PasswordPage extends StatefulWidget {
 class _PasswordPageState extends State<PasswordPage> {
   final _formKey = GlobalKey<FormState>();
   bool _isFormValid = false;
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   void _validateForm() {
     setState(() {
@@ -33,6 +35,9 @@ class _PasswordPageState extends State<PasswordPage> {
     super.initState();
     widget.passwordController.addListener(_validateForm);
     widget.confirmPasswordController.addListener(_validateForm);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _validateForm();
+    });
   }
 
   @override
@@ -63,16 +68,29 @@ class _PasswordPageState extends State<PasswordPage> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: widget.passwordController,
-                obscureText: true,
+                obscureText: !_isPasswordVisible,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  labelText: 'Senha',
+                  labelText: 'Senha *',
                   labelStyle: const TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: const Color(0xFF2F2F2F),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
                   ),
                 ),
                 validator: (value) {
@@ -85,16 +103,29 @@ class _PasswordPageState extends State<PasswordPage> {
               const SizedBox(height: 10),
               TextFormField(
                 controller: widget.confirmPasswordController,
-                obscureText: true,
+                obscureText: !_isConfirmPasswordVisible,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  labelText: 'Confirme a Senha',
+                  labelText: 'Confirme a Senha *',
                   labelStyle: const TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: const Color(0xFF2F2F2F),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isConfirmPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                      });
+                    },
                   ),
                 ),
                 validator: (value) {

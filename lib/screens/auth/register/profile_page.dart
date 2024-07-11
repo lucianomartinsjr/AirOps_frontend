@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart'; // Import the package
 import '../../../services/api_service.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -29,10 +30,12 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final _formKey = GlobalKey<FormState>();
   String? _selectedClass;
   final List<String> _selectedModalityIds = [];
   List<String> _classes = [];
   List<Modality> _modalities = [];
+  bool _isFormValid = false;
 
   @override
   void initState() {
@@ -65,6 +68,13 @@ class _ProfilePageState extends State<ProfilePage> {
         _selectedModalityIds.remove(modalityId);
       }
       widget.onModalityChanged(_selectedModalityIds);
+      _validateForm();
+    });
+  }
+
+  void _validateForm() {
+    setState(() {
+      _isFormValid = _formKey.currentState?.validate() ?? false;
     });
   }
 
@@ -77,169 +87,210 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                ' -  Complete seu Perfil  -',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: widget.nameController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Nome',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xFF2F2F2F),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+          child: Form(
+            key: _formKey,
+            onChanged: _validateForm,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  ' -  Complete seu Perfil  -',
+                  style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: widget.nameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Nome Completo * ',
+                    labelStyle: const TextStyle(color: Colors.white),
+                    filled: true,
+                    fillColor: const Color(0xFF2F2F2F),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, insira seu nome completo';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: widget.nicknameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Apelido (Opcional)',
+                    labelStyle: const TextStyle(color: Colors.white),
+                    filled: true,
+                    fillColor: const Color(0xFF2F2F2F),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: widget.nicknameController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Apelido',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xFF2F2F2F),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: _selectedClass,
+                  items: _classes.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value,
+                          style: const TextStyle(color: Colors.white)),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedClass = newValue;
+                    });
+                    widget.onClassChanged(newValue);
+                    _validateForm();
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Qual classe você mais joga ?  * ',
+                    labelStyle: const TextStyle(color: Colors.white),
+                    filled: true,
+                    fillColor: const Color(0xFF2F2F2F),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Por favor, selecione uma classe';
+                    }
+                    return null;
+                  },
+                  dropdownColor: const Color(0xFF2F2F2F),
                 ),
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: _selectedClass,
-                items: _classes.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value,
-                        style: const TextStyle(color: Colors.white)),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedClass = newValue;
-                  });
-                  widget.onClassChanged(newValue);
-                },
-                decoration: InputDecoration(
-                  labelText: 'Classe',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xFF2F2F2F),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: widget.cityController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Cidade * ',
+                    labelStyle: const TextStyle(color: Colors.white),
+                    filled: true,
+                    fillColor: const Color(0xFF2F2F2F),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, insira sua cidade';
+                    }
+                    return null;
+                  },
                 ),
-                dropdownColor: const Color(0xFF2F2F2F),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: widget.cityController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Cidade',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xFF2F2F2F),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: widget.phoneController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Telefone  *  ',
+                    labelStyle: const TextStyle(color: Colors.white),
+                    filled: true,
+                    fillColor: const Color(0xFF2F2F2F),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
+                  inputFormatters: [
+                    MaskedInputFormatter(
+                        '(##) # ####-####'), // Apply the phone number mask
+                  ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, insira seu telefone';
+                    } else if (value.length < 16) {
+                      return 'Por favor, insira um telefone válido no formato \n(XX) X XXXX-XXXX';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: widget.phoneController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Telefone',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xFF2F2F2F),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
+                const SizedBox(height: 10),
+                const Text(
+                  '-  Modalidades Preferidas  -  * ',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                '-  Modalidades Preferidas  -',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-              const SizedBox(height: 10),
-              GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: 2,
-                crossAxisSpacing: 5.0,
-                mainAxisSpacing: 5.0,
-                childAspectRatio: 5,
-                physics: const NeverScrollableScrollPhysics(),
-                children: _modalities.map((modality) {
-                  final isSelected = _selectedModalityIds.contains(modality.id);
-                  return InkWell(
-                    onTap: () {
-                      _onModalityChanged(!isSelected, modality.id);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.red : Colors.transparent,
-                        border: Border.all(
-                            color: const Color.fromARGB(255, 64, 64, 64)),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          modality.name,
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 14),
+                const SizedBox(height: 10),
+                GridView.count(
+                  shrinkWrap: true,
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 5.0,
+                  mainAxisSpacing: 5.0,
+                  childAspectRatio: 5,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: _modalities.map((modality) {
+                    final isSelected =
+                        _selectedModalityIds.contains(modality.id);
+                    return InkWell(
+                      onTap: () {
+                        _onModalityChanged(!isSelected, modality.id);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 5.0),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.red : Colors.transparent,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 64, 64, 64)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            modality.name,
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 14),
+                          ),
                         ),
                       ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isFormValid && _selectedModalityIds.isNotEmpty
+                        ? () {
+                            FocusScope.of(context).unfocus();
+                            widget.onSubmit();
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          _isFormValid && _selectedModalityIds.isNotEmpty
+                              ? Colors.red
+                              : Colors.grey,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
+                    child:
+                        const Text('Cadastrar', style: TextStyle(fontSize: 18)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
                   onPressed: () {
                     FocusScope.of(context).unfocus();
-                    widget.onSubmit();
+                    widget.onPrevious();
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child:
-                      const Text('Cadastrar', style: TextStyle(fontSize: 18)),
+                  child: const Text('Voltar',
+                      style: TextStyle(color: Colors.white)),
                 ),
-              ),
-              const SizedBox(height: 10),
-              TextButton(
-                onPressed: () {
-                  FocusScope.of(context).unfocus();
-                  widget.onPrevious();
-                },
-                child:
-                    const Text('Voltar', style: TextStyle(color: Colors.white)),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

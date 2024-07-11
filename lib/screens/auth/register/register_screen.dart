@@ -30,6 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _previousPage() {
+    FocusScope.of(context).unfocus();
     if (_pageController.page!.toInt() > 0) {
       _pageController.previousPage(
           duration: const Duration(milliseconds: 300), curve: Curves.ease);

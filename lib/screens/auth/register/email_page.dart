@@ -18,8 +18,25 @@ class EmailPage extends StatefulWidget {
 
 class _EmailPageState extends State<EmailPage> {
   final _formKey = GlobalKey<FormState>();
+  final FocusNode _focusNode = FocusNode();
   bool _emailExists = false;
   bool _isFormValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.emailController.addListener(_validateForm);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _validateForm();
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.emailController.removeListener(_validateForm);
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   Future<void> _checkEmail() async {
     bool emailExists = await Provider.of<ApiService>(context, listen: false)
@@ -33,6 +50,19 @@ class _EmailPageState extends State<EmailPage> {
     setState(() {
       _isFormValid = _formKey.currentState?.validate() ?? false;
     });
+  }
+
+  String? _emailValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor, insira um email';
+    }
+    // Expressão regular para validar email
+    String pattern = r'^[^@\s]+@[^@\s]+\.[^@\s]+$';
+    RegExp regex = RegExp(pattern);
+    if (!regex.hasMatch(value)) {
+      return 'Por favor, insira um email válido';
+    }
+    return null;
   }
 
   @override
@@ -56,9 +86,10 @@ class _EmailPageState extends State<EmailPage> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: widget.emailController,
+                focusNode: _focusNode,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Email *',
                   labelStyle: const TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: const Color(0xFF2F2F2F),
@@ -67,12 +98,7 @@ class _EmailPageState extends State<EmailPage> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira um email';
-                  }
-                  return null;
-                },
+                validator: _emailValidator,
               ),
               const SizedBox(height: 20),
               SizedBox(
