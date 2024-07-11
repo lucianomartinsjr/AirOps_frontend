@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+class Modality {
+  final String id;
+  final String name;
+
+  Modality(this.id, this.name);
+}
+
 class ApiService extends ChangeNotifier {
   Future<bool> checkEmail(String email) async {
     // Simule a verificação do e-mail com a API
@@ -13,9 +20,14 @@ class ApiService extends ChangeNotifier {
     return ['Classe A', 'Classe B', 'Classe C'];
   }
 
-  Future<List<String>> fetchModalities() async {
+  Future<List<Modality>> fetchModalities() async {
     // Simule a busca de modalidades na API
     await Future.delayed(const Duration(seconds: 1));
-    return ['Modalidade 1', 'Modalidade 2', 'Modalidade 3'];
+    // Retorne uma lista de objetos Modality
+    return [
+      Modality('1', 'Modalidade 1'),
+      Modality('2', 'Modalidade 2'),
+      Modality('3', 'Modalidade 3'),
+    ];
   }
 }

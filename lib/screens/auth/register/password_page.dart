@@ -19,6 +19,29 @@ class PasswordPage extends StatefulWidget {
 }
 
 class _PasswordPageState extends State<PasswordPage> {
+  final _formKey = GlobalKey<FormState>();
+  bool _isFormValid = false;
+
+  void _validateForm() {
+    setState(() {
+      _isFormValid = _formKey.currentState?.validate() ?? false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.passwordController.addListener(_validateForm);
+    widget.confirmPasswordController.addListener(_validateForm);
+  }
+
+  @override
+  void dispose() {
+    widget.passwordController.removeListener(_validateForm);
+    widget.confirmPasswordController.removeListener(_validateForm);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -27,82 +50,94 @@ class _PasswordPageState extends State<PasswordPage> {
       },
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Crie sua Senha',
-              style: TextStyle(color: Colors.white, fontSize: 24),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: widget.passwordController,
-              obscureText: true,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Senha',
-                labelStyle: const TextStyle(color: Colors.white),
-                filled: true,
-                fillColor: const Color(0xFF2F2F2F),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
+        child: Form(
+          key: _formKey,
+          onChanged: _validateForm,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Crie sua Senha',
+                style: TextStyle(color: Colors.white, fontSize: 24),
               ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: widget.confirmPasswordController,
-              obscureText: true,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Confirme a Senha',
-                labelStyle: const TextStyle(color: Colors.white),
-                filled: true,
-                fillColor: const Color(0xFF2F2F2F),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  FocusScope.of(context)
-                      .unfocus(); // Remove o foco antes de prosseguir
-                  if (widget.passwordController.text ==
-                      widget.confirmPasswordController.text) {
-                    widget.onNext();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('As senhas não coincidem')),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: widget.passwordController,
+                obscureText: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Senha',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  filled: true,
+                  fillColor: const Color(0xFF2F2F2F),
+                  border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
                   ),
                 ),
-                child: const Text('Próximo', style: TextStyle(fontSize: 18)),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira uma senha';
+                  }
+                  return null;
+                },
               ),
-            ),
-            const SizedBox(height: 20),
-            TextButton(
-              onPressed: () {
-                FocusScope.of(context).unfocus();
-                widget.onPrevious();
-              },
-              child:
-                  const Text('Voltar', style: TextStyle(color: Colors.white)),
-            ),
-          ],
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: widget.confirmPasswordController,
+                obscureText: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Confirme a Senha',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  filled: true,
+                  fillColor: const Color(0xFF2F2F2F),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, confirme sua senha';
+                  } else if (value != widget.passwordController.text) {
+                    return 'As senhas não coincidem';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isFormValid
+                      ? () {
+                          FocusScope.of(context).unfocus();
+                          widget.onNext();
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isFormValid ? Colors.red : Colors.grey,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Próximo', style: TextStyle(fontSize: 18)),
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  widget.onPrevious();
+                },
+                child:
+                    const Text('Voltar', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
         ),
       ),
     );

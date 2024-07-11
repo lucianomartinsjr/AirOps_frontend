@@ -30,9 +30,9 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String? _selectedClass;
-  List<String> _selectedModalities = [];
+  final List<String> _selectedModalityIds = [];
   List<String> _classes = [];
-  List<String> _modalities = [];
+  List<Modality> _modalities = [];
 
   @override
   void initState() {
@@ -50,21 +50,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _fetchModalities() async {
-    List<String> modalities =
+    List<Modality> modalities =
         await Provider.of<ApiService>(context, listen: false).fetchModalities();
     setState(() {
       _modalities = modalities;
     });
   }
 
-  void _onModalityChanged(bool? value, String modality) {
+  void _onModalityChanged(bool selected, String modalityId) {
     setState(() {
-      if (value == true) {
-        _selectedModalities.add(modality);
+      if (selected) {
+        _selectedModalityIds.add(modalityId);
       } else {
-        _selectedModalities.remove(modality);
+        _selectedModalityIds.remove(modalityId);
       }
-      widget.onModalityChanged(_selectedModalities);
+      widget.onModalityChanged(_selectedModalityIds);
     });
   }
 
@@ -81,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Complete seu Perfil',
+                ' -  Complete seu Perfil  -',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
               const SizedBox(height: 20),
@@ -186,30 +186,25 @@ class _ProfilePageState extends State<ProfilePage> {
                 childAspectRatio: 5,
                 physics: const NeverScrollableScrollPhysics(),
                 children: _modalities.map((modality) {
+                  final isSelected = _selectedModalityIds.contains(modality.id);
                   return InkWell(
                     onTap: () {
-                      _onModalityChanged(
-                          !_selectedModalities.contains(modality), modality);
+                      _onModalityChanged(!isSelected, modality.id);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Checkbox(
-                            value: _selectedModalities.contains(modality),
-                            onChanged: (value) {
-                              _onModalityChanged(value, modality);
-                            },
-                            checkColor: Colors.white,
-                            activeColor: Colors.red,
-                          ),
-                          Text(
-                            modality,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 14),
-                          ),
-                        ],
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.red : Colors.transparent,
+                        border: Border.all(
+                            color: const Color.fromARGB(255, 64, 64, 64)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(
+                          modality.name,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 14),
+                        ),
                       ),
                     ),
                   );
