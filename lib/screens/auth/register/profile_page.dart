@@ -204,8 +204,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   inputFormatters: [
-                    MaskedInputFormatter(
-                        '(##) # ####-####'), // Apply the phone number mask
+                    MaskedInputFormatter('(##) # ####-####'),
                   ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {

@@ -71,66 +71,80 @@ class _EmailPageState extends State<EmailPage> {
       onTap: () {
         FocusScope.of(context).unfocus();
       },
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          onChanged: _validateForm,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Insira seu Email',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: widget.emailController,
-                focusNode: _focusNode,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Email *',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xFF2F2F2F),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
+      child: Scaffold(
+        backgroundColor: const Color(0xFF222222),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            onChanged: _validateForm,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Insira seu Email',
+                  style: TextStyle(color: Colors.white, fontSize: 24),
                 ),
-                validator: _emailValidator,
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isFormValid
-                      ? () async {
-                          FocusScope.of(context)
-                              .unfocus(); // Remove o foco antes de prosseguir
-                          await _checkEmail();
-                          if (!_emailExists) {
-                            widget.onNext();
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Email já cadastrado')),
-                            );
-                          }
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isFormValid ? Colors.red : Colors.grey,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: widget.emailController,
+                  focusNode: _focusNode,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Email *',
+                    labelStyle: const TextStyle(color: Colors.white),
+                    filled: true,
+                    fillColor: const Color(0xFF2F2F2F),
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
                     ),
                   ),
-                  child: const Text('Próximo', style: TextStyle(fontSize: 18)),
+                  validator: _emailValidator,
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isFormValid
+                        ? () async {
+                            FocusScope.of(context)
+                                .unfocus(); // Remove o foco antes de prosseguir
+                            await _checkEmail();
+                            if (!_emailExists) {
+                              widget.onNext();
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Email já cadastrado')),
+                              );
+                            }
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isFormValid ? Colors.red : Colors.grey,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child:
+                        const Text('Próximo', style: TextStyle(fontSize: 18)),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop('/login_screen'); // Retornar à tela de login
+                  },
+                  child: const Text(
+                    '← Retornar ao login',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
