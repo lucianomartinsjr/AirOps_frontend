@@ -1,13 +1,15 @@
 import 'package:airops_frontend/screens/auth/register/register_screen.dart';
+import 'package:airops_frontend/screens/profile_page/change_password.dart';
 import 'package:airops_frontend/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'providers/profile_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/auth/login/login_screen.dart';
 import 'screens/auth/login/splash_screen.dart';
 import 'screens/auth/forgot_password/forgot_password_screen.dart';
 import 'screens/games_screen.dart';
-import 'screens/profile_screen.dart';
+import 'screens/profile_page/profile_screen.dart';
 import 'services/airsoft_service.dart';
 import 'widgets/bottom_navigation.dart';
 
@@ -24,6 +26,11 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AirsoftService()),
         ChangeNotifierProvider(create: (_) => ApiService()),
+        ChangeNotifierProxyProvider<ApiService, ProfileProvider>(
+          create: (_) => ProfileProvider(),
+          update: (_, apiService, profileProvider) =>
+              profileProvider!..initialize(apiService),
+        ),
       ],
       child: MaterialApp(
         title: 'AirOps',
@@ -58,8 +65,9 @@ class MyApp extends StatelessWidget {
           '/': (context) => const SplashScreen(),
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
-          '/forgot-password': (context) => ForgotPasswordScreen(),
+          '/forgot-password': (context) => const ForgotPasswordScreen(),
           '/home-screen': (context) => const MainScreen(),
+          '/change-password': (context) => const ChangePasswordScreen()
         },
       ),
     );

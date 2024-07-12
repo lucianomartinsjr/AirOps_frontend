@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart'; // Import the package
+import '../../../models/modality.dart';
 import '../../../services/api_service.dart';
 
 class ProfilePage extends StatefulWidget {
