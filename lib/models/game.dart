@@ -9,17 +9,24 @@ class Game {
   final String organizer;
   final double fee;
   final String imageUrl;
+  final String details;
+  final String locationLink;
 
-  Game({
-    required this.id,
-    required this.name,
-    required this.location,
-    required this.date,
-    required this.fieldType,
-    required this.modality,
-    required this.period,
-    required this.organizer,
-    required this.fee,
-    required this.imageUrl,
-  });
+  Game(
+      {required this.id,
+      required this.name,
+      required this.location,
+      required this.date,
+      required this.fieldType,
+      required this.modality,
+      required this.period,
+      required this.organizer,
+      required this.fee,
+      required this.imageUrl,
+      required this.details,
+      required this.locationLink});
+
+  get playersRegistered => null;
+
+  get maxPlayers => null;
 }

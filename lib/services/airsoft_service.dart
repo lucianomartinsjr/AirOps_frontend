@@ -27,6 +27,20 @@ class AirsoftService with ChangeNotifier {
         fee: 25.00,
         imageUrl:
             'https://upload.wikimedia.org/wikipedia/commons/9/98/Airsoft_squad.jpg',
+        details: """
+⏰ Horário 08:00 chegada
+08:30 início do game 🕥
+
+⚠ Uso obrigatório ⚠
+🥽 De óculos de proteção🕶
+-Ataduras ou Torniquetes
+-Faixas Azul 🔵 e Amarelo 🟡 
+
+🛑 Honra
+🛑 Honestidade
+🛑 Respeito
+        """,
+        locationLink: "https://goo.gl/maps/tka7FxES8JoA44gy6",
       ),
       Game(
         id: '2',
@@ -40,6 +54,20 @@ class AirsoftService with ChangeNotifier {
         fee: 0.00,
         imageUrl:
             'https://upload.wikimedia.org/wikipedia/commons/9/98/Airsoft_squad.jpg',
+        details: """
+⏰ Horário 08:00 chegada
+08:30 início do game 🕥
+
+⚠ Uso obrigatório ⚠
+🥽 De óculos de proteção🕶
+-Ataduras ou Torniquetes
+-Faixas Azul 🔵 e Amarelo 🟡 
+
+🛑 Honra
+🛑 Honestidade
+🛑 Respeito
+        """,
+        locationLink: "https://goo.gl/maps/tka7FxES8JoA44gy6",
       ),
       Game(
         id: '3',
@@ -53,6 +81,20 @@ class AirsoftService with ChangeNotifier {
         fee: 75.20,
         imageUrl:
             'https://upload.wikimedia.org/wikipedia/commons/9/98/Airsoft_squad.jpg',
+        details: """
+⏰ Horário 08:00 chegada
+08:30 início do game 🕥
+
+⚠ Uso obrigatório ⚠
+🥽 De óculos de proteção🕶
+-Ataduras ou Torniquetes
+-Faixas Azul 🔵 e Amarelo 🟡 
+
+🛑 Honra
+🛑 Honestidade
+🛑 Respeito
+        """,
+        locationLink: "https://goo.gl/maps/tka7FxES8JoA44gy6",
       ),
     ];
     _filteredGames = [];

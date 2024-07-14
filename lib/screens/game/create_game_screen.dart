@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/airsoft_service.dart';
-import '../models/game.dart';
+import '../../services/airsoft_service.dart';
+import '../../models/game.dart';
 
 class CreateGameScreen extends StatelessWidget {
   final _nameController = TextEditingController();
@@ -10,9 +10,11 @@ class CreateGameScreen extends StatelessWidget {
   final _fieldTypeController = TextEditingController();
   final _modalityController = TextEditingController();
   final _periodController = TextEditingController();
+  final _detailsController = TextEditingController();
   final _organizerController = TextEditingController();
   final _feeController = TextEditingController();
   final _imageUrlController = TextEditingController();
+  final _locationLinkController = TextEditingController();
 
   CreateGameScreen({super.key});
 
@@ -72,6 +74,10 @@ class CreateGameScreen extends StatelessWidget {
                 controller: _imageUrlController,
                 decoration: const InputDecoration(labelText: 'Image URL'),
               ),
+              TextField(
+                controller: _locationLinkController,
+                decoration: const InputDecoration(labelText: 'Link do Maps'),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -86,6 +92,8 @@ class CreateGameScreen extends StatelessWidget {
                     organizer: _organizerController.text,
                     fee: double.parse(_feeController.text),
                     imageUrl: _imageUrlController.text,
+                    details: _detailsController.text,
+                    locationLink: _locationLinkController.text,
                   );
                   Provider.of<AirsoftService>(context, listen: false)
                       .addGame(newGame);

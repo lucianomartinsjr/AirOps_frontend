@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/airsoft_service.dart';
-import 'create_game_screen.dart';
+import 'game/create_game_screen.dart';
 import '../widgets/game_list.dart';
 
 class HomeScreen extends StatelessWidget {

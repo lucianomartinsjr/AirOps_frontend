@@ -89,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Tooltip(
                 message: 'Alterar senha',
                 child: IconButton(
-                  icon: const Icon(Icons.settings),
+                  icon: const Icon(Icons.key_sharp),
                   onPressed: () {
                     Navigator.of(context).pushNamed('/change-password');
                   },
@@ -111,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'Clique no ícone de engrenagem para alterar sua senha',
+                        '- Clique na chave para alterar sua senha -',
                         style: TextStyle(color: Colors.white30, fontSize: 10),
                       ),
                       const SizedBox(height: 20),
