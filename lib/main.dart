@@ -87,7 +87,7 @@ class _MainScreenState extends State<MainScreen> {
   static const List<Widget> _widgetOptions = <Widget>[
     ProfileScreen(),
     HomeScreen(),
-    SearchScreen(),
+    GamesScreen(),
   ];
 
   void _onItemTapped(int index) {

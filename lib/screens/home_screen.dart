@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/airsoft_service.dart';
-import 'game/create_game_screen.dart';
 import '../widgets/game_list.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AirsoftService>(context, listen: false).fetchGames();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Air Ops'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => CreateGameScreen(),
-              ));
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -50,8 +52,10 @@ class HomeScreen extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 'Filtrar por:',
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -63,12 +67,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Provider.of<AirsoftService>(context, listen: false).fetchGames();
-        },
-        child: const Icon(Icons.refresh),
       ),
     );
   }

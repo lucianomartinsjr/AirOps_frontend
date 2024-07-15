@@ -4,8 +4,10 @@ import '../models/game.dart';
 class AirsoftService with ChangeNotifier {
   List<Game> _games = [];
   List<Game> _filteredGames = [];
+  List<Game> _subscribedGames = []; // Jogos em que o usuário está inscrito
 
   List<Game> get games => _filteredGames.isNotEmpty ? _filteredGames : _games;
+  List<Game> get subscribedGames => _subscribedGames;
 
   void addGame(Game game) {
     _games.add(game);
@@ -98,6 +100,41 @@ class AirsoftService with ChangeNotifier {
       ),
     ];
     _filteredGames = [];
+    notifyListeners();
+  }
+
+  void fetchSubscribedGames() {
+    // Simulando a busca de dados de um backend para jogos inscritos
+    _subscribedGames = [
+      Game(
+        id: '1',
+        name: 'JOGO TREINO ARENA BLACK SHEEP',
+        location: 'Rio Verde - GO',
+        date: DateTime.parse('2024-06-03 19:30:00'),
+        fieldType: 'CQB',
+        modality: 'ForFun',
+        period: 'Noturno',
+        organizer: 'BlackSheep',
+        fee: 25.00,
+        imageUrl:
+            'https://upload.wikimedia.org/wikipedia/commons/9/98/Airsoft_squad.jpg',
+        details: """
+⏰ Horário 08:00 chegada
+08:30 início do game 🕥
+
+⚠ Uso obrigatório ⚠
+🥽 De óculos de proteção🕶
+-Ataduras ou Torniquetes
+-Faixas Azul 🔵 e Amarelo 🟡 
+
+🛑 Honra
+🛑 Honestidade
+🛑 Respeito
+        """,
+        locationLink: "https://goo.gl/maps/tka7FxES8JoA44gy6",
+      ),
+      // Outros jogos inscritos podem ser adicionados aqui
+    ];
     notifyListeners();
   }
 
