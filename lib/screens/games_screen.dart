@@ -48,7 +48,7 @@ class _GamesScreenState extends State<GamesScreen> {
                   label: 'Registrar um novo Jogo',
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => CreateGameScreen(),
+                      builder: (context) => const CreateGameScreen(),
                     ));
                   },
                 ),

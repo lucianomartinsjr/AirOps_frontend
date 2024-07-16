@@ -38,8 +38,9 @@ class MyApp extends StatelessWidget {
           primaryColor: const Color(0xFF222222),
           scaffoldBackgroundColor: const Color(0xFF222222),
           appBarTheme: const AppBarTheme(
-              backgroundColor: Color(0xFF222222),
-              foregroundColor: Colors.white),
+            backgroundColor: Color(0xFF222222),
+            foregroundColor: Colors.white,
+          ),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
             backgroundColor: Color(0xFF222222),
             selectedItemColor: Colors.red,
@@ -67,7 +68,7 @@ class MyApp extends StatelessWidget {
           '/register': (context) => const RegisterScreen(),
           '/forgot-password': (context) => const ForgotPasswordScreen(),
           '/home-screen': (context) => const MainScreen(),
-          '/change-password': (context) => const ChangePasswordScreen()
+          '/change-password': (context) => const ChangePasswordScreen(),
         },
       ),
     );

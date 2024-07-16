@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CustomDropdownFormField extends StatelessWidget {
+class CustomDropdownFormField extends StatefulWidget {
   final String? value;
   final List<String> items;
   final String labelText;
@@ -19,31 +19,86 @@ class CustomDropdownFormField extends StatelessWidget {
   });
 
   @override
+  _CustomDropdownFormFieldState createState() =>
+      _CustomDropdownFormFieldState();
+}
+
+class _CustomDropdownFormFieldState extends State<CustomDropdownFormField> {
+  late TextEditingController _controller;
+  late String? _currentValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentValue = widget.value;
+    _controller = TextEditingController(text: _currentValue);
+
+    // Se o valor atual não estiver na lista de itens, define-o como nulo.
+    if (_currentValue != null && !widget.items.contains(_currentValue)) {
+      _currentValue = null;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: readOnly ? 0.5 : 1.0,
-      child: DropdownButtonFormField<String>(
-        value: value,
-        items: items.map((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item, style: const TextStyle(color: Colors.white)),
-          );
-        }).toList(),
-        onChanged: readOnly ? null : onChanged,
-        decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle: const TextStyle(color: Colors.white),
-          filled: true,
-          fillColor: const Color(0xFF2F2F2F),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          controller: _controller,
+          decoration: InputDecoration(
+            labelText: widget.labelText,
+            labelStyle: const TextStyle(color: Colors.white),
+            filled: true,
+            fillColor: const Color(0xFF2F2F2F),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
           ),
+          readOnly: widget.readOnly,
+          validator: widget.validator,
+          onChanged: (value) {
+            setState(() {
+              _currentValue = value;
+            });
+            if (widget.onChanged != null) {
+              widget.onChanged!(value);
+            }
+          },
         ),
-        validator: validator,
-        dropdownColor: const Color(0xFF2F2F2F),
-      ),
+        DropdownButtonFormField<String>(
+          value: _currentValue,
+          items: widget.items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item, style: const TextStyle(color: Colors.white)),
+            );
+          }).toList(),
+          onChanged: widget.readOnly
+              ? null
+              : (value) {
+                  setState(() {
+                    _currentValue = value;
+                    _controller.text = value!;
+                  });
+                  if (widget.onChanged != null) {
+                    widget.onChanged!(value);
+                  }
+                },
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFF2F2F2F),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: EdgeInsets.zero,
+          ),
+          validator: widget.validator,
+          dropdownColor: const Color(0xFF2F2F2F),
+        ),
+      ],
     );
   }
 }

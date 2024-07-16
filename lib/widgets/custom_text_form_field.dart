@@ -6,6 +6,10 @@ class CustomTextFormField extends StatefulWidget {
   final bool readOnly;
   final FormFieldValidator<String>? validator;
   final bool obscureText;
+  final TextInputType? keyboardType;
+  final VoidCallback? onTap;
+  final int? maxLines;
+  final FocusNode? focusNode; // Adiciona o parâmetro focusNode
 
   const CustomTextFormField({
     required this.controller,
@@ -13,8 +17,12 @@ class CustomTextFormField extends StatefulWidget {
     required this.readOnly,
     this.validator,
     this.obscureText = false,
-    Key? key,
-  }) : super(key: key);
+    this.keyboardType,
+    this.onTap,
+    this.maxLines,
+    this.focusNode, // Inicializa o parâmetro focusNode
+    super.key,
+  });
 
   @override
   _CustomTextFormFieldState createState() => _CustomTextFormFieldState();
@@ -46,6 +54,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide.none,
           ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
           suffixIcon: widget.obscureText
               ? IconButton(
                   icon: Icon(
@@ -62,6 +71,10 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         ),
         readOnly: widget.readOnly,
         validator: widget.validator,
+        keyboardType: widget.keyboardType,
+        onTap: widget.onTap,
+        maxLines: widget.maxLines,
+        focusNode: widget.focusNode,
       ),
     );
   }
