@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/game.dart';
-import '../screens/game/game_detail/game_detail_screen.dart';
+import '../../../models/game.dart';
+import '../../../screens/games/game_detail/game_detail_screen.dart';
 
 class GameItem extends StatelessWidget {
   final Game game;
@@ -15,7 +15,7 @@ class GameItem extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => GameDetailScreen(
               game: game,
-              token: '',
+              token: '', // Passe o token aqui se necessário
             ),
           ),
         );

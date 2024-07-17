@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/profile_provider.dart';
-import '../../widgets/custom_dropdown_form_field.dart';
-import '../../widgets/custom_text_form_field.dart';
+import '../../widgets/form_fields/custom_dropdown_form_field.dart';
+import '../../widgets/form_fields/custom_text_form_field.dart';
 import '../../widgets/modalities_grid.dart';
 
 class ProfileScreen extends StatefulWidget {

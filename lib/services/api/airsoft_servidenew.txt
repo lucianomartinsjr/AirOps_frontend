@@ -1,0 +1,89 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import '../models/game.dart';
+
+class AirsoftService with ChangeNotifier {
+  List<Game> _games = [];
+  List<Game> _filteredGames = [];
+  List<Game> _subscribedGames = []; // Jogos em que o usuário está inscrito
+  List<Game> _organizerGames = []; // Jogos organizados pelo usuário
+
+  List<Game> get games => _filteredGames.isNotEmpty ? _filteredGames : _games;
+  List<Game> get subscribedGames => _subscribedGames;
+  List<Game> get organizerGames => _organizerGames;
+
+  void addGame(Game game) {
+    _games.add(game);
+    notifyListeners();
+  }
+
+  Future<void> fetchGames(String token) async {
+    final response = await http.get(
+      Uri.parse('https://api.example.com/games'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      _games = data.map((item) => Game.fromJson(item)).toList();
+      _filteredGames = [];
+      notifyListeners();
+    } else {
+      throw Exception('Falha ao carregar jogos');
+    }
+  }
+
+  Future<void> fetchSubscribedGames(String token) async {
+    final response = await http.get(
+      Uri.parse('https://api.example.com/subscribed-games'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      _subscribedGames = data.map((item) => Game.fromJson(item)).toList();
+      notifyListeners();
+    } else {
+      throw Exception('Falha ao carregar jogos inscritos');
+    }
+  }
+
+  Future<void> fetchOrganizerGames(String token) async {
+    final response = await http.get(
+      Uri.parse('https://api.example.com/organizer-games'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      _organizerGames = data.map((item) => Game.fromJson(item)).toList();
+      notifyListeners();
+    } else {
+      throw Exception('Falha ao carregar jogos organizados');
+    }
+  }
+
+  void searchGames(String query) {
+    if (query.isEmpty) {
+      _filteredGames = [];
+    } else {
+      _filteredGames = _games
+          .where((game) =>
+              game.name.toLowerCase().contains(query.toLowerCase()) ||
+              game.location.toLowerCase().contains(query.toLowerCase()) ||
+              game.organizer.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+    notifyListeners();
+  }
+}

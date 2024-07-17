@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/airsoft_service.dart';
-import '../widgets/game_list.dart';
-import 'game/create_game_screen.dart';
+import '../../services/airsoft_service.dart';
+import '../../widgets/games/game_item_detailed/game_list.dart';
+import 'create_game_screen.dart';
+import 'manage_games_screen.dart';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({super.key});
@@ -39,7 +40,9 @@ class _GamesScreenState extends State<GamesScreen> {
                   icon: Icons.manage_search,
                   label: 'Gerenciar meus Jogos',
                   onTap: () {
-                    // Navegar para a tela de gerenciamento de jogos
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const ManageGamesScreen(),
+                    ));
                   },
                 ),
                 _buildMenuButton(

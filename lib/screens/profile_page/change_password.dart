@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../widgets/custom_text_form_field.dart';
+import '../../widgets/form_fields/custom_text_form_field.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
