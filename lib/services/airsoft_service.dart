@@ -7,6 +7,8 @@ import '../models/players.dart';
 
 class AirsoftService with ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final String _baseUrl = 'https://suaapi.com';
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   List<Game> _games = [];
   List<Game> _filteredGames = [];
@@ -27,10 +29,10 @@ class AirsoftService with ChangeNotifier {
   }
 
   Future<void> fetchGames() async {
-    final token = await _getToken();
-    if (token == null) {
-      throw Exception('Token não encontrado');
-    }
+    // final token = await _getToken();
+    // if (token == null) {
+    //   throw Exception('Token não encontrado');
+    // }
 
     // Dados fictícios para teste
     _games = [
@@ -121,10 +123,10 @@ class AirsoftService with ChangeNotifier {
   }
 
   Future<void> fetchSubscribedGames() async {
-    final token = await _getToken();
-    if (token == null) {
-      throw Exception('Token não encontrado');
-    }
+    // final token = await _getToken();
+    // if (token == null) {
+    //   throw Exception('Token não encontrado');
+    // }
 
     // Dados fictícios para teste
     _subscribedGames = [
@@ -208,6 +210,27 @@ class AirsoftService with ChangeNotifier {
       // Outros jogos organizados podem ser adicionados aqui
     ];
     notifyListeners();
+  }
+
+  Future<void> updateGame(String id, Game updatedGame) async {
+    final token = await _secureStorage.read(key: 'tokenjwt');
+    final url = '$_baseUrl/games/$id';
+
+    final response = await http.put(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode(updatedGame.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      // Atualize a lista de jogos localmente ou notifique os listeners
+      notifyListeners();
+    } else {
+      throw Exception('Failed to update game');
+    }
   }
 
   void searchGames(String query) {

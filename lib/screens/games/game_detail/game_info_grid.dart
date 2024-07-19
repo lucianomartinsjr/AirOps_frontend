@@ -14,7 +14,8 @@ class GameInfoGrid extends StatelessWidget {
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 3.6,
+      childAspectRatio: 3,
+      padding: const EdgeInsets.all(8.0),
       children: [
         _buildInfoTile('Organizador', game.organizer),
         _buildInfoTile('Data do Evento', dateFormat.format(game.date)),
@@ -29,13 +30,14 @@ class GameInfoGrid extends StatelessWidget {
 
   Widget _buildInfoTile(String title, String value) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: const TextStyle(color: Colors.white70, fontSize: 14.0),
         ),
-        const SizedBox(height: 2), // Ajuste o espaçamento entre título e valor
+        const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(color: Colors.white, fontSize: 16.0),

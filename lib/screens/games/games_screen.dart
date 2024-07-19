@@ -24,61 +24,65 @@ class _GamesScreenState extends State<GamesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Eventos'),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildMenuButton(
-                  context,
-                  icon: Icons.manage_search,
-                  label: 'Gerenciar meus Jogos',
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const ManageGamesScreen(),
-                    ));
-                  },
-                ),
-                _buildMenuButton(
-                  context,
-                  icon: Icons.add,
-                  label: 'Registrar um novo Jogo',
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const CreateGameScreen(),
-                    ));
-                  },
-                ),
-              ],
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.center,
-              child: Text(
-                'Inscrições',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 18),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Eventos'),
+          automaticallyImplyLeading: false, // Remover o ícone de voltar
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildMenuButton(
+                    context,
+                    icon: Icons.manage_search,
+                    label: 'Gerenciar meus Jogos',
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const ManageGamesScreen(),
+                      ));
+                    },
+                  ),
+                  _buildMenuButton(
+                    context,
+                    icon: Icons.add,
+                    label: 'Registrar um novo Jogo',
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const CreateGameScreen(),
+                      ));
+                    },
+                  ),
+                ],
               ),
             ),
-          ),
-          Expanded(
-            child: Consumer<AirsoftService>(
-              builder: (context, airsoftService, child) {
-                return GameList(games: airsoftService.subscribedGames);
-              },
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Inscrições',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 18),
+                ),
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Consumer<AirsoftService>(
+                builder: (context, airsoftService, child) {
+                  return GameList(games: airsoftService.subscribedGames);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

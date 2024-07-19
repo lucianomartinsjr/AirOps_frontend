@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DateTimePickerField extends StatefulWidget {
   final TextEditingController controller;
@@ -70,7 +71,8 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
             pickedTime.hour,
             pickedTime.minute,
           );
-          widget.controller.text = dateTime.toString();
+          widget.controller.text =
+              DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
         });
       }
     }

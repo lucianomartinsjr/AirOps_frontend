@@ -1,31 +1,36 @@
+import 'package:airops_frontend/widgets/form_fields/date_time_picker_field.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../services/airsoft_service.dart';
 import '../../models/game.dart';
 import '../../widgets/form_fields/custom_text_form_field.dart';
-import '../../widgets/form_fields/date_time_picker_field.dart';
+import '../../widgets/form_fields/custom_dropdown_form_field.dart';
 
-class CreateGameScreen extends StatefulWidget {
-  const CreateGameScreen({super.key});
+class EditGameScreen extends StatefulWidget {
+  final Game game;
+
+  const EditGameScreen({super.key, required this.game});
 
   @override
-  _CreateGameScreenState createState() => _CreateGameScreenState();
+  _EditGameScreenState createState() => _EditGameScreenState();
 }
 
-class _CreateGameScreenState extends State<CreateGameScreen> {
+class _EditGameScreenState extends State<EditGameScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final _nameController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _dateController = TextEditingController();
-  final _fieldTypeController = TextEditingController();
-  final _modalityController = TextEditingController();
-  final _periodController = TextEditingController();
-  final _detailsController = TextEditingController();
-  final _organizerController = TextEditingController();
-  final _feeController = TextEditingController();
-  final _imageUrlController = TextEditingController();
-  final _locationLinkController = TextEditingController();
+  late TextEditingController _nameController;
+  late TextEditingController _locationController;
+  late TextEditingController _dateController;
+  late TextEditingController _fieldTypeController;
+  late TextEditingController _detailsController;
+  late TextEditingController _organizerController;
+  late TextEditingController _feeController;
+  late TextEditingController _imageUrlController;
+  late TextEditingController _locationLinkController;
+
+  String? _selectedModality;
+  String? _selectedPeriod;
 
   final List<String> _cities = [
     'Rio Verde/GO',
@@ -34,14 +39,47 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     'Montividiu/GO',
   ];
 
+  final List<String> _modalities = [
+    'Modalidade 1',
+    'Modalidade 2',
+    'Modalidade 3'
+  ];
+  final List<String> _periods = ['Matutino', 'Vespertino', 'Noturno'];
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.game.name);
+    _locationController = TextEditingController(text: widget.game.location);
+    _dateController = TextEditingController(
+      text: DateFormat('dd/MM/yyyy HH:mm').format(widget.game.date),
+    );
+    _fieldTypeController = TextEditingController(text: widget.game.fieldType);
+
+    if (!_modalities.contains(widget.game.modality)) {
+      _modalities.add(widget.game.modality);
+    }
+    _selectedModality = widget.game.modality;
+
+    if (!_periods.contains(widget.game.period)) {
+      _periods.add(widget.game.period);
+    }
+    _selectedPeriod = widget.game.period;
+
+    _detailsController = TextEditingController(text: widget.game.details);
+    _organizerController = TextEditingController(text: widget.game.organizer);
+    _feeController = TextEditingController(text: widget.game.fee.toString());
+    _imageUrlController = TextEditingController(text: widget.game.imageUrl);
+    _locationLinkController =
+        TextEditingController(text: widget.game.locationLink);
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
     _locationController.dispose();
     _dateController.dispose();
     _fieldTypeController.dispose();
-    _modalityController.dispose();
-    _periodController.dispose();
     _detailsController.dispose();
     _organizerController.dispose();
     _feeController.dispose();
@@ -50,15 +88,45 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     super.dispose();
   }
 
-  String? _validateLocation(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Por favor, insira a localização';
+  // String? _validateLocation(String? value) {
+  //   if (value == null || value.isEmpty) {
+  //     return 'Por favor, insira a localização';
+  //   }
+  //   final regex = RegExp(r'^[a-zA-Z\u00C0-\u017F]+/[A-Z]{2}$');
+  //   if (!regex.hasMatch(value)) {
+  //     return 'A localização deve estar no formato CIDADE/ES';
+  //   }
+  //   return null;
+  // }
+
+  Future<void> _updateGame() async {
+    if (_formKey.currentState!.validate()) {
+      final updatedGame = Game(
+        id: widget.game.id,
+        name: _nameController.text,
+        location: _locationController.text,
+        date: DateFormat('dd/MM/yyyy HH:mm').parse(_dateController.text),
+        fieldType: _fieldTypeController.text,
+        modality: _selectedModality!,
+        period: _selectedPeriod!,
+        organizer: _organizerController.text,
+        fee: double.parse(_feeController.text),
+        imageUrl: _imageUrlController.text,
+        details: _detailsController.text,
+        locationLink: _locationLinkController.text,
+      );
+
+      // try {
+      //   await Provider.of<AirsoftService>(context, listen: false)
+      //       .updateGame(widget.game.id, updatedGame);
+      //   Navigator.of(context).pop();
+      // } catch (e) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('Falha ao atualizar o jogo: $e')),
+      //   );
+      // }
+      Navigator.of(context).pop();
     }
-    final regex = RegExp(r'^[a-zA-Z\u00C0-\u017F]+/[A-Z]{2}$');
-    if (!regex.hasMatch(value)) {
-      return 'A localização deve estar no formato CIDADE/ES';
-    }
-    return null;
   }
 
   @override
@@ -67,7 +135,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       appBar: AppBar(
         title: const FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text('Criar Novo Jogo'),
+          child: Text('Editar Jogo'),
         ),
       ),
       body: GestureDetector(
@@ -111,17 +179,21 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         onSelected: (String selection) {
                           _locationController.text = selection;
                         },
+                        initialValue: TextEditingValue(
+                          text: widget.game.location,
+                        ),
                         fieldViewBuilder: (BuildContext context,
                             TextEditingController fieldTextEditingController,
                             FocusNode fieldFocusNode,
                             VoidCallback onFieldSubmitted) {
+                          fieldTextEditingController.text =
+                              _locationController.text;
                           return CustomTextFormField(
                             controller: fieldTextEditingController,
                             focusNode: fieldFocusNode,
-                            labelText: 'Cidade/UF *',
+                            labelText: 'Localização *',
                             readOnly: false,
                             maxLines: 1,
-                            validator: _validateLocation,
                           );
                         },
                         optionsViewBuilder: (BuildContext context,
@@ -170,6 +242,50 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         },
                       ),
                       const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomDropdownFormField(
+                              value: _selectedModality,
+                              items: _modalities,
+                              labelText: 'Modalidade *',
+                              readOnly: false,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedModality = value!;
+                                });
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Por favor, selecione a modalidade';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: CustomDropdownFormField(
+                              value: _selectedPeriod,
+                              items: _periods,
+                              labelText: 'Período *',
+                              readOnly: false,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedPeriod = value!;
+                                });
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Por favor, selecione o período';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
                       CustomTextFormField(
                         controller: _fieldTypeController,
                         labelText: 'Tipo de Campo *',
@@ -177,30 +293,6 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor, insira o tipo de campo';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: _modalityController,
-                        labelText: 'Modalidade *',
-                        readOnly: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira a modalidade';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: _periodController,
-                        labelText: 'Período *',
-                        readOnly: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira o período';
                           }
                           return null;
                         },
@@ -248,14 +340,9 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         labelText: 'Detalhes',
                         readOnly: false,
                         maxLines: 5,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira os detalhes';
-                          }
-                          return null;
-                        },
                       ),
-                      const SizedBox(height: 80),
+                      const SizedBox(
+                          height: 80), // Adicione espaço para o botão
                     ],
                   ),
                 ),
@@ -268,27 +355,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      final newGame = Game(
-                        id: DateTime.now().toString(),
-                        name: _nameController.text,
-                        location: _locationController.text,
-                        date: DateTime.parse(_dateController.text),
-                        fieldType: _fieldTypeController.text,
-                        modality: _modalityController.text,
-                        period: _periodController.text,
-                        organizer: _organizerController.text,
-                        fee: double.parse(_feeController.text),
-                        imageUrl: _imageUrlController.text,
-                        details: _detailsController.text,
-                        locationLink: _locationLinkController.text,
-                      );
-                      Provider.of<AirsoftService>(context, listen: false)
-                          .addGame(newGame);
-                      Navigator.of(context).pop();
-                    }
-                  },
+                  onPressed: _updateGame,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
@@ -298,7 +365,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     ),
                   ),
                   child: const Text(
-                    'Criar Jogo',
+                    'Salvar Alterações',
                     style: TextStyle(fontSize: 18),
                   ),
                 ),

@@ -43,6 +43,8 @@ class CustomDropdownFormField extends StatelessWidget {
         ),
         validator: validator,
         dropdownColor: const Color(0xFF2F2F2F),
+        icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+        alignment: Alignment.bottomCenter,
       ),
     );
   }

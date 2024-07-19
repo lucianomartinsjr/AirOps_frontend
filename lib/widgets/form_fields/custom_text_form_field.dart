@@ -19,7 +19,7 @@ class CustomTextFormField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType,
     this.onTap,
-    this.maxLines,
+    this.maxLines = 1,
     this.focusNode, // Inicializa o parâmetro focusNode
     super.key,
   });
@@ -39,11 +39,14 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
 
   @override
   Widget build(BuildContext context) {
+    assert(!widget.obscureText || widget.maxLines == 1,
+        'Obscured fields cannot be multiline.');
+
     return Opacity(
       opacity: widget.readOnly ? 0.5 : 1.0,
       child: TextFormField(
         controller: widget.controller,
-        obscureText: _obscureText,
+        obscureText: _obscureText && widget.maxLines == 1,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           labelText: widget.labelText,
@@ -55,7 +58,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
             borderSide: BorderSide.none,
           ),
           floatingLabelBehavior: FloatingLabelBehavior.always,
-          suffixIcon: widget.obscureText
+          suffixIcon: widget.obscureText && widget.maxLines == 1
               ? IconButton(
                   icon: Icon(
                     _obscureText ? Icons.visibility : Icons.visibility_off,

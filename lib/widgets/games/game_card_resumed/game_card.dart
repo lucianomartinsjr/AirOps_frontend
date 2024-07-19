@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/game.dart';
+import '../../../screens/games/edit_game_screen.dart';
 import 'players_dialog.dart';
 
 class GameCard extends StatelessWidget {
@@ -17,10 +18,9 @@ class GameCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Parte superior com informações do jogo e ícone de edição
           Container(
             decoration: const BoxDecoration(
-              color: Colors.black54,
+              color: Color.fromARGB(135, 48, 48, 48),
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(16.0),
               ),
@@ -41,7 +41,8 @@ class GameCard extends StatelessWidget {
                             fontSize: 14.0,
                             color: Colors.white,
                           ),
-                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          overflow: TextOverflow.visible,
                         ),
                         const SizedBox(height: 8.0),
                         Row(
@@ -53,7 +54,8 @@ class GameCard extends StatelessWidget {
                                 style: const TextStyle(
                                   color: Colors.white70,
                                 ),
-                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
                               ),
                             ),
                             const SizedBox(width: 16.0),
@@ -61,7 +63,8 @@ class GameCard extends StatelessWidget {
                               child: Text(
                                 'Período:\n${game.period}',
                                 style: const TextStyle(color: Colors.white70),
-                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
                               ),
                             ),
                           ],
@@ -72,7 +75,11 @@ class GameCard extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.white70),
                     onPressed: () {
-                      // Ação ao clicar no ícone de edição
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => EditGameScreen(game: game),
+                        ),
+                      );
                     },
                   ),
                 ],
@@ -96,7 +103,8 @@ class GameCard extends StatelessWidget {
                     child: Text(
                       '${game.playersRegistered} Participante(s) inscrito(s)',
                       style: const TextStyle(color: Colors.white70),
-                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
                     ),
                   ),
                   IconButton(

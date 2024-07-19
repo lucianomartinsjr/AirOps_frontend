@@ -85,19 +85,7 @@ class GameDetailButtons extends StatelessWidget {
                 style: TextStyle(color: Colors.green),
               ),
             ),
-          const SizedBox(height: 8.0),
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Voltar',
-                style: TextStyle(fontSize: 18, color: Colors.white70),
-              ),
-            ),
-          ),
+          const SizedBox(height: 30.0),
         ],
       ),
     );

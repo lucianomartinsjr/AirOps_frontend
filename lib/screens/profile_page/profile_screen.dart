@@ -68,195 +68,198 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileProvider>(
-      builder: (context, profileProvider, child) {
-        return Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            titleSpacing: 0,
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: TextButton(
-                  onPressed: () => _logout(context, profileProvider),
-                  child: const Text(
-                    '←   Logout',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+    return PopScope(
+      canPop: false,
+      child: Consumer<ProfileProvider>(
+        builder: (context, profileProvider, child) {
+          return Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              titleSpacing: 0,
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: TextButton(
+                    onPressed: () => _logout(context, profileProvider),
+                    child: const Text(
+                      '←   Logout',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                   ),
                 ),
-              ),
-              const Spacer(),
-              Tooltip(
-                message: 'Alterar senha',
-                child: IconButton(
-                  icon: const Icon(Icons.key_sharp),
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('/change-password');
-                  },
+                const Spacer(),
+                Tooltip(
+                  message: 'Alterar senha',
+                  child: IconButton(
+                    icon: const Icon(Icons.key_sharp),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/change-password');
+                    },
+                  ),
                 ),
-              ),
-            ],
-          ),
-          body: GestureDetector(
-            onTap: () {
-              FocusScope.of(context).unfocus();
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  onChanged: profileProvider.validateForm,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        '- Clique na chave para alterar sua senha -',
-                        style: TextStyle(color: Colors.white30, fontSize: 10),
-                      ),
-                      const SizedBox(height: 20),
-                      CustomTextFormField(
-                        controller: profileProvider.nameController,
-                        labelText: 'Nome Completo *',
-                        readOnly: !profileProvider.isEditing,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira seu nome completo';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: profileProvider.nicknameController,
-                        labelText: 'Apelido (Opcional)',
-                        readOnly: !profileProvider.isEditing,
-                      ),
-                      const SizedBox(height: 10),
-                      CustomDropdownFormField(
-                        value: profileProvider.selectedClass,
-                        items: profileProvider.classes,
-                        labelText: 'Qual classe você mais joga? *',
-                        readOnly: !profileProvider.isEditing,
-                        validator: (value) {
-                          if (profileProvider.isEditing && value == null) {
-                            return 'Por favor, selecione uma classe';
-                          }
-                          return null;
-                        },
-                        onChanged: (newValue) {
-                          profileProvider.selectedClass = newValue;
-                          profileProvider.validateForm();
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: profileProvider.cityController,
-                        labelText: 'Cidade *',
-                        readOnly: !profileProvider.isEditing,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira sua cidade';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: profileProvider.phoneController,
-                        labelText: 'Telefone *',
-                        readOnly: !profileProvider.isEditing,
-                        validator: (value) {
-                          if (profileProvider.isEditing) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor, insira seu telefone';
-                            }
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Modalidades Preferidas *',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      const SizedBox(height: 10),
-                      ModalitiesGrid(
-                        modalities: profileProvider.modalities,
-                        selectedModalityIds:
-                            profileProvider.selectedModalityIds,
-                        isEditing: profileProvider.isEditing,
-                        onModalityChanged: profileProvider.onModalityChanged,
-                      ),
-                      if (profileProvider.modalityError != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Text(
-                            profileProvider.modalityError!,
-                            style: const TextStyle(
-                                color: Colors.red, fontSize: 12),
-                          ),
+              ],
+            ),
+            body: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    onChanged: profileProvider.validateForm,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '- Clique na chave para alterar sua senha -',
+                          style: TextStyle(color: Colors.white30, fontSize: 10),
                         ),
-                      const SizedBox(height: 20),
-                      profileProvider.isEditing
-                          ? SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: profileProvider.isFormValid &&
-                                        profileProvider
-                                            .selectedModalityIds.isNotEmpty
-                                    ? () {
-                                        FocusScope.of(context).unfocus();
-                                        profileProvider.saveProfile(_formKey);
-                                      }
-                                    : null,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      profileProvider.isFormValid &&
-                                              profileProvider
-                                                  .selectedModalityIds
-                                                  .isNotEmpty
-                                          ? Colors.red
-                                          : Colors.grey,
-                                  foregroundColor: Colors.white,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 15),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text('Salvar',
-                                    style: TextStyle(fontSize: 18)),
-                              ),
-                            )
-                          : SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  profileProvider.toggleEditing();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 243, 33, 33),
-                                  foregroundColor: Colors.white,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 15),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text('Editar',
-                                    style: TextStyle(fontSize: 18)),
-                              ),
+                        const SizedBox(height: 20),
+                        CustomTextFormField(
+                          controller: profileProvider.nameController,
+                          labelText: 'Nome Completo *',
+                          readOnly: !profileProvider.isEditing,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor, insira seu nome completo';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        CustomTextFormField(
+                          controller: profileProvider.nicknameController,
+                          labelText: 'Apelido (Opcional)',
+                          readOnly: !profileProvider.isEditing,
+                        ),
+                        const SizedBox(height: 10),
+                        CustomDropdownFormField(
+                          value: profileProvider.selectedClass,
+                          items: profileProvider.classes,
+                          labelText: 'Qual classe você mais joga? *',
+                          readOnly: !profileProvider.isEditing,
+                          validator: (value) {
+                            if (profileProvider.isEditing && value == null) {
+                              return 'Por favor, selecione uma classe';
+                            }
+                            return null;
+                          },
+                          onChanged: (newValue) {
+                            profileProvider.selectedClass = newValue;
+                            profileProvider.validateForm();
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        CustomTextFormField(
+                          controller: profileProvider.cityController,
+                          labelText: 'Cidade *',
+                          readOnly: !profileProvider.isEditing,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor, insira sua cidade';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        CustomTextFormField(
+                          controller: profileProvider.phoneController,
+                          labelText: 'Telefone *',
+                          readOnly: !profileProvider.isEditing,
+                          validator: (value) {
+                            if (profileProvider.isEditing) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, insira seu telefone';
+                              }
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Modalidades Preferidas *',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                        const SizedBox(height: 10),
+                        ModalitiesGrid(
+                          modalities: profileProvider.modalities,
+                          selectedModalityIds:
+                              profileProvider.selectedModalityIds,
+                          isEditing: profileProvider.isEditing,
+                          onModalityChanged: profileProvider.onModalityChanged,
+                        ),
+                        if (profileProvider.modalityError != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Text(
+                              profileProvider.modalityError!,
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 12),
                             ),
-                    ],
+                          ),
+                        const SizedBox(height: 20),
+                        profileProvider.isEditing
+                            ? SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: profileProvider.isFormValid &&
+                                          profileProvider
+                                              .selectedModalityIds.isNotEmpty
+                                      ? () {
+                                          FocusScope.of(context).unfocus();
+                                          profileProvider.saveProfile(_formKey);
+                                        }
+                                      : null,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        profileProvider.isFormValid &&
+                                                profileProvider
+                                                    .selectedModalityIds
+                                                    .isNotEmpty
+                                            ? Colors.red
+                                            : Colors.grey,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text('Salvar',
+                                      style: TextStyle(fontSize: 18)),
+                                ),
+                              )
+                            : SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    profileProvider.toggleEditing();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 243, 33, 33),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text('Editar',
+                                      style: TextStyle(fontSize: 18)),
+                                ),
+                              ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

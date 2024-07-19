@@ -34,22 +34,24 @@ class Game {
   factory Game.fromJson(Map<String, dynamic> json) {
     var playersJson = json['players'] as List?;
     List<Player> playersList = playersJson != null
-        ? playersJson.map((i) => Player.fromJson(i)).toList()
+        ? playersJson
+            .map((i) => Player.fromJson(i as Map<String, dynamic>))
+            .toList()
         : [];
 
     return Game(
-      id: json['id'],
-      name: json['name'],
-      location: json['location'],
-      date: DateTime.parse(json['date']),
-      fieldType: json['fieldType'],
-      modality: json['modality'],
-      period: json['period'],
-      organizer: json['organizer'],
-      fee: json['fee'].toDouble(),
-      imageUrl: json['imageUrl'],
-      details: json['details'],
-      locationLink: json['locationLink'],
+      id: json['id'] as String,
+      name: json['name'] as String,
+      location: json['location'] as String,
+      date: DateTime.parse(json['date'] as String),
+      fieldType: json['fieldType'] as String,
+      modality: json['modality'] as String,
+      period: json['period'] as String,
+      organizer: json['organizer'] as String,
+      fee: (json['fee'] as num).toDouble(),
+      imageUrl: json['imageUrl'] as String,
+      details: json['details'] as String,
+      locationLink: json['locationLink'] as String,
       players: playersList,
     );
   }
