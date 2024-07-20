@@ -1,8 +1,9 @@
-import 'package:airops_frontend/screens/auth/register/register_screen.dart';
-import 'package:airops_frontend/screens/profile_page/change_password.dart';
-import 'package:airops_frontend/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'screens/auth/register/register_screen.dart';
+import 'screens/profile_page/change_password.dart';
+import 'services/api_service.dart';
 import 'providers/profile_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/auth/login/login_screen.dart';

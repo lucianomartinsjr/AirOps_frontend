@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/airsoft_service.dart';
 import '../widgets/games/game_item_detailed/game_list.dart';
-import 'admin_screen.dart';
-import 'profile_page/profile_screen.dart';
+import 'admin_page/admin_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,15 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _openAdminScreen() {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => const AdminScreen(),
+      builder: (context) => AdminScreen(),
     ));
-  }
-
-  Future<bool> _onWillPop() async {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => const ProfileScreen(),
-    ));
-    return false;
   }
 
   @override

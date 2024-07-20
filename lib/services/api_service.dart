@@ -29,6 +29,18 @@ class ApiService extends ChangeNotifier {
     ];
   }
 
+  Future<List<String>> fetchGames() async {
+    // Simule a busca de jogos na API
+    await Future.delayed(const Duration(seconds: 1));
+    return ['Jogo 1', 'Jogo 2', 'Jogo 3'];
+  }
+
+  Future<List<String>> fetchUsers() async {
+    // Simule a busca de usuários na API
+    await Future.delayed(const Duration(seconds: 1));
+    return ['Usuário 1', 'Usuário 2', 'Usuário 3'];
+  }
+
   Future<Profile> fetchProfile() async {
     // Simule a busca do perfil na API
     await Future.delayed(const Duration(seconds: 1));
