@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/airsoft_service.dart';
+import '../widgets/form_fields/filter_dialog.dart';
 import '../widgets/games/game_item_detailed/game_list.dart';
 import 'admin_page/admin_screen.dart';
 
@@ -13,6 +14,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isAdmin = true; // Temporariamente definido como true para simulação
+  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  bool _isFree = false;
+  String _selectedPeriod = 'Any';
+  String _selectedModality = 'Any';
+  String _selectedFieldType = 'Any';
 
   @override
   void initState() {
@@ -28,65 +36,114 @@ class _HomeScreenState extends State<HomeScreen> {
     ));
   }
 
+  void _openFilterDialog() {
+    final List<String> cityOptions =
+        Provider.of<AirsoftService>(context, listen: false)
+            .games
+            .map((game) => game.location)
+            .toSet()
+            .toList(); // Obter cidades únicas dos jogos disponíveis
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return FilterDialog(
+          cityController: _cityController,
+          dateController: _dateController,
+          isFree: _isFree,
+          selectedPeriod: _selectedPeriod,
+          selectedModality: _selectedModality,
+          selectedFieldType: _selectedFieldType,
+          onApplyFilters: (city, date, isFree, period, modality, fieldType) {
+            setState(() {
+              _isFree = isFree;
+              _selectedPeriod = period;
+              _selectedModality = modality;
+              _selectedFieldType = fieldType;
+            });
+            Provider.of<AirsoftService>(context, listen: false).applyFilters(
+              city: city,
+              date: date,
+              isFree: isFree,
+              period: period,
+              modality: modality,
+              fieldType: fieldType,
+            );
+          },
+          cityOptions: cityOptions,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Air Ops'),
-          automaticallyImplyLeading:
-              false, // Adicionado para remover o ícone de voltar
-          actions: [
-            if (_isAdmin)
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: _openAdminScreen,
-              ),
-          ],
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Pesquisar',
-                  prefixIcon: const Icon(Icons.search),
-                  fillColor: Colors.white24,
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide.none,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Air Ops'),
+        automaticallyImplyLeading:
+            false, // Adicionado para remover o ícone de voltar
+        actions: [
+          if (_isAdmin)
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: _openAdminScreen,
+            ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Pesquisar',
+                      prefixIcon: const Icon(Icons.search),
+                      fillColor: Colors.white24,
+                      hintStyle: const TextStyle(color: Colors.white54),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    onChanged: (value) {
+                      Provider.of<AirsoftService>(context, listen: false)
+                          .searchGames(value);
+                    },
                   ),
                 ),
-                onChanged: (value) {
-                  Provider.of<AirsoftService>(context, listen: false)
-                      .searchGames(value);
-                },
-              ),
+                IconButton(
+                  icon: const Icon(Icons.filter_list, color: Colors.white),
+                  onPressed: _openFilterDialog,
+                ),
+              ],
             ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Filtrar por:',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Filtrar por:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ),
-            Expanded(
-              child: Consumer<AirsoftService>(
-                builder: (context, airsoftService, child) {
-                  return GameList(games: airsoftService.games);
-                },
-              ),
+          ),
+          Expanded(
+            child: Consumer<AirsoftService>(
+              builder: (context, airsoftService, child) {
+                return GameList(games: airsoftService.games);
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

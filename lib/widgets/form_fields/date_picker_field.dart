@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class DateTimePickerField extends StatefulWidget {
+class DatePickerField extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final FormFieldValidator<String>? validator;
 
-  const DateTimePickerField({
+  const DatePickerField({
     required this.controller,
     required this.labelText,
     this.validator,
@@ -14,17 +14,17 @@ class DateTimePickerField extends StatefulWidget {
   });
 
   @override
-  _DateTimePickerFieldState createState() => _DateTimePickerFieldState();
+  _DatePickerFieldState createState() => _DatePickerFieldState();
 }
 
-class _DateTimePickerFieldState extends State<DateTimePickerField> {
-  Future<void> _selectDateTime() async {
+class _DatePickerFieldState extends State<DatePickerField> {
+  Future<void> _selectDate() async {
     final DateTime? pickedDate = await showDatePicker(
-      locale: const Locale('pt', 'BR'),
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
+      locale: const Locale('pt', 'BR'), // Define o locale aqui
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
@@ -43,39 +43,9 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
     if (!mounted) return;
 
     if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-        builder: (context, child) {
-          return Theme(
-            data: ThemeData.dark().copyWith(
-              primaryColor: Colors.red,
-              buttonTheme: const ButtonThemeData(
-                textTheme: ButtonTextTheme.primary,
-              ),
-              colorScheme: const ColorScheme.dark(primary: Colors.red)
-                  .copyWith(secondary: Colors.red),
-            ),
-            child: child!,
-          );
-        },
-      );
-
-      if (!mounted) return;
-
-      if (pickedTime != null) {
-        setState(() {
-          final dateTime = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-          widget.controller.text =
-              DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
-        });
-      }
+      setState(() {
+        widget.controller.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+      });
     }
   }
 
@@ -95,7 +65,7 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
         floatingLabelBehavior: FloatingLabelBehavior.always,
       ),
       readOnly: true,
-      onTap: _selectDateTime,
+      onTap: _selectDate,
       validator: widget.validator,
     );
   }

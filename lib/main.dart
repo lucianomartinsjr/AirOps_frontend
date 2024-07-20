@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/auth/register/register_screen.dart';
 import 'screens/profile_page/change_password.dart';
 import 'services/api_service.dart';
@@ -62,6 +62,15 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('pt', 'BR'),
+        ],
+        locale: const Locale('pt', 'BR'),
         initialRoute: '/',
         routes: {
           '/': (context) => const SplashScreen(),
