@@ -152,7 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   value: _selectedClassId,
                   items: _classes.map((Class value) {
                     return DropdownMenuItem<String>(
-                      value: value.id,
+                      value: value.id.toString(),
                       child: Text(value.nomeClasse,
                           style: const TextStyle(color: Colors.white)),
                     );

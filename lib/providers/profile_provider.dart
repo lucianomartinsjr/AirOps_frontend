@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/class.dart';
 import '../models/profile.dart';
 import '../models/modality.dart';
 import '../services/api_service.dart';
@@ -10,7 +11,7 @@ class ProfileProvider extends ChangeNotifier {
   final phoneController = TextEditingController();
   String? selectedClass;
   List<String> selectedModalityIds = [];
-  List<String> classes = [];
+  List<Class> classes = [];
   List<Modality> modalities = [];
   bool isFormValid = false;
   bool isEditing = false;

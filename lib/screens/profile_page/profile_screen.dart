@@ -68,8 +68,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
+    return WillPopScope(
+      onWillPop: () async => false,
       child: Consumer<ProfileProvider>(
         builder: (context, profileProvider, child) {
           return Scaffold(
@@ -137,7 +137,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 10),
                         CustomDropdownFormField(
                           value: profileProvider.selectedClass,
-                          items: profileProvider.classes,
+                          items: profileProvider.classes
+                              .map((classItem) => classItem.nomeClasse)
+                              .toList(),
                           labelText: 'Qual classe você mais joga? *',
                           readOnly: !profileProvider.isEditing,
                           validator: (value) {

@@ -1,5 +1,5 @@
 class Class {
-  final String id;
+  final int id;
   final String nomeClasse;
   final String descricao;
   final String ativo;
