@@ -141,10 +141,6 @@ class ApiService extends ChangeNotifier {
       'idClasseOperador': idClasseOperador,
       'modalidades': modalityIds,
     });
-
-    // Print the JSON being sent
-    debugPrint('JSON enviado: $body');
-
     try {
       final response = await http.post(
         url,

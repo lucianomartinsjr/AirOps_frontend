@@ -53,10 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         _classes = classes;
       });
-      print('Classes fetched successfully: $_classes'); // Log para depuração
-    } catch (error) {
-      print('Error fetching classes: $error'); // Log para depuração
-    }
+    } catch (error) {}
   }
 
   Future<void> _fetchModalities() async {
@@ -67,11 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         _modalities = modalities;
       });
-      print(
-          'Modalities fetched successfully: $_modalities'); // Log para depuração
-    } catch (error) {
-      print('Error fetching modalities: $error'); // Log para depuração
-    }
+    } catch (error) {}
   }
 
   void _onModalityChanged(bool selected, String modalityId) {
