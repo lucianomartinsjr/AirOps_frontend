@@ -40,8 +40,9 @@ class ProfileProvider extends ChangeNotifier {
     nicknameController.text = profile.nickname;
     cityController.text = profile.city;
     phoneController.text = profile.phone;
-    selectedClass = profile.className;
-    selectedModalityIds = profile.modalityIds;
+    selectedClass = profile.classId;
+    selectedModalityIds =
+        profile.modalityIds.map((id) => id.toString()).toList();
     classes = fetchedClasses;
     modalities = fetchedModalities;
 
@@ -58,20 +59,19 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   void validateForm() {
-    isFormValid = modalityError == null;
+    isFormValid = modalityError == null && selectedModalityIds.isNotEmpty;
     notifyListeners();
   }
 
   void saveProfile(GlobalKey<FormState> formKey) {
-    if (formKey.currentState?.validate() ??
-        false && selectedModalityIds.isNotEmpty) {
+    if (formKey.currentState?.validate() ?? false) {
       Profile updatedProfile = Profile(
         name: nameController.text,
         nickname: nicknameController.text,
         city: cityController.text,
         phone: phoneController.text,
-        className: selectedClass!,
-        modalityIds: selectedModalityIds,
+        classId: selectedClass!,
+        modalityIds: selectedModalityIds.map((id) => int.parse(id)).toList(),
       );
       apiService.updateProfile(updatedProfile).then((success) {
         if (success) {

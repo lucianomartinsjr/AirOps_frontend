@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/api_service.dart';
+import '../../models/class.dart';
 import 'components/base_edit_screen.dart';
 import 'components/edit_item_screen.dart';
 
@@ -9,7 +10,7 @@ class ClassesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<String>>(
+    return FutureBuilder<List<Class>>(
       future: Provider.of<ApiService>(context, listen: false).fetchClasses(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -19,16 +20,16 @@ class ClassesScreen extends StatelessWidget {
         } else {
           return BaseScreen(
             title: 'Classes Jogadores',
-            items: snapshot.data ?? [],
+            items: snapshot.data
+                    ?.map((classItem) => classItem.nomeClasse)
+                    .toList() ??
+                [],
             onAdd: () {
-              _navigateToEditScreen(context, 'Adicionar Classe', (value) {
-                // Adicionar nova classe
-              });
+              _navigateToEditScreen(context, 'Adicionar Classe', (value) {});
             },
             onEdit: (index) {
-              _navigateToEditScreen(context, 'Editar Classe', (value) {
-                // Editar classe existente
-              }, initialValue: snapshot.data![index]);
+              _navigateToEditScreen(context, 'Editar Classe', (value) {},
+                  initialValue: snapshot.data![index].nomeClasse);
             },
           );
         }

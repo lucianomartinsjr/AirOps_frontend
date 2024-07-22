@@ -24,22 +24,22 @@ class ModalitiesGrid extends StatelessWidget {
       childAspectRatio: 5,
       physics: const NeverScrollableScrollPhysics(),
       children: modalities.map((modality) {
-        final isSelected = selectedModalityIds.contains(modality.id);
+        final isSelected = selectedModalityIds.contains(modality.id.toString());
         final borderColor = isEditing || !isSelected
             ? const Color.fromARGB(255, 80, 80, 80)
-            : Color.fromARGB(141, 85, 85, 85).withOpacity(0.5);
+            : const Color.fromARGB(141, 85, 85, 85).withOpacity(0.5);
         final backgroundColor = isEditing
             ? (isSelected
                 ? const Color.fromARGB(255, 243, 33, 33).withOpacity(0.8)
                 : Colors.transparent)
             : (isSelected
-                ? Color.fromARGB(255, 74, 74, 74).withOpacity(0.8)
-                : Color.fromARGB(0, 255, 255, 255));
+                ? const Color.fromARGB(255, 74, 74, 74).withOpacity(0.8)
+                : const Color.fromARGB(0, 255, 255, 255));
 
         return InkWell(
           onTap: isEditing
               ? () {
-                  onModalityChanged(!isSelected, modality.id);
+                  onModalityChanged(!isSelected, modality.id.toString());
                 }
               : null,
           child: Container(
@@ -51,7 +51,7 @@ class ModalitiesGrid extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                modality.name,
+                modality.descricao,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ),

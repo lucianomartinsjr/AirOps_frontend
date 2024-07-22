@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_multi_formatter/flutter_multi_formatter.dart'; // Import the package
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import '../../../models/class.dart';
 import '../../../models/modality.dart';
 import '../../../services/api_service.dart';
 
@@ -32,9 +33,9 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  String? _selectedClass;
+  String? _selectedClassId;
   final List<String> _selectedModalityIds = [];
-  List<String> _classes = [];
+  List<Class> _classes = [];
   List<Modality> _modalities = [];
   bool _isFormValid = false;
 
@@ -46,19 +47,31 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _fetchClasses() async {
-    List<String> classes =
-        await Provider.of<ApiService>(context, listen: false).fetchClasses();
-    setState(() {
-      _classes = classes;
-    });
+    try {
+      List<Class> classes =
+          await Provider.of<ApiService>(context, listen: false).fetchClasses();
+      setState(() {
+        _classes = classes;
+      });
+      print('Classes fetched successfully: $_classes'); // Log para depuração
+    } catch (error) {
+      print('Error fetching classes: $error'); // Log para depuração
+    }
   }
 
   Future<void> _fetchModalities() async {
-    List<Modality> modalities =
-        await Provider.of<ApiService>(context, listen: false).fetchModalities();
-    setState(() {
-      _modalities = modalities;
-    });
+    try {
+      List<Modality> modalities =
+          await Provider.of<ApiService>(context, listen: false)
+              .fetchModalities();
+      setState(() {
+        _modalities = modalities;
+      });
+      print(
+          'Modalities fetched successfully: $_modalities'); // Log para depuração
+    } catch (error) {
+      print('Error fetching modalities: $error'); // Log para depuração
+    }
   }
 
   void _onModalityChanged(bool selected, String modalityId) {
@@ -136,17 +149,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  value: _selectedClass,
-                  items: _classes.map((String value) {
+                  value: _selectedClassId,
+                  items: _classes.map((Class value) {
                     return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value,
+                      value: value.id,
+                      child: Text(value.nomeClasse,
                           style: const TextStyle(color: Colors.white)),
                     );
                   }).toList(),
                   onChanged: (newValue) {
                     setState(() {
-                      _selectedClass = newValue;
+                      _selectedClassId = newValue;
                     });
                     widget.onClassChanged(newValue);
                     _validateForm();
@@ -231,10 +244,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   physics: const NeverScrollableScrollPhysics(),
                   children: _modalities.map((modality) {
                     final isSelected =
-                        _selectedModalityIds.contains(modality.id);
+                        _selectedModalityIds.contains(modality.id.toString());
                     return InkWell(
                       onTap: () {
-                        _onModalityChanged(!isSelected, modality.id);
+                        _onModalityChanged(!isSelected, modality.id.toString());
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -246,7 +259,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         child: Center(
                           child: Text(
-                            modality.name,
+                            modality.descricao,
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 14),
                           ),

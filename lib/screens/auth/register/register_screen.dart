@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../services/api_service.dart';
+import '../../home_screen.dart';
 import 'email_page.dart';
 import 'password_page.dart';
 import 'profile_page.dart';
@@ -22,6 +24,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? selectedClass;
   List<String> selectedModalities = [];
 
+  final ApiService apiService = ApiService();
+
   void _nextPage() {
     if (_pageController.page!.toInt() < 2) {
       _pageController.nextPage(
@@ -37,8 +41,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  void _submit() {
-    // Combine all the collected data and send to the API
+  void _submit() async {
     final email = emailController.text;
     final senha = passwordController.text;
     final nome = nameController.text;
@@ -48,9 +51,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final classe = selectedClass;
     final modalidades = selectedModalities;
 
-    // Call your API service to register the user
-    print(
-        "Email: $email, Senha: $senha, Nome: $nome, Apelido: $apelido, Cidade: $cidade, Telefone: $telefone, Classe: $classe, Modalidades: $modalidades");
+    // Print statements for debugging
+    debugPrint('Email: $email');
+    debugPrint('Senha: $senha');
+    debugPrint('Nome: $nome');
+    debugPrint('Apelido: $apelido');
+    debugPrint('Cidade: $cidade');
+    debugPrint('Telefone: $telefone');
+    debugPrint('Classe: $classe');
+    debugPrint('Modalidades: $modalidades');
+
+    final success = await apiService.register(
+      email: email,
+      password: senha,
+      name: nome,
+      nickname: apelido,
+      city: cidade,
+      phone: telefone,
+      className: classe,
+      modalityIds: modalidades,
+    );
+
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Falha ao realizar o cadastro.')),
+      );
+    }
   }
 
   @override

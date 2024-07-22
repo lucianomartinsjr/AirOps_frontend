@@ -3,15 +3,15 @@ class Profile {
   final String nickname;
   final String city;
   final String phone;
-  final String className;
-  final List<String> modalityIds;
+  final String classId;
+  final List<int> modalityIds;
 
   Profile({
     required this.name,
     required this.nickname,
     required this.city,
     required this.phone,
-    required this.className,
+    required this.classId,
     required this.modalityIds,
   });
 
@@ -21,8 +21,18 @@ class Profile {
       nickname: json['nickname'],
       city: json['city'],
       phone: json['phone'],
-      className: json['className'],
-      modalityIds: List<String>.from(json['modalityIds']),
+      classId: json['classId'],
+      modalityIds: List<int>.from(json['modalityIds']),
     );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'nickname': nickname,
+      'city': city,
+      'phone': phone,
+      'className': classId,
+      'modalityIds': modalityIds,
+    };
   }
 }

@@ -56,7 +56,6 @@ class _EmailPageState extends State<EmailPage> {
     if (value == null || value.isEmpty) {
       return 'Por favor, insira um email';
     }
-    // Expressão regular para validar email
     String pattern = r'^[^@\s]+@[^@\s]+\.[^@\s]+$';
     RegExp regex = RegExp(pattern);
     if (!regex.hasMatch(value)) {
@@ -108,8 +107,7 @@ class _EmailPageState extends State<EmailPage> {
                   child: ElevatedButton(
                     onPressed: _isFormValid
                         ? () async {
-                            FocusScope.of(context)
-                                .unfocus(); // Remove o foco antes de prosseguir
+                            FocusScope.of(context).unfocus();
                             await _checkEmail();
                             if (!_emailExists) {
                               widget.onNext();

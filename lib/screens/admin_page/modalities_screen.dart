@@ -17,7 +17,8 @@ class ModalitiesScreen extends StatelessWidget {
           return const Center(child: Text('Erro ao carregar dados'));
         } else {
           final items =
-              snapshot.data?.map((modality) => modality.name).toList() ?? [];
+              snapshot.data?.map((modality) => modality.descricao).toList() ??
+                  [];
           return BaseScreen(
             title: 'Modalidades',
             items: items,

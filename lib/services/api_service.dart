@@ -1,81 +1,163 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../models/class.dart';
 import '../models/modality.dart';
 import '../models/profile.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ApiService extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final String baseUrl = 'http://localhost:3000';
 
   Future<bool> checkEmail(String email) async {
-    // Simule a verificação do e-mail com a API
-    await Future.delayed(const Duration(seconds: 1));
-    return false; // Retorne true se o e-mail já existir
+    final url = Uri.parse('$baseUrl/auth/validar-email');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      return false;
+    } else if (response.statusCode == 400) {
+      return true;
+    } else {
+      throw Exception('Erro ao verificar email: ${response.statusCode}');
+    }
   }
 
-  Future<List<String>> fetchClasses() async {
-    // Simule a busca de classes na API
-    await Future.delayed(const Duration(seconds: 1));
-    return ['Classe A', 'Classe B', 'Classe C'];
+  Future<List<Class>> fetchClasses() async {
+    final url = Uri.parse('$baseUrl/classes-operadores');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((item) => Class.fromJson(item)).toList();
+    } else {
+      throw Exception('Erro ao buscar classes: ${response.statusCode}');
+    }
   }
 
   Future<List<Modality>> fetchModalities() async {
-    // Simule a busca de modalidades na API
-    await Future.delayed(const Duration(seconds: 1));
-    // Retorne uma lista de objetos Modality
-    return [
-      Modality(id: '1', name: 'Modalidade 1'),
-      Modality(id: '2', name: 'Modalidade 2'),
-      Modality(id: '3', name: 'Modalidade 3'),
-    ];
+    final url = Uri.parse('$baseUrl/modalidades-jogos');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((item) => Modality.fromJson(item)).toList();
+    } else {
+      throw Exception('Erro ao buscar modalidades: ${response.statusCode}');
+    }
   }
 
   Future<List<String>> fetchGames() async {
-    // Simule a busca de jogos na API
-    await Future.delayed(const Duration(seconds: 1));
-    return ['Jogo 1', 'Jogo 2', 'Jogo 3'];
+    final url = Uri.parse('$baseUrl/games');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return List<String>.from(responseBody['games']);
+    } else {
+      throw Exception('Failed to load games');
+    }
   }
 
   Future<List<String>> fetchUsers() async {
-    // Simule a busca de usuários na API
-    await Future.delayed(const Duration(seconds: 1));
-    return ['Usuário 1', 'Usuário 2', 'Usuário 3'];
+    final url = Uri.parse('$baseUrl/users');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return List<String>.from(responseBody['users']);
+    } else {
+      throw Exception('Failed to load users');
+    }
   }
 
   Future<Profile> fetchProfile() async {
-    // Simule a busca do perfil na API
-    await Future.delayed(const Duration(seconds: 1));
-    // Retorne um perfil simulado
-    return Profile(
-      name: 'John Doe',
-      nickname: 'Johnny',
-      city: 'Springfield',
-      phone: '(64)9 9999-9999',
-      className: 'Classe A',
-      modalityIds: ['1', '2'],
-    );
+    final url = Uri.parse('$baseUrl/profile');
+    final response = await http.get(url, headers: {
+      'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+    });
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return Profile.fromJson(responseBody['profile']);
+    } else {
+      throw Exception('Failed to load profile');
+    }
   }
 
   Future<bool> updateProfile(Profile profile) async {
-    // Simule a atualização do perfil na API
-    await Future.delayed(const Duration(seconds: 1));
-    // Aqui você pode adicionar lógica para atualizar o perfil se necessário
-    // Para simulação, apenas retorne true para indicar sucesso
-    return true;
+    final url = Uri.parse('$baseUrl/profile');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+      },
+      body: jsonEncode(profile.toJson()),
+    );
+
+    return response.statusCode == 200;
   }
 
   Future<bool> login(String email, String password) async {
-    // Simule o login na API e o recebimento de um token JWT
-    await Future.delayed(const Duration(seconds: 1));
-    String token = 'simulated_jwt_token';
+    final url = Uri.parse('$baseUrl/auth/login');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
 
-    // Armazene o token JWT de forma segura
-    await _storage.write(key: 'jwt_token', value: token);
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      await _storage.write(key: 'jwt_token', value: responseBody['token']);
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-    return true;
+  Future<bool> register({
+    required String email,
+    required String password,
+    required String name,
+    required String nickname,
+    required String city,
+    required String phone,
+    required String? className,
+    required List<String> modalityIds,
+  }) async {
+    final url = Uri.parse('$baseUrl/auth/cadastrar');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode({
+        'email': email,
+        'senha': password,
+        'nome': name,
+        'apelido': nickname,
+        'cidade': city,
+        'contato': phone,
+        'classes': className,
+        'modalidades': modalityIds,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      await _storage.write(key: 'jwt_token', value: responseBody['token']);
+      await _storage.write(
+          key: 'is_admin', value: responseBody['isAdmin'].toString());
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<void> clearToken() async {
-    // Limpe o token JWT armazenado de forma segura
     await _storage.delete(key: 'jwt_token');
   }
 }
