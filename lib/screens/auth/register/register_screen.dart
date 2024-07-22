@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../services/api_service.dart';
-import '../../home_screen.dart';
 import 'email_page.dart';
 import 'password_page.dart';
 import 'profile_page.dart';
@@ -45,41 +44,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final email = emailController.text;
     final senha = passwordController.text;
     final nome = nameController.text;
-    final apelido = nicknameController.text;
+    var apelido = nicknameController.text;
     final cidade = cityController.text;
     final telefone = phoneController.text;
     final classe = selectedClass;
     final modalidades = selectedModalities;
 
-    // Print statements for debugging
-    debugPrint('Email: $email');
-    debugPrint('Senha: $senha');
-    debugPrint('Nome: $nome');
-    debugPrint('Apelido: $apelido');
-    debugPrint('Cidade: $cidade');
-    debugPrint('Telefone: $telefone');
-    debugPrint('Classe: $classe');
-    debugPrint('Modalidades: $modalidades');
+    if (apelido.isEmpty) {
+      apelido = ' ';
+    }
 
-    final success = await apiService.register(
-      email: email,
-      password: senha,
-      name: nome,
-      nickname: apelido,
-      city: cidade,
-      phone: telefone,
-      className: classe,
-      modalityIds: modalidades,
-    );
-
-    if (success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } else {
+    if (email.isEmpty || senha.isEmpty || nome.isEmpty || classe == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Falha ao realizar o cadastro.')),
+        const SnackBar(
+            content: Text('Por favor, preencha todos os campos obrigatórios.')),
+      );
+      return;
+    }
+
+    try {
+      final success = await apiService.register(
+        email: email,
+        password: senha,
+        name: nome,
+        nickname: apelido,
+        city: cidade,
+        phone: telefone,
+        idClasseOperador: int.tryParse(classe!),
+        modalityIds: modalidades.map((e) => int.tryParse(e) ?? 0).toList(),
+      );
+
+      if (success['success'] == true) {
+        Navigator.of(context).pushReplacementNamed('/home-screen');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Falha ao realizar o cadastro: ${success['message']}')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Erro ao cadastrar: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: $e')),
       );
     }
   }

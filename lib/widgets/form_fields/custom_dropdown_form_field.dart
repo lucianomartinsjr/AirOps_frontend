@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class CustomDropdownFormField extends StatelessWidget {
-  final String? value;
-  final List<String> items;
+class CustomDropdownFormField<T> extends StatelessWidget {
+  final T? value;
+  final List<T> items;
   final String labelText;
   final bool readOnly;
-  final FormFieldValidator<String>? validator;
-  final ValueChanged<String?>? onChanged;
+  final FormFieldValidator<T>? validator;
+  final ValueChanged<T?>? onChanged;
 
   const CustomDropdownFormField({
     super.key,
@@ -22,12 +22,15 @@ class CustomDropdownFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Opacity(
       opacity: readOnly ? 0.5 : 1.0,
-      child: DropdownButtonFormField<String>(
+      child: DropdownButtonFormField<T>(
         value: value,
-        items: items.map((String item) {
-          return DropdownMenuItem<String>(
+        items: items.map((T item) {
+          return DropdownMenuItem<T>(
             value: item,
-            child: Text(item, style: const TextStyle(color: Colors.white)),
+            child: Text(
+              item is String ? item : item.toString(),
+              style: const TextStyle(color: Colors.white),
+            ),
           );
         }).toList(),
         onChanged: readOnly ? null : onChanged,

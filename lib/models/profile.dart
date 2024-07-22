@@ -17,22 +17,22 @@ class Profile {
 
   factory Profile.fromJson(Map<String, dynamic> json) {
     return Profile(
-      name: json['name'],
-      nickname: json['nickname'],
-      city: json['city'],
-      phone: json['phone'],
-      classId: json['classId'],
-      modalityIds: List<int>.from(json['modalityIds']),
+      name: json['nome'],
+      nickname: json['apelido'],
+      city: json['cidade'],
+      phone: json['telefone'],
+      classId: json['idClasseOperador'],
+      modalityIds: List<int>.from(json['modalidades']),
     );
   }
   Map<String, dynamic> toJson() {
     return {
-      'name': name,
-      'nickname': nickname,
-      'city': city,
-      'phone': phone,
-      'className': classId,
-      'modalityIds': modalityIds,
+      'nome': name,
+      'apelido': nickname,
+      'cidade': city,
+      'telefone': phone,
+      'idClasseOperador': classId,
+      'modalidades': modalityIds,
     };
   }
 }

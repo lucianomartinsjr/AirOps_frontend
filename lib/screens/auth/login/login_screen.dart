@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+import '../../../services/api_service.dart';
+// Substitua pelo caminho correto do seu serviço de API
+
 class LoginScreen extends HookWidget {
   const LoginScreen({super.key});
 
@@ -8,6 +11,22 @@ class LoginScreen extends HookWidget {
   Widget build(BuildContext context) {
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
+
+    Future<void> handleLogin() async {
+      final email = emailController.text;
+      final password = passwordController.text;
+
+      final success = await ApiService().login(email, password);
+
+      if (success) {
+        Navigator.of(context).pushReplacementNamed('/home-screen');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Login falhou. Verifique suas credenciais.')),
+        );
+      }
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF222222),
@@ -69,13 +88,10 @@ class LoginScreen extends HookWidget {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).pushNamed('/home-screen');
-                            },
+                            onPressed: handleLogin,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
-                              foregroundColor:
-                                  Colors.white, // Cor do texto do botão
+                              foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),

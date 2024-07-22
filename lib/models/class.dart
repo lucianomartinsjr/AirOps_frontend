@@ -1,16 +1,16 @@
 class Class {
   final int id;
   final String nomeClasse;
-  final String descricao;
-  final String ativo;
-  final String criadoEm;
+  final String? descricao;
+  final bool? ativo;
+  final DateTime? criadoEm;
 
   Class({
     required this.id,
     required this.nomeClasse,
-    required this.descricao,
-    required this.ativo,
-    required this.criadoEm,
+    this.descricao,
+    this.ativo,
+    this.criadoEm,
   });
 
   factory Class.fromJson(Map<String, dynamic> json) {
@@ -18,8 +18,11 @@ class Class {
       id: json['id'],
       nomeClasse: json['nomeClasse'],
       descricao: json['descricao'],
-      ativo: json['ativo'],
-      criadoEm: json['criadoEm'],
+      ativo: json['ativo'] != null
+          ? json['ativo'] == 'true' || json['ativo'] == true
+          : null,
+      criadoEm:
+          json['criadoEm'] != null ? DateTime.parse(json['criadoEm']) : null,
     );
   }
 
@@ -28,8 +31,8 @@ class Class {
       'id': id,
       'nomeClasse': nomeClasse,
       'descricao': descricao,
-      'ativo': ativo,
-      'criadoEm': criadoEm,
+      'ativo': ativo?.toString(),
+      'criadoEm': criadoEm?.toIso8601String(),
     };
   }
 }

@@ -152,7 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   value: _selectedClassId,
                   items: _classes.map((Class value) {
                     return DropdownMenuItem<String>(
-                      value: value.id.toString(),
+                      value: value.id.toString(), // Convertendo para String
                       child: Text(value.nomeClasse,
                           style: const TextStyle(color: Colors.white)),
                     );
@@ -165,7 +165,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     _validateForm();
                   },
                   decoration: InputDecoration(
-                    labelText: 'Qual classe você mais joga ?  * ',
+                    labelText: 'Qual classe você mais joga? * ',
                     labelStyle: const TextStyle(color: Colors.white),
                     filled: true,
                     fillColor: const Color(0xFF2F2F2F),
