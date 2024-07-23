@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../services/airsoft_service.dart';
 import '../widgets/form_fields/filter_dialog.dart';
 import '../widgets/games/game_item_detailed/game_list.dart';
@@ -13,7 +14,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _isAdmin = true; // Temporariamente definido como true para simulação
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -21,12 +21,22 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedPeriod = 'Any';
   String _selectedModality = 'Any';
   String _selectedFieldType = 'Any';
+  bool _isAdmin = false;
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AirsoftService>(context, listen: false).fetchGames();
+      _checkIfAdmin();
+    });
+  }
+
+  Future<void> _checkIfAdmin() async {
+    String? isAdmin = await _secureStorage.read(key: 'isAdmin');
+    setState(() {
+      _isAdmin = isAdmin == 'true';
     });
   }
 
