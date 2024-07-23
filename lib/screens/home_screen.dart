@@ -137,13 +137,6 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.all(8.0),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                'Filtrar por:',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
             ),
           ),
           Expanded(

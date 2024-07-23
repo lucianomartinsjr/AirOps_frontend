@@ -59,7 +59,7 @@ class ApiService extends ChangeNotifier {
       final responseBody = jsonDecode(response.body);
       return List<String>.from(responseBody['games']);
     } else {
-      throw Exception('Failed to load games');
+      throw Exception('Não foi possível carregar as classes');
     }
   }
 
@@ -71,7 +71,7 @@ class ApiService extends ChangeNotifier {
       final responseBody = jsonDecode(response.body);
       return List<String>.from(responseBody['users']);
     } else {
-      throw Exception('Failed to load users');
+      throw Exception('Não foi possível carregar os usuários');
     }
   }
 
@@ -85,7 +85,7 @@ class ApiService extends ChangeNotifier {
       final responseBody = jsonDecode(response.body);
       return Profile.fromJson(responseBody['profile']);
     } else {
-      throw Exception('Failed to load profile');
+      throw Exception('Occorreu um erro ao carregar o perfil');
     }
   }
 
@@ -114,6 +114,8 @@ class ApiService extends ChangeNotifier {
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
       await _storage.write(key: 'jwt_token', value: responseBody['token']);
+      await _storage.write(
+          key: 'isAdmin', value: responseBody['isAdmin'].toString());
       return true;
     } else {
       return false;
@@ -127,8 +129,8 @@ class ApiService extends ChangeNotifier {
     required String nickname,
     required String city,
     required String phone,
-    required int? idClasseOperador, // Mudança aqui para int
-    required List<int> modalityIds, // Mudança aqui para List<int>
+    required int? idClasseOperador,
+    required List<int> modalityIds,
   }) async {
     final url = Uri.parse('$baseUrl/auth/cadastrar');
     final body = jsonEncode({
