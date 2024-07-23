@@ -65,14 +65,14 @@ class _BaseScreenState extends State<BaseScreen> {
                   borderSide: BorderSide.none,
                 ),
               ),
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             // Filtro ativo/inativo
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
+                const Text(
                   'Mostrar inativos',
                   style: TextStyle(color: Colors.white),
                 ),
@@ -89,7 +89,7 @@ class _BaseScreenState extends State<BaseScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             // Lista de itens filtrados
             Expanded(
               child: ListView.builder(

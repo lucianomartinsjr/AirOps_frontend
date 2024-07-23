@@ -7,7 +7,7 @@ import 'services/api_service.dart';
 import 'providers/profile_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/auth/login/login_screen.dart';
-import 'screens/auth/login/splash_screen.dart';
+import 'splash_screen.dart';
 import 'screens/auth/forgot_password/forgot_password_screen.dart';
 import 'screens/games/games_screen.dart';
 import 'screens/profile_page/profile_screen.dart';

@@ -42,7 +42,7 @@ class LoginScreen extends HookWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  Image.asset('lib/assets/images/logo.png', height: 250),
+                  Image.asset('assets/images/logo.png', height: 250),
                   const Text(
                     'Login',
                     style: TextStyle(color: Colors.white, fontSize: 24),

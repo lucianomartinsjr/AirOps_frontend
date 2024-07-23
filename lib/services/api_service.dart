@@ -157,16 +157,13 @@ class ApiService extends ChangeNotifier {
             key: 'is_admin', value: responseBody['isAdmin'].toString());
         return {'success': true};
       } else {
-        // Log the error response for debugging
         final responseBody = jsonDecode(response.body);
-        debugPrint('Erro na resposta da API: ${responseBody['message']}');
         return {
           'success': false,
           'message': responseBody['message'] ?? 'Erro desconhecido'
         };
       }
     } catch (e) {
-      debugPrint('Erro na requisição: $e');
       return {
         'success': false,
         'message':
