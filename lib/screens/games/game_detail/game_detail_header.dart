@@ -13,7 +13,7 @@ class GameDetailHeader extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: NetworkImage(game.imageUrl),
+          image: NetworkImage(game.imagemCapa),
           fit: BoxFit.cover,
         ),
         borderRadius: BorderRadius.circular(8.0),
@@ -32,7 +32,7 @@ class GameDetailHeader extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            game.name,
+            game.descricao,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,

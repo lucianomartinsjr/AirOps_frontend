@@ -94,7 +94,7 @@ class AirsoftService with ChangeNotifier {
     }
   }
 
-  Future<void> updateGame(String id, Game updatedGame) async {
+  Future<void> updateGame(int id, Game updatedGame) async {
     try {
       final token = await _getToken();
       if (token == null) {
@@ -175,9 +175,9 @@ class AirsoftService with ChangeNotifier {
     } else {
       _filteredGames = _games
           .where((game) =>
-              game.name.toLowerCase().contains(query.toLowerCase()) ||
-              game.location.toLowerCase().contains(query.toLowerCase()) ||
-              game.organizer.toLowerCase().contains(query.toLowerCase()))
+              game.descricao.toLowerCase().contains(query.toLowerCase()) ||
+              game.cidade.toLowerCase().contains(query.toLowerCase()) ||
+              game.nomeOrganizador!.toLowerCase().contains(query.toLowerCase()))
           .toList();
     }
     notifyListeners();
@@ -189,24 +189,23 @@ class AirsoftService with ChangeNotifier {
     required bool isFree,
     required String period,
     required String modality,
-    required String fieldType,
   }) {
     _filteredGames = _games.where((game) {
       final matchCity = city.isEmpty ||
-          game.location.toLowerCase().contains(city.toLowerCase());
-      final matchDate =
-          date.isEmpty || DateFormat('dd/MM/yyyy').format(game.date) == date;
-      final matchFree = !isFree || game.fee == 0.0;
-      final matchPeriod = period == 'Qualquer período' || game.period == period;
-      final matchModality = modality == 'Any' || game.modality == modality;
-      final matchFieldType = fieldType == 'Any' || game.fieldType == fieldType;
+          game.cidade.toLowerCase().contains(city.toLowerCase());
+      final matchDate = date.isEmpty ||
+          DateFormat('dd/MM/yyyy').format(game.dataEvento) == date;
+      final matchFree = !isFree || game.valor == 0.0;
+      final matchPeriod =
+          period == 'Qualquer período' || game.periodo == period;
+      final matchModality =
+          modality == 'Any' || game.modalidadesJogos == modality;
 
       return matchCity &&
           matchDate &&
           matchFree &&
           matchPeriod &&
-          matchModality &&
-          matchFieldType;
+          matchModality;
     }).toList();
 
     notifyListeners();

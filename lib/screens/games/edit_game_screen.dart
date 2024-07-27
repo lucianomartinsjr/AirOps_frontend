@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../services/airsoft_service.dart';
 import '../../models/game.dart';
 import '../../widgets/form_fields/custom_text_form_field.dart';
-import '../../widgets/form_fields/custom_dropdown_form_field.dart';
 
 class EditGameScreen extends StatefulWidget {
   final Game game;
@@ -28,9 +27,9 @@ class _EditGameScreenState extends State<EditGameScreen> {
   late TextEditingController _feeController;
   late TextEditingController _imageUrlController;
   late TextEditingController _locationLinkController;
-
-  String? _selectedModality;
-  String? _selectedPeriod;
+  late TextEditingController _numMaxOperadoresController;
+  late TextEditingController _modalityController;
+  late TextEditingController _periodController;
 
   final List<String> _cities = [
     'Rio Verde/GO',
@@ -39,39 +38,34 @@ class _EditGameScreenState extends State<EditGameScreen> {
     'Montividiu/GO',
   ];
 
-  final List<String> _modalities = [
-    'Modalidade 1',
-    'Modalidade 2',
-    'Modalidade 3'
+  final List<Map<String, dynamic>> _modalities = [
+    {'id': 1, 'description': 'CQB'},
+    {'id': 2, 'description': 'Floresta'},
+    {'id': 3, 'description': 'Mista'},
   ];
+
   final List<String> _periods = ['Matutino', 'Vespertino', 'Noturno'];
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.game.name);
-    _locationController = TextEditingController(text: widget.game.location);
+    _nameController = TextEditingController(text: widget.game.titulo);
+    _locationController = TextEditingController(text: widget.game.cidade);
     _dateController = TextEditingController(
-      text: DateFormat('dd/MM/yyyy HH:mm').format(widget.game.date),
+      text: DateFormat('dd/MM/yyyy HH:mm').format(widget.game.dataEvento),
     );
-    _fieldTypeController = TextEditingController(text: widget.game.fieldType);
-
-    if (!_modalities.contains(widget.game.modality)) {
-      _modalities.add(widget.game.modality);
-    }
-    _selectedModality = widget.game.modality;
-
-    if (!_periods.contains(widget.game.period)) {
-      _periods.add(widget.game.period);
-    }
-    _selectedPeriod = widget.game.period;
-
-    _detailsController = TextEditingController(text: widget.game.details);
-    _organizerController = TextEditingController(text: widget.game.organizer);
-    _feeController = TextEditingController(text: widget.game.fee.toString());
-    _imageUrlController = TextEditingController(text: widget.game.imageUrl);
+    _detailsController = TextEditingController(text: widget.game.descricao);
+    _organizerController =
+        TextEditingController(text: widget.game.nomeOrganizador);
+    _feeController = TextEditingController(text: widget.game.valor.toString());
+    _imageUrlController = TextEditingController(text: widget.game.imagemCapa);
     _locationLinkController =
-        TextEditingController(text: widget.game.locationLink);
+        TextEditingController(text: widget.game.linkCampo);
+    _numMaxOperadoresController =
+        TextEditingController(text: widget.game.numMaxOperadores.toString());
+    _modalityController =
+        TextEditingController(text: widget.game.idModalidadeJogo.toString());
+    _periodController = TextEditingController(text: widget.game.periodo);
   }
 
   @override
@@ -85,47 +79,38 @@ class _EditGameScreenState extends State<EditGameScreen> {
     _feeController.dispose();
     _imageUrlController.dispose();
     _locationLinkController.dispose();
+    _numMaxOperadoresController.dispose();
+    _modalityController.dispose();
+    _periodController.dispose();
     super.dispose();
   }
-
-  // String? _validateLocation(String? value) {
-  //   if (value == null || value.isEmpty) {
-  //     return 'Por favor, insira a localização';
-  //   }
-  //   final regex = RegExp(r'^[a-zA-Z\u00C0-\u017F]+/[A-Z]{2}$');
-  //   if (!regex.hasMatch(value)) {
-  //     return 'A localização deve estar no formato CIDADE/ES';
-  //   }
-  //   return null;
-  // }
 
   Future<void> _updateGame() async {
     if (_formKey.currentState!.validate()) {
       final updatedGame = Game(
         id: widget.game.id,
-        name: _nameController.text,
-        location: _locationController.text,
-        date: DateFormat('dd/MM/yyyy HH:mm').parse(_dateController.text),
-        fieldType: _fieldTypeController.text,
-        modality: _selectedModality!,
-        period: _selectedPeriod!,
-        organizer: _organizerController.text,
-        fee: double.parse(_feeController.text),
-        imageUrl: _imageUrlController.text,
-        details: _detailsController.text,
-        locationLink: _locationLinkController.text,
+        titulo: _nameController.text,
+        cidade: _locationController.text,
+        dataEvento: DateFormat('dd/MM/yyyy HH:mm').parse(_dateController.text),
+        idModalidadeJogo: int.parse(_modalityController.text),
+        periodo: _periodController.text,
+        nomeOrganizador: _organizerController.text,
+        valor: double.parse(_feeController.text),
+        imagemCapa: _imageUrlController.text,
+        descricao: _detailsController.text,
+        linkCampo: _locationLinkController.text,
+        numMaxOperadores: int.parse(_numMaxOperadoresController.text),
       );
 
-      // try {
-      //   await Provider.of<AirsoftService>(context, listen: false)
-      //       .updateGame(widget.game.id, updatedGame);
-      //   Navigator.of(context).pop();
-      // } catch (e) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text('Falha ao atualizar o jogo: $e')),
-      //   );
-      // }
-      Navigator.of(context).pop();
+      try {
+        await Provider.of<AirsoftService>(context, listen: false)
+            .updateGame(widget.game.id ?? 0, updatedGame);
+        Navigator.of(context).pop();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Falha ao atualizar o jogo: $e')),
+        );
+      }
     }
   }
 
@@ -180,7 +165,7 @@ class _EditGameScreenState extends State<EditGameScreen> {
                           _locationController.text = selection;
                         },
                         initialValue: TextEditingValue(
-                          text: widget.game.location,
+                          text: widget.game.cidade,
                         ),
                         fieldViewBuilder: (BuildContext context,
                             TextEditingController fieldTextEditingController,
@@ -191,7 +176,7 @@ class _EditGameScreenState extends State<EditGameScreen> {
                           return CustomTextFormField(
                             controller: fieldTextEditingController,
                             focusNode: fieldFocusNode,
-                            labelText: 'Localização *',
+                            labelText: 'Cidade/UF *',
                             readOnly: false,
                             maxLines: 1,
                           );
@@ -242,48 +227,48 @@ class _EditGameScreenState extends State<EditGameScreen> {
                         },
                       ),
                       const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomDropdownFormField(
-                              value: _selectedModality,
-                              items: _modalities,
-                              labelText: 'Modalidade *',
-                              readOnly: false,
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedModality = value!;
-                                });
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Por favor, selecione a modalidade';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: CustomDropdownFormField(
-                              value: _selectedPeriod,
-                              items: _periods,
-                              labelText: 'Período *',
-                              readOnly: false,
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedPeriod = value!;
-                                });
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Por favor, selecione o período';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
+                      DropdownButtonFormField<int>(
+                        decoration: const InputDecoration(
+                          labelText: 'Modalidade *',
+                        ),
+                        items: _modalities.map((modality) {
+                          return DropdownMenuItem<int>(
+                            value: modality['id'],
+                            child: Text(modality['description']),
+                          );
+                        }).toList(),
+                        onChanged: (int? newValue) {
+                          _modalityController.text = newValue.toString();
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Por favor, selecione a modalidade';
+                          }
+                          return null;
+                        },
+                        value: int.tryParse(_modalityController.text),
+                      ),
+                      const SizedBox(height: 10),
+                      DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: 'Período *',
+                        ),
+                        items: _periods.map((period) {
+                          return DropdownMenuItem<String>(
+                            value: period,
+                            child: Text(period),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          _periodController.text = newValue!;
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Por favor, selecione o período';
+                          }
+                          return null;
+                        },
+                        value: _periodController.text,
                       ),
                       const SizedBox(height: 10),
                       CustomTextFormField(
@@ -336,13 +321,27 @@ class _EditGameScreenState extends State<EditGameScreen> {
                       ),
                       const SizedBox(height: 10),
                       CustomTextFormField(
+                        controller: _numMaxOperadoresController,
+                        labelText: 'Número Máximo de Operadores *',
+                        readOnly: false,
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, insira o número máximo de operadores';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      CustomTextFormField(
                         controller: _detailsController,
                         labelText: 'Detalhes',
                         readOnly: false,
                         maxLines: 5,
                       ),
                       const SizedBox(
-                          height: 80), // Adicione espaço para o botão
+                        height: 80,
+                      ),
                     ],
                   ),
                 ),

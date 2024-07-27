@@ -57,7 +57,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   }
 
   Future<void> _openMap() async {
-    final googleMapsUrl = Uri.parse(widget.game.locationLink);
+    final googleMapsUrl = Uri.parse(widget.game.linkCampo);
 
     if (await canLaunchUrl(googleMapsUrl)) {
       await launchUrl(googleMapsUrl);
@@ -71,13 +71,13 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   void _shareViaWhatsApp() async {
     final text = '''
 
-  🏟️ *Evento:* ${widget.game.name}
-  👥 *Organizador:* ${widget.game.organizer}
-  📅 *Data:* ${DateFormat('dd/MM/yyyy').format(widget.game.date)}
-  📍 *Local:* ${widget.game.locationLink}
+  🏟️ *Evento:* ${widget.game.descricao}
+  👥 *Organizador:* ${widget.game.nomeOrganizador}
+  📅 *Data:* ${DateFormat('dd/MM/yyyy').format(widget.game.dataEvento)}
+  📍 *Local:* ${widget.game.cidade}
 
   ℹ️ *Detalhes:* 
-    ${widget.game.details}
+    ${widget.game.descricao}
 
   Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*. 
   ''';
@@ -186,13 +186,13 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                           const SizedBox(height: 8.0),
                           AnimatedCrossFade(
                             firstChild: Text(
-                              widget.game.details,
+                              widget.game.descricao,
                               maxLines: 2,
                               style: const TextStyle(
                                   color: Colors.white, fontSize: 16.0),
                             ),
                             secondChild: Text(
-                              widget.game.details,
+                              widget.game.descricao,
                               style: const TextStyle(
                                   color: Colors.white, fontSize: 16.0),
                             ),

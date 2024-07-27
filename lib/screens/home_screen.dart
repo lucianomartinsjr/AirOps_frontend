@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<String> cityOptions =
         Provider.of<AirsoftService>(context, listen: false)
             .games
-            .map((game) => game.location)
+            .map((game) => game.linkCampo)
             .toSet()
             .toList(); // Obter cidades únicas dos jogos disponíveis
 
@@ -77,7 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
               isFree: isFree,
               period: period,
               modality: modality,
-              fieldType: fieldType,
             );
           },
           cityOptions: cityOptions,

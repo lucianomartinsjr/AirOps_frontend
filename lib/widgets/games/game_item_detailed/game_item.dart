@@ -37,7 +37,7 @@ class GameItem extends StatelessWidget {
                     height: 120,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: NetworkImage(game.imageUrl),
+                        image: NetworkImage(game.imagemCapa),
                         fit: BoxFit.cover,
                       ),
                       borderRadius: BorderRadius.circular(8.0),
@@ -49,7 +49,7 @@ class GameItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          game.name,
+                          game.descricao,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16.0,
@@ -58,19 +58,15 @@ class GameItem extends StatelessWidget {
                         ),
                         const SizedBox(height: 8.0),
                         Text(
-                          'Tipo campo: ${game.fieldType}',
+                          'Modalidade: ${game.modalidadesJogos}',
                           style: const TextStyle(color: Colors.white70),
                         ),
                         Text(
-                          'Modalidade: ${game.modality}',
+                          'Período: ${game.periodo}',
                           style: const TextStyle(color: Colors.white70),
                         ),
                         Text(
-                          'Período: ${game.period}',
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                        Text(
-                          'Local: ${game.location}',
+                          'Local: ${game.cidade}',
                           style: const TextStyle(color: Colors.white70),
                         ),
                       ],
@@ -91,11 +87,12 @@ class GameItem extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildInfoColumn('Organizador', game.organizer),
                   _buildInfoColumn(
-                      'Taxa de campo', 'R\$${game.fee.toStringAsFixed(2)}'),
+                      'Organizador', game.nomeOrganizador ?? 'N/A'),
+                  _buildInfoColumn(
+                      'Taxa de campo', 'R\$${game.valor.toStringAsFixed(2)}'),
                   _buildDateColumn(
-                      '${game.date.toLocal().day.toString().padLeft(2, '0')}/${game.date.toLocal().month.toString().padLeft(2, '0')}/${game.date.toLocal().year} \n${game.date.toLocal().hour.toString().padLeft(2, '0')}:${game.date.toLocal().minute.toString().padLeft(2, '0')}'),
+                      '${game.dataEvento.toLocal().day.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().month.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().year} \n${game.dataEvento.toLocal().hour.toString().padLeft(2, '0')}:${game.date.toLocal().minute.toString().padLeft(2, '0')}'),
                 ],
               ),
             ),

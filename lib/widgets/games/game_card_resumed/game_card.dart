@@ -35,7 +35,7 @@ class GameCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          game.name,
+                          game.titulo,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14.0,
@@ -50,7 +50,7 @@ class GameCard extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                '${game.date.day.toString().padLeft(2, '0')}/${game.date.month.toString().padLeft(2, '0')}/${game.date.year} \n    ${game.date.hour.toString().padLeft(2, '0')}:${game.date.minute.toString().padLeft(2, '0')}',
+                                '${game.dataEvento.day.toString().padLeft(2, '0')}/${game.dataEvento.month.toString().padLeft(2, '0')}/${game.dataEvento.year} \n    ${game.dataEvento.hour.toString().padLeft(2, '0')}:${game.dataEvento.minute.toString().padLeft(2, '0')}',
                                 style: const TextStyle(
                                   color: Colors.white70,
                                 ),
@@ -61,7 +61,7 @@ class GameCard extends StatelessWidget {
                             const SizedBox(width: 16.0),
                             Expanded(
                               child: Text(
-                                'Período:\n${game.period}',
+                                'Período:\n${game.periodo}',
                                 style: const TextStyle(color: Colors.white70),
                                 softWrap: true,
                                 overflow: TextOverflow.visible,
@@ -101,7 +101,7 @@ class GameCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      '${game.playersRegistered} Participante(s) inscrito(s)',
+                      '${game.quantidadeJogadoresInscritos} Participante(s) inscrito(s)',
                       style: const TextStyle(color: Colors.white70),
                       softWrap: true,
                       overflow: TextOverflow.visible,

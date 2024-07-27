@@ -1,33 +1,41 @@
 import 'players.dart';
 
 class Game {
-  final String id;
-  final String name;
-  final String location;
-  final DateTime date;
-  final String fieldType;
-  final String modality;
-  final String period;
-  final String organizer;
-  final double fee;
-  final String imageUrl;
-  final String details;
-  final String locationLink;
+  final int? id;
+  final int? idOperadorOrganizador;
+  final String? nomeOrganizador;
+  final String cidade;
+  final String titulo;
+  final DateTime dataEvento;
+  final String descricao;
+  final double valor;
+  final String periodo;
+  final String linkCampo;
+  final int idModalidadeJogo;
+  final String imagemCapa;
+  final String? modalidadesJogos;
+  final int numMaxOperadores;
+  final DateTime? criadoEM;
+  final int? quantidadeJogadoresInscritos;
   final List<Player>? players; // Lista de jogadores opcional
 
   Game({
-    required this.id,
-    required this.name,
-    required this.location,
-    required this.date,
-    required this.fieldType,
-    required this.modality,
-    required this.period,
-    required this.organizer,
-    required this.fee,
-    required this.imageUrl,
-    required this.details,
-    required this.locationLink,
+    this.id,
+    this.idOperadorOrganizador,
+    this.nomeOrganizador,
+    required this.cidade,
+    required this.titulo,
+    required this.dataEvento,
+    required this.descricao,
+    required this.valor,
+    required this.periodo,
+    required this.linkCampo,
+    required this.idModalidadeJogo,
+    required this.imagemCapa,
+    required this.numMaxOperadores,
+    this.criadoEM,
+    this.quantidadeJogadoresInscritos,
+    this.modalidadesJogos,
     this.players,
   });
 
@@ -40,44 +48,38 @@ class Game {
         : [];
 
     return Game(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      location: json['location'] as String,
-      date: DateTime.parse(json['date'] as String),
-      fieldType: json['fieldType'] as String,
-      modality: json['modality'] as String,
-      period: json['period'] as String,
-      organizer: json['organizer'] as String,
-      fee: (json['fee'] as num).toDouble(),
-      imageUrl: json['imageUrl'] as String,
-      details: json['details'] as String,
-      locationLink: json['locationLink'] as String,
+      id: json['id'] as int?,
+      idOperadorOrganizador: json['idOperadorOrganizador'] as int?,
+      nomeOrganizador: json['OperadorOrganizador'] as String?,
+      cidade: json['cidade'] as String,
+      titulo: json['titulo'] as String,
+      dataEvento: DateTime.parse(json['dataEvento'] as String),
+      descricao: json['descricao'] as String,
+      valor: (json['valor'] as num).toDouble(),
+      periodo: json['periodo'] as String,
+      linkCampo: json['linkCampo'] as String,
+      idModalidadeJogo: json['idModalidadeJogo'] as int,
+      modalidadesJogos: json['ModalidadesJogos'] as String?,
+      imagemCapa: json['imagemCapa'] as String,
+      numMaxOperadores: json['numMaxOperadores'] as int,
+      criadoEM: DateTime.parse(json['criadoEM'] as String),
+      quantidadeJogadoresInscritos:
+          json['quantidadeJogadoresInscritos'] as int?,
       players: playersList,
     );
   }
 
   Map<String, dynamic> toJson() {
-    List<Map<String, dynamic>>? playersJson =
-        players?.map((i) => i.toJson()).toList();
-
     return {
-      'id': id,
-      'name': name,
-      'location': location,
-      'date': date.toIso8601String(),
-      'fieldType': fieldType,
-      'modality': modality,
-      'period': period,
-      'organizer': organizer,
-      'fee': fee,
-      'imageUrl': imageUrl,
-      'details': details,
-      'locationLink': locationLink,
-      'players': playersJson,
+      'titulo': titulo,
+      'dataEvento': dataEvento.toIso8601String(),
+      'descricao': descricao,
+      'valor': valor,
+      'periodo': periodo,
+      'linkCampo': linkCampo,
+      'idModalidadeJogo': idModalidadeJogo,
+      'imagemCapa': imagemCapa,
+      'numMaxOperadores': numMaxOperadores,
     };
   }
-
-  int get playersRegistered => players?.length ?? 0;
-  int get maxPlayers =>
-      22; // ou qualquer outro número dependendo da lógica do seu jogo
 }

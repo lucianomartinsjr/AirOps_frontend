@@ -26,12 +26,19 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   final _feeController = TextEditingController();
   final _imageUrlController = TextEditingController();
   final _locationLinkController = TextEditingController();
+  final _numMaxOperadoresController = TextEditingController();
 
   final List<String> _cities = [
     'Rio Verde/GO',
     'Santa Helena/GO',
     'Jatai/GO',
     'Montividiu/GO',
+  ];
+
+  final List<Map<String, dynamic>> _modalities = [
+    {'id': 1, 'description': 'CQB'},
+    {'id': 2, 'description': 'Floresta'},
+    {'id': 3, 'description': 'Mista'},
   ];
 
   @override
@@ -47,6 +54,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     _feeController.dispose();
     _imageUrlController.dispose();
     _locationLinkController.dispose();
+    _numMaxOperadoresController.dispose();
     super.dispose();
   }
 
@@ -182,13 +190,22 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         },
                       ),
                       const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: _modalityController,
-                        labelText: 'Modalidade *',
-                        readOnly: false,
+                      DropdownButtonFormField<int>(
+                        decoration: const InputDecoration(
+                          labelText: 'Modalidade *',
+                        ),
+                        items: _modalities.map((modality) {
+                          return DropdownMenuItem<int>(
+                            value: modality['id'],
+                            child: Text(modality['description']),
+                          );
+                        }).toList(),
+                        onChanged: (int? newValue) {
+                          _modalityController.text = newValue.toString();
+                        },
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira a modalidade';
+                          if (value == null) {
+                            return 'Por favor, selecione a modalidade';
                           }
                           return null;
                         },
@@ -244,16 +261,23 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       ),
                       const SizedBox(height: 10),
                       CustomTextFormField(
+                        controller: _numMaxOperadoresController,
+                        labelText: 'Número Máximo de Operadores *',
+                        readOnly: false,
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, insira o número máximo de operadores';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      CustomTextFormField(
                         controller: _detailsController,
                         labelText: 'Detalhes',
                         readOnly: false,
                         maxLines: 5,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira os detalhes';
-                          }
-                          return null;
-                        },
                       ),
                       const SizedBox(height: 80),
                     ],
@@ -271,18 +295,18 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       final newGame = Game(
-                        id: DateTime.now().toString(),
-                        name: _nameController.text,
-                        location: _locationController.text,
-                        date: DateTime.parse(_dateController.text),
-                        fieldType: _fieldTypeController.text,
-                        modality: _modalityController.text,
-                        period: _periodController.text,
-                        organizer: _organizerController.text,
-                        fee: double.parse(_feeController.text),
-                        imageUrl: _imageUrlController.text,
-                        details: _detailsController.text,
-                        locationLink: _locationLinkController.text,
+                        titulo: _nameController.text,
+                        cidade: _locationController.text,
+                        dataEvento: DateTime.parse(_dateController.text),
+                        idModalidadeJogo: int.parse(_modalityController.text),
+                        periodo: _periodController.text,
+                        nomeOrganizador: _organizerController.text,
+                        valor: double.parse(_feeController.text),
+                        imagemCapa: _imageUrlController.text,
+                        descricao: _detailsController.text,
+                        linkCampo: _locationLinkController.text,
+                        numMaxOperadores:
+                            int.parse(_numMaxOperadoresController.text),
                       );
                       Provider.of<AirsoftService>(context, listen: false)
                           .addGame(newGame);

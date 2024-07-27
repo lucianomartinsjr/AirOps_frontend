@@ -116,6 +116,9 @@ class ApiService extends ChangeNotifier {
       await _storage.write(key: 'jwt_token', value: responseBody['token']);
       await _storage.write(
           key: 'isAdmin', value: responseBody['isAdmin'].toString());
+      await _storage.write(
+          key: 'hasToChangePassword',
+          value: responseBody['hasToChangePassword'].toString());
       return true;
     } else {
       return false;

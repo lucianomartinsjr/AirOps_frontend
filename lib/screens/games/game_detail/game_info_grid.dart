@@ -17,13 +17,13 @@ class GameInfoGrid extends StatelessWidget {
       childAspectRatio: 3,
       padding: const EdgeInsets.all(8.0),
       children: [
-        _buildInfoTile('Organizador', game.organizer),
-        _buildInfoTile('Data do Evento', dateFormat.format(game.date)),
-        _buildInfoTile('Modalidade', game.modality),
-        _buildInfoTile('Período', game.period),
-        _buildInfoTile(
-            'Jogadores', '${game.playersRegistered} / ${game.maxPlayers}'),
-        _buildInfoTile('Valor', 'R\$ ${game.fee.toStringAsFixed(2)}'),
+        _buildInfoTile('Organizador', game.nomeOrganizador ?? 'N/A'),
+        _buildInfoTile('Data do Evento', dateFormat.format(game.dataEvento)),
+        _buildInfoTile('Modalidade', game.modalidadesJogos ?? 'N/A'),
+        _buildInfoTile('Período', game.periodo),
+        _buildInfoTile('Jogadores',
+            '${game.quantidadeJogadoresInscritos} / ${game.numMaxOperadores}'),
+        _buildInfoTile('Valor', 'R\$ ${game.valor.toStringAsFixed(2)}'),
       ],
     );
   }
