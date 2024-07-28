@@ -66,8 +66,7 @@ class LoginScreen extends HookWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  Image.asset('assets/images/logo.png', height: 150),
-                  const SizedBox(height: 20),
+                  Image.asset('assets/images/logo.png', height: 250),
                   const Text(
                     'Login',
                     style: TextStyle(
@@ -166,11 +165,12 @@ class LoginScreen extends HookWidget {
                       Navigator.of(context).pushNamed('/register');
                     },
                     child: const Text(
-                      'Não possui conta? Registre-se',
+                      'Não possui conta? \nClique aqui para se cadastrar.',
                       style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 30),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/forgot-password');

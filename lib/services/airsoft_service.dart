@@ -31,7 +31,7 @@ class AirsoftService with ChangeNotifier {
       }
 
       final response = await http.post(
-        Uri.parse('$_baseUrl/games'),
+        Uri.parse('$_baseUrl/eventos/criar'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -39,6 +39,7 @@ class AirsoftService with ChangeNotifier {
         body: json.encode(game.toJson()),
       );
 
+      print(response.body.toString());
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Jogo criado com sucesso!')),

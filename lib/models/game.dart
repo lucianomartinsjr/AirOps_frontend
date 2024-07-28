@@ -77,6 +77,7 @@ class Game {
       'titulo': titulo,
       'dataEvento': '${dataEvento.toIso8601String()}Z',
       'descricao': descricao,
+      'cidade': cidade,
       'valor': valor,
       'periodo': periodo,
       'linkCampo': linkCampo,

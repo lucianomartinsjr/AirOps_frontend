@@ -90,8 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Air Ops'),
-        automaticallyImplyLeading:
-            false, // Adicionado para remover o ícone de voltar
+        automaticallyImplyLeading: false,
         actions: [
           if (_isAdmin)
             IconButton(
@@ -103,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(20.0),
             child: Row(
               children: [
                 Expanded(

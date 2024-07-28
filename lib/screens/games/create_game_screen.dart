@@ -375,12 +375,10 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         numMaxOperadores:
                             int.parse(_numMaxOperadoresController.text),
                       );
-                      print('Enviando dados para API: ${newGame.toJson()}');
                       Provider.of<AirsoftService>(context, listen: false)
                           .addGame(newGame, context);
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const HomeScreen(),
-                      ));
+                      Navigator.of(context)
+                          .pushReplacementNamed('/home-screen');
                     }
                   },
                   style: ElevatedButton.styleFrom(

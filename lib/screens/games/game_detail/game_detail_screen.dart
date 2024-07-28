@@ -24,21 +24,17 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   String errorMessage = '';
   bool _isExpanded = false;
   final ScrollController _scrollController = ScrollController();
-  final AirsoftService _airsoftService =
-      AirsoftService();
+  final AirsoftService _airsoftService = AirsoftService();
 
   @override
   void initState() {
     super.initState();
-    _checkSubscription(); 
+    _checkSubscription(); // Verifica a inscrição na inicialização
   }
 
   Future<void> _checkSubscription() async {
-    
-    if (widget.game.inscrito == true) {
-      isSubscribed = true;
     setState(() {
-      isSubscribed = false; 
+      isSubscribed = false;
     });
   }
 
@@ -53,7 +49,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       await _airsoftService.subscribeToEvent(widget.game.id);
       setState(() {
         isSuccess = true;
-        isSubscribed = true; 
+        isSubscribed = true;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Inscrição realizada com sucesso!')),
@@ -77,7 +73,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       await _airsoftService.unsubscribeFromEvent(widget.game.id);
       setState(() {
         isSuccess = true;
-        isSubscribed = false; 
+        isSubscribed = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Desinscrição realizada com sucesso!')),

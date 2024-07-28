@@ -21,7 +21,7 @@ class ForgotPasswordScreen extends HookWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('lib/assets/images/logo.png', height: 250),
+                  Image.asset('assets/images/logo.png', height: 250),
                   const SizedBox(height: 20),
                   const Text(
                     'Recuperar Senha',
