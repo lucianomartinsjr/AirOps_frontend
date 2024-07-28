@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 import 'players.dart';
 
 class Game {
@@ -17,7 +19,8 @@ class Game {
   final int numMaxOperadores;
   final DateTime? criadoEM;
   final int? quantidadeJogadoresInscritos;
-  final List<Player>? players; // Lista de jogadores opcional
+  final List<Player>? players;
+  final bool? inscrito;
 
   Game({
     this.id,
@@ -37,6 +40,7 @@ class Game {
     this.quantidadeJogadoresInscritos,
     this.modalidadesJogos,
     this.players,
+    this.inscrito,
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {
@@ -48,31 +52,30 @@ class Game {
         : [];
 
     return Game(
-      id: json['id'] as int?,
-      idOperadorOrganizador: json['idOperadorOrganizador'] as int?,
-      nomeOrganizador: json['OperadorOrganizador'] as String?,
-      cidade: json['cidade'] as String,
-      titulo: json['titulo'] as String,
-      dataEvento: DateTime.parse(json['dataEvento'] as String),
-      descricao: json['descricao'] as String,
-      valor: (json['valor'] as num).toDouble(),
-      periodo: json['periodo'] as String,
-      linkCampo: json['linkCampo'] as String,
-      idModalidadeJogo: json['idModalidadeJogo'] as int,
-      modalidadesJogos: json['ModalidadesJogos'] as String?,
-      imagemCapa: json['imagemCapa'] as String,
-      numMaxOperadores: json['numMaxOperadores'] as int,
-      criadoEM: DateTime.parse(json['criadoEM'] as String),
-      quantidadeJogadoresInscritos:
-          json['quantidadeJogadoresInscritos'] as int?,
-      players: playersList,
-    );
+        id: json['id'] as int?,
+        idOperadorOrganizador: json['idOperadorOrganizador'] as int?,
+        nomeOrganizador: json['OperadorOrganizador'] as String?,
+        cidade: json['cidade'] as String,
+        titulo: json['titulo'] as String,
+        dataEvento: DateTime.parse(json['dataEvento'] as String),
+        descricao: json['descricao'] as String,
+        valor: (json['valor'] as num).toDouble(),
+        periodo: json['periodo'] as String,
+        linkCampo: json['linkCampo'] as String,
+        idModalidadeJogo: json['idModalidadeJogo'] as int,
+        modalidadesJogos: json['ModalidadesJogos'] as String?,
+        imagemCapa: json['imagemCapa'] as String,
+        numMaxOperadores: json['numMaxOperadores'] as int,
+        criadoEM: DateTime.parse(json['criadoEM'] as String),
+        quantidadeJogadoresInscritos: json['quantidadeJogadores'] as int?,
+        players: playersList,
+        inscrito: json['inscrito'] as bool);
   }
 
   Map<String, dynamic> toJson() {
     return {
       'titulo': titulo,
-      'dataEvento': dataEvento.toIso8601String(),
+      'dataEvento': '${dataEvento.toIso8601String()}Z',
       'descricao': descricao,
       'valor': valor,
       'periodo': periodo,

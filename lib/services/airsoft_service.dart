@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
@@ -22,14 +23,43 @@ class AirsoftService with ChangeNotifier {
     return await _storage.read(key: 'jwt_token');
   }
 
-  void addGame(Game game) {
-    _games.add(game);
-    notifyListeners();
+  Future<void> addGame(Game game, BuildContext context) async {
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        throw Exception('Token não encontrado');
+      }
+
+      final response = await http.post(
+        Uri.parse('$_baseUrl/games'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(game.toJson()),
+      );
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Jogo criado com sucesso!')),
+        );
+      } else {
+        throw Exception('Erro ao adicionar jogo');
+      }
+    } catch (e) {
+      debugPrint('Erro ao adicionar jogo: $e');
+    }
   }
 
   Future<void> fetchGames() async {
     try {
+      final token = await _getToken();
+      if (token == null) {
+        throw Exception('Token não encontrado');
+      }
+
       final response = await http.get(
+        headers: {'Authorization': 'Bearer $token'},
         Uri.parse('$_baseUrl/eventos'),
       );
 
@@ -120,7 +150,7 @@ class AirsoftService with ChangeNotifier {
     }
   }
 
-  Future<void> subscribeToEvent(String eventId) async {
+  Future<void> subscribeToEvent(int? eventId) async {
     try {
       final token = await _getToken();
       if (token == null) {
@@ -144,7 +174,7 @@ class AirsoftService with ChangeNotifier {
     }
   }
 
-  Future<void> unsubscribeFromEvent(String eventId) async {
+  Future<void> unsubscribeFromEvent(int? eventId) async {
     try {
       final token = await _getToken();
       if (token == null) {
@@ -159,7 +189,6 @@ class AirsoftService with ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        // Fetch subscribed games again to update the list
         await fetchSubscribedGames();
       } else {
         throw Exception('Erro ao desinscrever do evento');

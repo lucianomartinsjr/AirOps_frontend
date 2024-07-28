@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../services/api_service.dart';
 // Substitua pelo caminho correto do seu serviço de API
@@ -11,10 +12,33 @@ class LoginScreen extends HookWidget {
   Widget build(BuildContext context) {
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
+    final rememberEmail = useState(false);
+
+    useEffect(() {
+      Future<void> loadEmail() async {
+        final prefs = await SharedPreferences.getInstance();
+        final savedEmail = prefs.getString('savedEmail');
+        if (savedEmail != null) {
+          emailController.text = savedEmail;
+          rememberEmail.value = true;
+        }
+      }
+
+      loadEmail();
+      return null;
+    }, []);
 
     Future<void> handleLogin() async {
       final email = emailController.text;
       final password = passwordController.text;
+
+      if (rememberEmail.value) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('savedEmail', email);
+      } else {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('savedEmail');
+      }
 
       final success = await ApiService().login(email, password);
 
@@ -42,12 +66,16 @@ class LoginScreen extends HookWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  Image.asset('assets/images/logo.png', height: 250),
+                  Image.asset('assets/images/logo.png', height: 150),
+                  const SizedBox(height: 20),
                   const Text(
                     'Login',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 40),
                   SizedBox(
                     width: double.infinity,
                     child: Column(
@@ -65,9 +93,11 @@ class LoginScreen extends HookWidget {
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide.none,
                             ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 20),
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 20),
                         TextField(
                           controller: passwordController,
                           cursorColor: Colors.red,
@@ -82,7 +112,33 @@ class LoginScreen extends HookWidget {
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide.none,
                             ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 20),
                           ),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Text(
+                              'Lembrar email',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            Transform.scale(
+                              scale: 0.8,
+                              child: Switch(
+                                value: rememberEmail.value,
+                                onChanged: (value) {
+                                  rememberEmail.value = value;
+                                },
+                                activeColor: Colors.red,
+                                activeTrackColor: Colors.red.withOpacity(0.5),
+                                inactiveThumbColor: Colors.grey,
+                                inactiveTrackColor:
+                                    Colors.grey.withOpacity(0.5),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 20),
                         SizedBox(

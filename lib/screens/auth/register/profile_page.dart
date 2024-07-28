@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
@@ -16,7 +17,7 @@ class ProfilePage extends StatefulWidget {
   final VoidCallback onSubmit;
 
   const ProfilePage({
-    Key? key,
+    super.key,
     required this.nameController,
     required this.nicknameController,
     required this.cityController,
@@ -25,7 +26,7 @@ class ProfilePage extends StatefulWidget {
     required this.onModalityChanged,
     required this.onPrevious,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -53,7 +54,9 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         _classes = classes;
       });
-    } catch (error) {}
+    } catch (error) {
+      print("Erro ao buscar classes: $error");
+    }
   }
 
   Future<void> _fetchModalities() async {
@@ -64,7 +67,11 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         _modalities = modalities;
       });
-    } catch (error) {}
+    } catch (error) {
+      if (kDebugMode) {
+        print("Erro ao buscar modalidades: $error");
+      }
+    }
   }
 
   void _onModalityChanged(bool selected, String modalityId) {
@@ -145,7 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   value: _selectedClassId,
                   items: _classes.map((Class value) {
                     return DropdownMenuItem<String>(
-                      value: value.id.toString(), // Convertendo para String
+                      value: value.id.toString(),
                       child: Text(value.nomeClasse,
                           style: const TextStyle(color: Colors.white)),
                     );
@@ -235,7 +242,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   mainAxisSpacing: 5.0,
                   childAspectRatio: 5,
                   physics: const NeverScrollableScrollPhysics(),
-                  children: _modalities.map((modality) {
+                  children: _modalities
+                      .where((modality) => modality.ativo)
+                      .map((modality) {
                     final isSelected =
                         _selectedModalityIds.contains(modality.id.toString());
                     return InkWell(

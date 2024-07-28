@@ -49,7 +49,7 @@ class GameItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          game.descricao,
+                          game.titulo,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16.0,
@@ -92,7 +92,7 @@ class GameItem extends StatelessWidget {
                   _buildInfoColumn(
                       'Taxa de campo', 'R\$${game.valor.toStringAsFixed(2)}'),
                   _buildDateColumn(
-                      '${game.dataEvento.toLocal().day.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().month.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().year} \n${game.dataEvento.toLocal().hour.toString().padLeft(2, '0')}:${game.date.toLocal().minute.toString().padLeft(2, '0')}'),
+                      '${game.dataEvento.toLocal().day.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().month.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().year} \n${game.dataEvento.toLocal().hour.toString().padLeft(2, '0')}:${game.dataEvento.toLocal().minute.toString().padLeft(2, '0')}'),
                 ],
               ),
             ),

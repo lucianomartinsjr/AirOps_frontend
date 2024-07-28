@@ -85,7 +85,7 @@ class _CityAutocompleteFieldState extends State<CityAutocompleteField> {
             child: Container(
               width: _fieldWidth,
               constraints: const BoxConstraints(
-                maxHeight: 50, // Limitar a altura do quadro de sugestões
+                maxHeight: 50,
               ),
               child: ListView.builder(
                 padding: EdgeInsets.zero,

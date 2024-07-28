@@ -29,7 +29,7 @@ class _GamesScreenState extends State<GamesScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Eventos'),
-          automaticallyImplyLeading: false, // Remover o ícone de voltar
+          automaticallyImplyLeading: false,
         ),
         body: Column(
           children: [

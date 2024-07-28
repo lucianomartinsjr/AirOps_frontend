@@ -57,12 +57,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (confirmed == true) {
-      await profileProvider
-          .clearUserData(); // Método para limpar os dados do usuário
+      await profileProvider.clearUserData();
       Navigator.of(context).pushNamedAndRemoveUntil(
         '/login',
         (Route<dynamic> route) => false,
-      ); // Redirecionar para a tela de login
+      );
     }
   }
 

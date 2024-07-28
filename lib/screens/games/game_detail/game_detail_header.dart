@@ -32,7 +32,7 @@ class GameDetailHeader extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            game.descricao,
+            game.titulo.toUpperCase(),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,

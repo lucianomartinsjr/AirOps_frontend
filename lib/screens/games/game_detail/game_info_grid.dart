@@ -11,19 +11,24 @@ class GameInfoGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
     return GridView.count(
-      crossAxisCount: 2,
+      crossAxisCount: 3,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 3,
+      childAspectRatio: 2,
       padding: const EdgeInsets.all(8.0),
       children: [
         _buildInfoTile('Organizador', game.nomeOrganizador ?? 'N/A'),
-        _buildInfoTile('Data do Evento', dateFormat.format(game.dataEvento)),
         _buildInfoTile('Modalidade', game.modalidadesJogos ?? 'N/A'),
+        _buildInfoTile('Data do Evento', dateFormat.format(game.dataEvento)),
         _buildInfoTile('Período', game.periodo),
         _buildInfoTile('Jogadores',
-            '${game.quantidadeJogadoresInscritos} / ${game.numMaxOperadores}'),
-        _buildInfoTile('Valor', 'R\$ ${game.valor.toStringAsFixed(2)}'),
+            '${game.quantidadeJogadoresInscritos ?? 0} / ${game.numMaxOperadores}'),
+        _buildInfoTile(
+          'Valor',
+          game.valor == 0.00
+              ? 'Não há'
+              : 'R\$ ${game.valor.toStringAsFixed(2)}',
+        ),
       ],
     );
   }
@@ -35,12 +40,12 @@ class GameInfoGrid extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(color: Colors.white70, fontSize: 14.0),
+          style: const TextStyle(color: Colors.white70, fontSize: 12.0),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(color: Colors.white, fontSize: 16.0),
+          style: const TextStyle(color: Colors.white, fontSize: 14.0),
         ),
       ],
     );

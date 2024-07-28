@@ -7,6 +7,7 @@ class CustomDropdownFormField<T> extends StatelessWidget {
   final bool readOnly;
   final FormFieldValidator<T>? validator;
   final ValueChanged<T?>? onChanged;
+  final String Function(T)? itemAsString;
 
   const CustomDropdownFormField({
     super.key,
@@ -16,6 +17,7 @@ class CustomDropdownFormField<T> extends StatelessWidget {
     required this.readOnly,
     this.validator,
     this.onChanged,
+    this.itemAsString,
   });
 
   @override
@@ -28,7 +30,7 @@ class CustomDropdownFormField<T> extends StatelessWidget {
           return DropdownMenuItem<T>(
             value: item,
             child: Text(
-              item is String ? item : item.toString(),
+              itemAsString != null ? itemAsString!(item) : item.toString(),
               style: const TextStyle(color: Colors.white),
             ),
           );

@@ -1,9 +1,15 @@
+import 'package:airops_frontend/screens/home_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import '../../models/modality.dart';
 import '../../services/airsoft_service.dart';
 import '../../models/game.dart';
+import '../../services/api_service.dart';
 import '../../widgets/form_fields/custom_text_form_field.dart';
 import '../../widgets/form_fields/date_time_picker_field.dart';
+import '../../widgets/form_fields/custom_dropdown_form_field.dart'; // Importar aqui
 
 class CreateGameScreen extends StatefulWidget {
   const CreateGameScreen({super.key});
@@ -27,6 +33,11 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   final _imageUrlController = TextEditingController();
   final _locationLinkController = TextEditingController();
   final _numMaxOperadoresController = TextEditingController();
+  List<Modality> _modalities = [];
+  Modality? _selectedModality;
+  String? _selectedPeriod;
+
+  bool _isFree = false; // Controla o estado do switch
 
   final List<String> _cities = [
     'Rio Verde/GO',
@@ -35,11 +46,32 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     'Montividiu/GO',
   ];
 
-  final List<Map<String, dynamic>> _modalities = [
-    {'id': 1, 'description': 'CQB'},
-    {'id': 2, 'description': 'Floresta'},
-    {'id': 3, 'description': 'Mista'},
+  final List<String> _periods = [
+    'Matutino',
+    'Vespertino',
+    'Noturno',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchModalities();
+  }
+
+  Future<void> _fetchModalities() async {
+    try {
+      List<Modality> modalities =
+          await Provider.of<ApiService>(context, listen: false)
+              .fetchModalities();
+      setState(() {
+        _modalities = modalities;
+      });
+    } catch (error) {
+      if (kDebugMode) {
+        print("Erro ao buscar modalidades: $error");
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -62,11 +94,12 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     if (value == null || value.isEmpty) {
       return 'Por favor, insira a localização';
     }
-    final regex = RegExp(r'^[a-zA-Z\u00C0-\u017F]+/[A-Z]{2}$');
-    if (!regex.hasMatch(value)) {
-      return 'A localização deve estar no formato CIDADE/ES';
-    }
     return null;
+  }
+
+  DateTime _parseDate(String dateStr) {
+    final DateFormat formatter = DateFormat('dd/MM/yyyy HH:mm');
+    return formatter.parse(dateStr);
   }
 
   @override
@@ -95,11 +128,11 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       const SizedBox(height: 5),
                       CustomTextFormField(
                         controller: _nameController,
-                        labelText: 'Nome *',
+                        labelText: 'Titulo *',
                         readOnly: false,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor, insira o nome do jogo';
+                            return 'Por favor, insira o titulo do jogo';
                           }
                           return null;
                         },
@@ -167,41 +200,53 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         },
                       ),
                       const SizedBox(height: 10),
-                      DateTimePickerField(
-                        controller: _dateController,
-                        labelText: 'Data e Hora *',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, selecione a data e a hora';
-                          }
-                          return null;
-                        },
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DateTimePickerField(
+                              controller: _dateController,
+                              labelText: 'Data e Hora *',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Por favor, selecione a data e a hora';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: CustomDropdownFormField<String>(
+                              value: _selectedPeriod,
+                              items: _periods,
+                              labelText: 'Período *',
+                              readOnly: false,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _selectedPeriod = newValue;
+                                });
+                              },
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Por favor, selecione o período';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: _fieldTypeController,
-                        labelText: 'Tipo de Campo *',
+                      CustomDropdownFormField<Modality>(
+                        value: _selectedModality,
+                        items: _modalities,
+                        labelText: 'Modalidade *',
                         readOnly: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira o tipo de campo';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      DropdownButtonFormField<int>(
-                        decoration: const InputDecoration(
-                          labelText: 'Modalidade *',
-                        ),
-                        items: _modalities.map((modality) {
-                          return DropdownMenuItem<int>(
-                            value: modality['id'],
-                            child: Text(modality['description']),
-                          );
-                        }).toList(),
-                        onChanged: (int? newValue) {
-                          _modalityController.text = newValue.toString();
+                        itemAsString: (Modality modality) => modality.descricao,
+                        onChanged: (Modality? newValue) {
+                          setState(() {
+                            _selectedModality = newValue;
+                          });
                         },
                         validator: (value) {
                           if (value == null) {
@@ -211,29 +256,64 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         },
                       ),
                       const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: _periodController,
-                        labelText: 'Período *',
-                        readOnly: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira o período';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: _feeController,
-                        labelText: 'Taxa *',
-                        readOnly: false,
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira a taxa';
-                          }
-                          return null;
-                        },
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomTextFormField(
+                              controller: _numMaxOperadoresController,
+                              labelText: 'Núm. Máx. de Operadores *',
+                              readOnly: false,
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Por favor, insira o número máximo de operadores';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: CustomTextFormField(
+                              controller: _feeController,
+                              labelText: 'Taxa *',
+                              readOnly: _isFree,
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (_isFree ||
+                                    (value != null && value.isNotEmpty)) {
+                                  return null;
+                                }
+                                return 'Por favor, insira a taxa';
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Column(
+                            children: [
+                              const Text('Gratuito'),
+                              Transform.scale(
+                                scale: 0.8,
+                                child: Switch(
+                                  value: _isFree,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _isFree = value;
+                                      if (_isFree == true) {
+                                        _feeController.text = '0';
+                                      }
+                                    });
+                                  },
+                                  activeColor: Colors.red,
+                                  activeTrackColor: Colors.red.withOpacity(0.5),
+                                  inactiveThumbColor: Colors.grey,
+                                  inactiveTrackColor:
+                                      Colors.grey.withOpacity(0.5),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 10),
                       CustomTextFormField(
@@ -255,19 +335,6 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor, insira o link do Maps';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: _numMaxOperadoresController,
-                        labelText: 'Número Máximo de Operadores *',
-                        readOnly: false,
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira o número máximo de operadores';
                           }
                           return null;
                         },
@@ -297,9 +364,9 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       final newGame = Game(
                         titulo: _nameController.text,
                         cidade: _locationController.text,
-                        dataEvento: DateTime.parse(_dateController.text),
-                        idModalidadeJogo: int.parse(_modalityController.text),
-                        periodo: _periodController.text,
+                        dataEvento: _parseDate(_dateController.text),
+                        idModalidadeJogo: _selectedModality!.id,
+                        periodo: _selectedPeriod!,
                         nomeOrganizador: _organizerController.text,
                         valor: double.parse(_feeController.text),
                         imagemCapa: _imageUrlController.text,
@@ -308,9 +375,12 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         numMaxOperadores:
                             int.parse(_numMaxOperadoresController.text),
                       );
+                      print('Enviando dados para API: ${newGame.toJson()}');
                       Provider.of<AirsoftService>(context, listen: false)
-                          .addGame(newGame);
-                      Navigator.of(context).pop();
+                          .addGame(newGame, context);
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ));
                     }
                   },
                   style: ElevatedButton.styleFrom(

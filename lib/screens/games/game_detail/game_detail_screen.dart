@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../../../models/game.dart';
-import 'dart:convert';
 import 'package:intl/intl.dart';
+import '../../../services/airsoft_service.dart';
 import 'game_detail_header.dart';
 import 'game_info_grid.dart';
 import 'game_detail_buttons.dart';
@@ -21,9 +20,27 @@ class GameDetailScreen extends StatefulWidget {
 class _GameDetailScreenState extends State<GameDetailScreen> {
   bool isError = false;
   bool isSuccess = false;
+  bool isSubscribed = false;
   String errorMessage = '';
   bool _isExpanded = false;
   final ScrollController _scrollController = ScrollController();
+  final AirsoftService _airsoftService =
+      AirsoftService();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSubscription(); 
+  }
+
+  Future<void> _checkSubscription() async {
+    
+    if (widget.game.inscrito == true) {
+      isSubscribed = true;
+    setState(() {
+      isSubscribed = false; 
+    });
+  }
 
   Future<void> inscrever() async {
     setState(() {
@@ -32,26 +49,43 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       errorMessage = '';
     });
 
-    final response = await http.post(
-      Uri.parse('https://api.example.com/inscricao'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${widget.token}',
-      },
-      body: jsonEncode({'gameId': widget.game.id}),
-    );
-
-    if (response.statusCode == 200) {
+    try {
+      await _airsoftService.subscribeToEvent(widget.game.id);
       setState(() {
         isSuccess = true;
+        isSubscribed = true; 
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Inscrição realizada com sucesso!')),
       );
-    } else {
+    } catch (e) {
       setState(() {
         isError = true;
         errorMessage = 'Erro ao realizar inscrição. Tente novamente.';
+      });
+    }
+  }
+
+  Future<void> desinscrever() async {
+    setState(() {
+      isError = false;
+      isSuccess = false;
+      errorMessage = '';
+    });
+
+    try {
+      await _airsoftService.unsubscribeFromEvent(widget.game.id);
+      setState(() {
+        isSuccess = true;
+        isSubscribed = false; 
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Desinscrição realizada com sucesso!')),
+      );
+    } catch (e) {
+      setState(() {
+        isError = true;
+        errorMessage = 'Erro ao realizar desinscrição. Tente novamente.';
       });
     }
   }
@@ -70,7 +104,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
 
   void _shareViaWhatsApp() async {
     final text = '''
-
   🏟️ *Evento:* ${widget.game.descricao}
   👥 *Organizador:* ${widget.game.nomeOrganizador}
   📅 *Data:* ${DateFormat('dd/MM/yyyy').format(widget.game.dataEvento)}
@@ -111,7 +144,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text("Air Ops"),
+        title: const Text("Detalhes do Evento"),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         actions: [
@@ -135,10 +168,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                   const Center(
                     child: Text(
                       '- Informações -',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12.0,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 12.0),
                     ),
                   ),
                   const SizedBox(height: 8.0),
@@ -157,10 +187,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                   const Center(
                     child: Text(
                       '- Descrição - ',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12.0,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 12.0),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -223,7 +250,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             isSuccess: isSuccess,
             errorMessage: errorMessage,
             onMapTap: _openMap,
-            onInscreverTap: inscrever,
+            onInscreverTap: isSubscribed ? desinscrever : inscrever,
           ),
         ],
       ),
