@@ -29,13 +29,8 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _checkSubscription(); // Verifica a inscrição na inicialização
-  }
-
-  Future<void> _checkSubscription() async {
-    setState(() {
-      isSubscribed = false;
-    });
+    isSubscribed =
+        widget.game.inscrito!; // Verifica a inscrição na inicialização
   }
 
   Future<void> inscrever() async {
@@ -247,6 +242,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             errorMessage: errorMessage,
             onMapTap: _openMap,
             onInscreverTap: isSubscribed ? desinscrever : inscrever,
+            isSubscribed: isSubscribed,
           ),
         ],
       ),
