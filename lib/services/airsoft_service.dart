@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -39,7 +38,6 @@ class AirsoftService with ChangeNotifier {
         body: json.encode(game.toJson()),
       );
 
-      print(response.body.toString());
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Jogo criado com sucesso!')),
@@ -112,7 +110,7 @@ class AirsoftService with ChangeNotifier {
       }
 
       final response = await http.get(
-        Uri.parse('$_baseUrl/eventos/organizador'),
+        Uri.parse('$_baseUrl/eventos/organizados-operador'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
