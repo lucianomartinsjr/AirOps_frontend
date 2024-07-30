@@ -85,13 +85,16 @@ class AirsoftService with ChangeNotifier {
       }
 
       final response = await http.get(
-        Uri.parse('$_baseUrl/subscribed-games'),
+        Uri.parse('$_baseUrl/eventos'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        _subscribedGames = data.map((json) => Game.fromJson(json)).toList();
+        _subscribedGames = data
+            .map((json) => Game.fromJson(json))
+            .where((game) => game.inscrito == true)
+            .toList();
         notifyListeners();
       } else {
         throw Exception('Erro ao buscar jogos inscritos');
@@ -118,10 +121,10 @@ class AirsoftService with ChangeNotifier {
         _organizerGames = data.map((json) => Game.fromJson(json)).toList();
         notifyListeners();
       } else {
-        throw Exception('Failed to fetch organizer games');
+        throw Exception('Erro ao buscar jogos organizados pelo jogador');
       }
     } catch (e) {
-      debugPrint('Erro ao buscar jogos organizados: $e');
+      debugPrint('Erro ao buscar jogos organizados pelo jogador> $e');
     }
   }
 
