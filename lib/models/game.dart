@@ -44,7 +44,7 @@ class Game {
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {
-    var playersJson = json['players'] as List?;
+    var playersJson = json['jogadores'] as List?;
     List<Player> playersList = playersJson != null
         ? playersJson
             .map((i) => Player.fromJson(i as Map<String, dynamic>))

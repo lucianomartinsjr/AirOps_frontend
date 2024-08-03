@@ -11,7 +11,7 @@ class PlayersDialog extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          maxWidth: 400,
+          maxWidth: 600,
           maxHeight: 900,
         ),
         child: AlertDialog(
@@ -20,7 +20,10 @@ class PlayersDialog extends StatelessWidget {
             children: [
               const Text(
                 'Jogadores Inscritos',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               Text(
@@ -47,6 +50,13 @@ class PlayersDialog extends StatelessWidget {
                       ),
                     ),
                     Text(
+                      'Contato',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
                       'Classe',
                       style: TextStyle(
                         color: Colors.white70,
@@ -56,47 +66,68 @@ class PlayersDialog extends StatelessWidget {
                   ],
                 ),
               ),
-              Expanded(
-                child: SizedBox(
-                  height: 400,
-                  width: double.maxFinite,
-                  child: ListView.builder(
-                    itemCount: game.players?.length ?? 1,
-                    itemBuilder: (context, index) {
-                      if (game.players == null || game.players!.isEmpty) {
-                        return const ListTile(
-                          title: Text(
-                            'Nenhum jogador inscrito',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        );
-                      } else {
-                        final player = game.players![index];
-                        return Container(
-                          color: index.isEven
-                              ? Colors.grey[800]
-                              : Colors.grey[700],
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 2.0, horizontal: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  player.name,
+              SizedBox(
+                height: 400,
+                width: double.maxFinite,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: game.players?.length ?? 1,
+                  itemBuilder: (context, index) {
+                    if (game.players == null || game.players!.isEmpty) {
+                      return const ListTile(
+                        title: Text(
+                          'Nenhum jogador inscrito',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    } else {
+                      final player = game.players![index];
+                      // Pegando apenas o primeiro e segundo nome
+                      final nomeSplit = player.nome.split(' ');
+                      final nome = nomeSplit.length > 1
+                          ? '${nomeSplit[0]} ${nomeSplit[1]}'
+                          : player.nome;
+                      return Container(
+                        color:
+                            index.isEven ? Colors.grey[800] : Colors.grey[700],
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 2.0, horizontal: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                flex: 2,
+                                child: Text(
+                                  nome,
                                   style: const TextStyle(color: Colors.white),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                Text(
-                                  player.role,
+                              ),
+                              const SizedBox(width: 10),
+                              Flexible(
+                                flex: 1,
+                                child: Text(
+                                  player.nomeClasse,
                                   style: const TextStyle(color: Colors.white70),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 10),
+                              Flexible(
+                                flex: 2,
+                                child: Text(
+                                  player.contato,
+                                  style: const TextStyle(color: Colors.white70),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      }
-                    },
-                  ),
+                        ),
+                      );
+                    }
+                  },
                 ),
               ),
             ],
@@ -108,10 +139,11 @@ class PlayersDialog extends StatelessWidget {
                 child: TextButton(
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
                   ),
                   child: const Text(
                     'Fechar',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();
