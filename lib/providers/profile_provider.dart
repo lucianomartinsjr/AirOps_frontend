@@ -96,8 +96,7 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   Future<void> clearUserData() async {
-    await apiService
-        .clearToken(); // Método para limpar o token JWT no serviço de API
+    await apiService.clearToken();
     nameController.clear();
     nicknameController.clear();
     cityController.clear();

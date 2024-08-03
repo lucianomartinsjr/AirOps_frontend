@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../models/game.dart';
 
 class PlayersDialog extends StatelessWidget {
@@ -6,12 +8,32 @@ class PlayersDialog extends StatelessWidget {
 
   const PlayersDialog({super.key, required this.game});
 
+  String _cleanContact(String contato) {
+    // Remove todos os caracteres que não são números
+    return contato.replaceAll(RegExp(r'[^0-9]'), '');
+  }
+
+  void _launchWhatsApp(String contato) async {
+    final cleanedContact = _cleanContact(contato);
+    final Uri url = Uri(
+      scheme: 'https',
+      host: 'wa.me',
+      path: '/55$cleanedContact',
+    );
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          maxWidth: 600,
+          maxWidth: 650,
           maxHeight: 900,
         ),
         child: AlertDialog(
@@ -26,11 +48,6 @@ class PlayersDialog extends StatelessWidget {
                     fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              Text(
-                'Total: ${game.players?.length ?? 0}',
-                style: const TextStyle(color: Colors.white70, fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
             ],
           ),
           content: Column(
@@ -40,7 +57,7 @@ class PlayersDialog extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text(
                       'Nome',
@@ -50,14 +67,14 @@ class PlayersDialog extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Contato',
+                      'Classe',
                       style: TextStyle(
                         color: Colors.white70,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'Classe',
+                      'Contato',
                       style: TextStyle(
                         color: Colors.white70,
                         fontWeight: FontWeight.bold,
@@ -116,10 +133,25 @@ class PlayersDialog extends StatelessWidget {
                               const SizedBox(width: 10),
                               Flexible(
                                 flex: 2,
-                                child: Text(
-                                  player.contato,
-                                  style: const TextStyle(color: Colors.white70),
-                                  overflow: TextOverflow.ellipsis,
+                                child: GestureDetector(
+                                  onTap: () => _launchWhatsApp(player.contato),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        player.contato,
+                                        style: const TextStyle(
+                                            color: Colors.white70),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(width: 5),
+                                      PhosphorIcon(
+                                        PhosphorIcons.whatsappLogo(),
+                                        size: 15,
+                                        color: Colors.green,
+                                        semanticLabel: 'whatsapp',
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -133,6 +165,16 @@ class PlayersDialog extends StatelessWidget {
             ],
           ),
           actions: [
+            const Center(
+              child: Text(
+                'Clique no número para falar o Operador com o pelo WhatsApp.',
+                style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 10,
+                    fontStyle: FontStyle.italic),
+              ),
+            ),
+            const SizedBox(height: 5),
             Center(
               child: SizedBox(
                 width: double.infinity,

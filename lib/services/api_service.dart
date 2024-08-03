@@ -76,7 +76,7 @@ class ApiService extends ChangeNotifier {
   }
 
   Future<Profile> fetchProfile() async {
-    final url = Uri.parse('$baseUrl/profile');
+    final url = Uri.parse('$baseUrl/operador');
     final response = await http.get(url, headers: {
       'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
     });
