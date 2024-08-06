@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/profile_provider.dart';
+import '../../services/api_service.dart';
 import '../../widgets/form_fields/custom_dropdown_form_field.dart';
 import '../../widgets/form_fields/custom_text_form_field.dart';
 import '../../widgets/modalities_grid.dart';
@@ -18,10 +19,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
-    profileProvider
-        .loadUserProfile(); // Método para carregar os dados do perfil
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profileProvider =
+          Provider.of<ProfileProvider>(context, listen: false);
+      profileProvider.initialize(ApiService());
+    });
   }
 
   Future<void> _logout(
@@ -134,10 +136,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           readOnly: !profileProvider.isEditing,
                         ),
                         const SizedBox(height: 10),
-                        CustomDropdownFormField(
+                        CustomDropdownFormField<String>(
                           value: profileProvider.selectedClass,
                           items: profileProvider.classes
-                              .map((classItem) => classItem.nomeClasse)
+                              .map((classItem) => classItem.id.toString())
                               .toList(),
                           labelText: 'Qual classe você mais joga? *',
                           readOnly: !profileProvider.isEditing,
@@ -150,6 +152,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onChanged: (newValue) {
                             profileProvider.selectedClass = newValue;
                             profileProvider.validateForm();
+                          },
+                          itemAsString: (String item) {
+                            final classItem =
+                                profileProvider.classes.firstWhere(
+                              (classItem) => classItem.id.toString() == item,
+                            );
+                            return classItem != null
+                                ? classItem.nomeClasse
+                                : '';
                           },
                         ),
                         const SizedBox(height: 10),
@@ -186,8 +197,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 10),
                         ModalitiesGrid(
                           modalities: profileProvider.modalities,
-                          selectedModalityIds:
-                              profileProvider.selectedModalityIds,
+                          selectedModalityIds: profileProvider
+                              .selectedModalities
+                              .map((modality) => modality.id)
+                              .toList(),
                           isEditing: profileProvider.isEditing,
                           onModalityChanged: profileProvider.onModalityChanged,
                         ),
@@ -207,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: ElevatedButton(
                                   onPressed: profileProvider.isFormValid &&
                                           profileProvider
-                                              .selectedModalityIds.isNotEmpty
+                                              .selectedModalities.isNotEmpty
                                       ? () {
                                           FocusScope.of(context).unfocus();
                                           profileProvider.saveProfile(_formKey);
@@ -217,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     backgroundColor:
                                         profileProvider.isFormValid &&
                                                 profileProvider
-                                                    .selectedModalityIds
+                                                    .selectedModalities
                                                     .isNotEmpty
                                             ? Colors.red
                                             : Colors.grey,

@@ -25,7 +25,7 @@ class CustomDropdownFormField<T> extends StatelessWidget {
     return Opacity(
       opacity: readOnly ? 0.5 : 1.0,
       child: DropdownButtonFormField<T>(
-        value: value,
+        value: items.contains(value) ? value : null,
         items: items.map((T item) {
           return DropdownMenuItem<T>(
             value: item,

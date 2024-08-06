@@ -1,7 +1,9 @@
-class Player {
+import 'package:flutter/material.dart';
+
+class Player with ChangeNotifier {
   final String nome;
   final String apelido;
-  final int idClasseOperador;
+  final String idClasseOperador;
   final String contato;
   final String nomeClasse;
 

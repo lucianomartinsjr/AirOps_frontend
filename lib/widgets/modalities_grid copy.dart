@@ -21,9 +21,7 @@ class ModalitiesGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        childAspectRatio: 2 / 1,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
+        childAspectRatio: 3 / 2,
       ),
       itemCount: modalities.length,
       itemBuilder: (ctx, index) {
@@ -37,32 +35,20 @@ class ModalitiesGrid extends StatelessWidget {
                 }
               : null,
           child: Container(
-            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               border: Border.all(
-                color: isEditing
-                    ? (isSelected ? Colors.red : Colors.white)
-                    : Colors.grey, // Cor da borda cinza quando não editável
+                color: isSelected ? Colors.red : Colors.white,
               ),
               borderRadius: BorderRadius.circular(8),
-              color: isEditing
-                  ? (isSelected
-                      ? Colors.red.withOpacity(0.3)
-                      : Colors.transparent)
-                  : Colors.grey.withOpacity(
-                      0.3), // Cor de fundo cinza quando não editável
+              color:
+                  isSelected ? Colors.red.withOpacity(0.3) : Colors.transparent,
             ),
             child: Center(
               child: Text(
                 modality.descricao,
-                textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: isEditing
-                      ? (isSelected ? Colors.red : Colors.white)
-                      : const Color.fromARGB(255, 189, 189,
-                          189), // Cor do texto cinza escuro quando não editável
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  color: isSelected ? Colors.red : Colors.white,
                 ),
               ),
             ),

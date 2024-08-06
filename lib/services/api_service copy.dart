@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/class.dart';
 import '../models/modality.dart';
-import '../models/profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -59,7 +58,7 @@ class ApiService extends ChangeNotifier {
       final responseBody = jsonDecode(response.body);
       return List<String>.from(responseBody['games']);
     } else {
-      throw Exception('Não foi possível carregar as classes');
+      throw Exception('Não foi possível carregar os jogos');
     }
   }
 
@@ -75,33 +74,39 @@ class ApiService extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> fetchProfile() async {
-    final url = Uri.parse('$baseUrl/operador');
-    final response = await http.get(url, headers: {
-      'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
-    });
+  Future<Map<String, dynamic>?> getUserProfile(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/operador'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}'); // Adicionando print para debugar
 
     if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      return responseBody;
+      return json.decode(response.body) as Map<String, dynamic>;
     } else {
-      print('Failed to fetch profile: ${response.statusCode}');
-      throw Exception('Ocorreu um erro ao carregar o perfil');
+      print('Erro ao buscar perfil: ${response.body}');
+      return null;
     }
   }
 
-  Future<bool> updateProfile(Profile profile) async {
-    final url = Uri.parse('$baseUrl/profile');
+  Future<void> updateUserProfile(
+      String token, Map<String, dynamic> profileData) async {
     final response = await http.put(
-      url,
+      Uri.parse('$baseUrl/operador'),
       headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
       },
-      body: jsonEncode(profile.toJson()),
+      body: json.encode(profileData),
     );
 
-    return response.statusCode == 200;
+    if (response.statusCode != 200) {
+      print('Erro ao atualizar perfil: ${response.body}');
+    }
   }
 
   Future<bool> login(String email, String password) async {
@@ -147,6 +152,7 @@ class ApiService extends ChangeNotifier {
       'idClasseOperador': idClasseOperador,
       'modalidades': modalityIds,
     });
+
     try {
       final response = await http.post(
         url,

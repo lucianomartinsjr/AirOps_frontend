@@ -10,7 +10,7 @@ class ProfileProvider extends ChangeNotifier {
   final cityController = TextEditingController();
   final phoneController = TextEditingController();
   String? selectedClass;
-  List<String> selectedModalityIds = [];
+  List<Modality> selectedModalities = [];
   List<Class> classes = [];
   List<Modality> modalities = [];
   bool isFormValid = false;
@@ -28,71 +28,99 @@ class ProfileProvider extends ChangeNotifier {
     try {
       await _fetchProfileData();
     } catch (e) {
-      // Tratar erros aqui, se necessário
+      print(_fetchProfileData());
+      print('Error loading profile data: $e');
     }
   }
 
   Future<void> _fetchProfileData() async {
-    var profile = await apiService.fetchProfile();
-    var fetchedClasses = await apiService.fetchClasses();
-    var fetchedModalities = await apiService.fetchModalities();
+    try {
+      final profileData = await apiService.fetchProfile();
+      final fetchedClasses = await apiService.fetchClasses();
+      final fetchedModalities = await apiService.fetchModalities();
 
-    nameController.text = profile.name;
-    nicknameController.text = profile.nickname;
-    cityController.text = profile.city;
-    phoneController.text = profile.phone;
-    selectedClass = profile.classId;
-    selectedModalityIds =
-        profile.modalityIds.map((id) => id.toString()).toList();
-    classes = fetchedClasses;
-    modalities = fetchedModalities;
+      if (profileData.isNotEmpty) {
+        final profile = Profile.fromJson(profileData);
 
-    notifyListeners();
+        nameController.text = profile.name ?? '';
+        nicknameController.text = profile.nickname ?? '';
+        cityController.text = profile.city ?? '';
+        phoneController.text = profile.phone ?? '';
+
+        classes = fetchedClasses;
+        modalities = fetchedModalities;
+
+        selectedClass = fetchedClasses.any((c) => c.id == profile.classId)
+            ? profile.classId.toString()
+            : null;
+
+        selectedModalities = profile.modalities?.map((id) {
+              return fetchedModalities
+                  .firstWhere((modality) => modality.id == id);
+            }).toList() ??
+            [];
+      } else {
+        print('Profile data is empty');
+      }
+
+      notifyListeners();
+    } catch (e) {
+      print('Error loading profile data: $e');
+    }
   }
 
-  void onModalityChanged(bool selected, String modalityId) {
+  void onModalityChanged(bool selected, int modalityId) {
     if (selected) {
-      selectedModalityIds.add(modalityId);
+      selectedModalities
+          .add(modalities.firstWhere((modality) => modality.id == modalityId));
     } else {
-      selectedModalityIds.remove(modalityId);
+      selectedModalities.removeWhere((modality) => modality.id == modalityId);
     }
     validateForm();
   }
 
   void validateForm() {
-    isFormValid = modalityError == null && selectedModalityIds.isNotEmpty;
+    isFormValid = nameController.text.isNotEmpty &&
+        cityController.text.isNotEmpty &&
+        phoneController.text.isNotEmpty &&
+        selectedClass != null &&
+        selectedModalities.isNotEmpty;
     notifyListeners();
   }
 
-  void saveProfile(GlobalKey<FormState> formKey) {
+  Future<void> saveProfile(GlobalKey<FormState> formKey) async {
     if (formKey.currentState?.validate() ?? false) {
+      // Certifique-se de que selectedModalities contém apenas os IDs das modalidades
+      List<int> modalityIds =
+          selectedModalities.map((modality) => modality.id).toList();
+
       Profile updatedProfile = Profile(
         name: nameController.text,
         nickname: nicknameController.text,
         city: cityController.text,
         phone: phoneController.text,
-        classId: selectedClass!,
-        modalityIds: selectedModalityIds.map((id) => int.parse(id)).toList(),
+        classId: int.parse(selectedClass!),
+        modalities: modalityIds,
       );
-      apiService.updateProfile(updatedProfile).then((success) {
-        if (success) {
-          ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
-            const SnackBar(content: Text('Perfil atualizado com sucesso')),
-          );
-          isEditing = false;
-        } else {
-          ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
-            const SnackBar(content: Text('Falha ao atualizar o perfil')),
-          );
-        }
-        notifyListeners();
-      });
+
+      var success = await apiService.updateProfile(updatedProfile);
+      if (success) {
+        ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
+          const SnackBar(content: Text('Perfil atualizado com sucesso')),
+        );
+        isEditing = false;
+      } else {
+        ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
+          const SnackBar(content: Text('Falha ao atualizar o perfil')),
+        );
+      }
+      notifyListeners();
     }
   }
 
   void toggleEditing() {
     isEditing = !isEditing;
-    validateForm();
+    notifyListeners();
   }
 
   Future<void> clearUserData() async {
@@ -102,7 +130,7 @@ class ProfileProvider extends ChangeNotifier {
     cityController.clear();
     phoneController.clear();
     selectedClass = null;
-    selectedModalityIds.clear();
+    selectedModalities.clear();
     classes.clear();
     modalities.clear();
     isFormValid = false;

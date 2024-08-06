@@ -32,7 +32,6 @@ class Class {
       'nomeClasse': nomeClasse,
       'descricao': descricao,
       'ativo': ativo?.toString(),
-      'criadoEm': criadoEm?.toIso8601String(),
     };
   }
 }

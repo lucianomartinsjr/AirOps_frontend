@@ -1,30 +1,32 @@
 class Profile {
-  final String name;
-  final String nickname;
-  final String city;
-  final String phone;
-  final String classId;
-  final List<int> modalityIds;
+  final String? name;
+  final String? nickname;
+  final String? city;
+  final String? phone;
+  final int? classId;
+  final List<int>? modalities;
 
   Profile({
-    required this.name,
-    required this.nickname,
-    required this.city,
-    required this.phone,
-    required this.classId,
-    required this.modalityIds,
+    this.name,
+    this.nickname,
+    this.city,
+    this.phone,
+    this.classId,
+    this.modalities,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) {
     return Profile(
-      name: json['nome'],
-      nickname: json['apelido'],
-      city: json['cidade'],
-      phone: json['telefone'],
-      classId: json['idClasseOperador'],
-      modalityIds: List<int>.from(json['modalidades']),
+      name: json['nome'] as String?,
+      nickname: json['apelido'] as String?,
+      city: json['cidade'] as String?,
+      phone: json['telefone'] as String?,
+      classId: json['idClasseOperador'] as int?,
+      modalities:
+          (json['modalidades'] as List?)?.map((e) => e['id'] as int).toList(),
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'nome': name,
@@ -32,7 +34,7 @@ class Profile {
       'cidade': city,
       'telefone': phone,
       'idClasseOperador': classId,
-      'modalidades': modalityIds,
+      'modalidades': modalities?.map((id) => {'id': id}).toList(),
     };
   }
 }
