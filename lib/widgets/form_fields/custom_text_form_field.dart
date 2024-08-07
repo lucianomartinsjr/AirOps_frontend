@@ -9,7 +9,7 @@ class CustomTextFormField extends StatefulWidget {
   final TextInputType? keyboardType;
   final VoidCallback? onTap;
   final int? maxLines;
-  final FocusNode? focusNode; // Adiciona o parâmetro focusNode
+  final FocusNode? focusNode;
 
   const CustomTextFormField({
     required this.controller,
@@ -20,7 +20,7 @@ class CustomTextFormField extends StatefulWidget {
     this.keyboardType,
     this.onTap,
     this.maxLines = 1,
-    this.focusNode, // Inicializa o parâmetro focusNode
+    this.focusNode,
     super.key,
   });
 

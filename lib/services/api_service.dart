@@ -6,6 +6,8 @@ import '../models/profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../models/user.dart';
+
 class ApiService extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   final String baseUrl = 'http://localhost:3000';
@@ -39,6 +41,33 @@ class ApiService extends ChangeNotifier {
     }
   }
 
+  Future<void> updateUser(User user) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/operadores/${user.id}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'isAdmin': user.isAdmin,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update user');
+    }
+  }
+
+  Future<List<User>> fetchUsers() async {
+    final url = Uri.parse('$baseUrl/operador/admin');
+    final response = await http.get(url, headers: {
+      'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+    });
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((item) => User.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load users');
+    }
+  }
+
   Future<List<Modality>> fetchModalities() async {
     final url = Uri.parse('$baseUrl/modalidades-jogos');
     final response = await http.get(url);
@@ -60,18 +89,6 @@ class ApiService extends ChangeNotifier {
       return List<String>.from(responseBody['games']);
     } else {
       throw Exception('Não foi possível carregar as classes');
-    }
-  }
-
-  Future<List<String>> fetchUsers() async {
-    final url = Uri.parse('$baseUrl/users');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      return List<String>.from(responseBody['users']);
-    } else {
-      throw Exception('Não foi possível carregar os usuários');
     }
   }
 

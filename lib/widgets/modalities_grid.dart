@@ -7,12 +7,41 @@ class ModalitiesGrid extends StatelessWidget {
   final bool isEditing;
   final Function(bool, int) onModalityChanged;
 
-  ModalitiesGrid({
+  const ModalitiesGrid({
+    super.key,
     required this.modalities,
     required this.selectedModalityIds,
     required this.isEditing,
     required this.onModalityChanged,
   });
+
+  void _showRules(BuildContext context, String rules) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF222222),
+        title: const Text(
+          'Regras da Modalidade',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          rules,
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text(
+              'Fechar',
+              style: TextStyle(color: Colors.red),
+            ),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,19 +81,39 @@ class ModalitiesGrid extends StatelessWidget {
                   : Colors.grey.withOpacity(
                       0.3), // Cor de fundo cinza quando não editável
             ),
-            child: Center(
-              child: Text(
-                modality.descricao,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: isEditing
-                      ? (isSelected ? Colors.red : Colors.white)
-                      : const Color.fromARGB(255, 189, 189,
-                          189), // Cor do texto cinza escuro quando não editável
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+            child: Stack(
+              children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      modality.descricao,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: isEditing
+                            ? (isSelected ? Colors.red : Colors.white)
+                            : const Color.fromARGB(255, 189, 189,
+                                189), // Cor do texto cinza escuro quando não editável
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.help_outline, size: 16),
+                    color: Colors.grey,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      _showRules(context, modality.regras);
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         );

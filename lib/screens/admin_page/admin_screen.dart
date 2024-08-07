@@ -31,7 +31,7 @@ class AdminScreen extends StatelessWidget {
                   icon: Icons.manage_accounts,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const ClassesScreen(),
+                      builder: (context) => ClassesScreen(),
                     ));
                   },
                 ),

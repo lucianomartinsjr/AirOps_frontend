@@ -16,21 +16,28 @@ class ModalitiesScreen extends StatelessWidget {
         } else if (snapshot.hasError) {
           return const Center(child: Text('Erro ao carregar dados'));
         } else {
-          final items =
-              snapshot.data?.map((modality) => modality.descricao).toList() ??
-                  [];
+          final items = snapshot.data ?? [];
           return BaseScreen(
             title: 'Modalidades',
-            items: items,
+            items: items.map((modality) => modality.descricao).toList(),
             onAdd: () {
-              _navigateToEditScreen(context, 'Adicionar Modalidade', (value) {
-                // Adicionar nova modalidade
-              });
+              _navigateToEditScreen(
+                context,
+                'Adicionar Modalidade',
+                (modality) {
+                  // Adicionar nova modalidade
+                },
+              );
             },
             onEdit: (index) {
-              _navigateToEditScreen(context, 'Editar Modalidade', (value) {
-                // Editar modalidade existente
-              }, initialValue: items[index]);
+              _navigateToEditScreen(
+                context,
+                'Editar Modalidade',
+                (modality) {
+                  // Editar modalidade existente
+                },
+                initialModality: items[index],
+              );
             },
           );
         }
@@ -39,18 +46,35 @@ class ModalitiesScreen extends StatelessWidget {
   }
 
   void _navigateToEditScreen(
-      BuildContext context, String title, ValueChanged<String> onSave,
-      {String? initialValue}) {
-    final controller = TextEditingController(text: initialValue);
+      BuildContext context, String title, ValueChanged<Modality> onSave,
+      {Modality? initialModality}) {
+    final descricaoController =
+        TextEditingController(text: initialModality?.descricao ?? '');
+    final rulesController =
+        TextEditingController(text: initialModality?.regras ?? '');
+    final creationDateController =
+        TextEditingController(text: initialModality?.criadoEM.toString() ?? '');
+    bool isActive = initialModality?.ativo ?? true;
 
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => EditItemScreen(
         title: title,
-        controllers: {'Modalidade': controller},
+        controllers: {
+          'Descrição': descricaoController,
+          'Regras': rulesController,
+        },
+        isActive: isActive,
         onSave: () {
-          onSave(controller.text);
+          onSave(Modality(
+            id: initialModality?.id ?? 0,
+            descricao: descricaoController.text,
+            regras: rulesController.text,
+            criadoEM: DateTime.parse(creationDateController.text),
+            ativo: isActive,
+          ));
           Navigator.of(context).pop();
         },
+        initialModality: initialModality,
       ),
     ));
   }
