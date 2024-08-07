@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../services/api_service.dart';
-// Substitua pelo caminho correto do seu serviço de API
 
 class LoginScreen extends HookWidget {
   const LoginScreen({super.key});
@@ -15,7 +14,10 @@ class LoginScreen extends HookWidget {
     final rememberEmail = useState(false);
 
     useEffect(() {
-      Future<void> loadEmail() async {
+      Future<void> initialize() async {
+        const secureStorage = FlutterSecureStorage();
+        await secureStorage.deleteAll();
+
         final prefs = await SharedPreferences.getInstance();
         final savedEmail = prefs.getString('savedEmail');
         if (savedEmail != null) {
@@ -24,7 +26,7 @@ class LoginScreen extends HookWidget {
         }
       }
 
-      loadEmail();
+      initialize();
       return null;
     }, []);
 

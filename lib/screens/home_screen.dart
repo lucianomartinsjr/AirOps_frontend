@@ -1,3 +1,4 @@
+import 'package:airops_frontend/screens/profile_page/change_password.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -22,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedModality = 'Any';
   String _selectedFieldType = 'Any';
   bool _isAdmin = false;
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -30,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AirsoftService>(context, listen: false).fetchGames();
       _checkIfAdmin();
+      _checkPasswordChange();
     });
   }
 
@@ -38,6 +40,59 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _isAdmin = isAdmin == 'true';
     });
+  }
+
+  Future<void> _checkPasswordChange() async {
+    String? hasToChangePassword =
+        await _secureStorage.read(key: 'hasToChangePassword');
+
+    if (hasToChangePassword == 'true') {
+      _showPasswordChangeAlert();
+    }
+  }
+
+  void _showPasswordChangeAlert() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color.fromARGB(255, 29, 29, 29),
+          title: const Text('Alerta', style: TextStyle(color: Colors.white)),
+          content: const Text(
+            'Sua senha foi recuperada. Deseja alterar a senha agora?',
+            style: TextStyle(color: Colors.white),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Deixar para depois',
+                  style: TextStyle(color: Colors.white)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const ChangePasswordScreen(),
+                ));
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(
+                      255, 159, 0, 0), // Altere esta cor conforme necessário
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: const Text('Alterar agora',
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _openAdminScreen() {
