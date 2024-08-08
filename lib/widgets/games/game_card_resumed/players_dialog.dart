@@ -38,9 +38,9 @@ class PlayersDialog extends StatelessWidget {
         ),
         child: AlertDialog(
           backgroundColor: Colors.grey[850],
-          title: Column(
+          title: const Column(
             children: [
-              const Text(
+              Text(
                 'Jogadores Inscritos',
                 style: TextStyle(
                     color: Colors.white,

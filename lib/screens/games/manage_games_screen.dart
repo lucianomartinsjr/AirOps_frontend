@@ -46,9 +46,7 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
         elevation: 0,
       ),
       body: _isLoading
-          ? const Center(
-              child:
-                  CircularProgressIndicator()) // Mostra um spinner enquanto os dados são carregados
+          ? const Center(child: CircularProgressIndicator())
           : Consumer<AirsoftService>(
               builder: (context, airsoftService, child) {
                 final organizerGames = airsoftService.organizerGames;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../models/class.dart';
 import '../../../models/modality.dart';
 import '../../../widgets/form_fields/custom_text_form_field.dart';
 
@@ -8,6 +9,7 @@ class EditItemScreen extends StatefulWidget {
   final bool isActive;
   final VoidCallback onSave;
   final Modality? initialModality;
+  final Class? initialClass;
 
   const EditItemScreen({
     super.key,
@@ -16,6 +18,7 @@ class EditItemScreen extends StatefulWidget {
     required this.isActive,
     required this.onSave,
     this.initialModality,
+    this.initialClass,
   });
 
   @override
@@ -33,6 +36,13 @@ class _EditItemScreenState extends State<EditItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isModality = widget.initialModality != null;
+    final id =
+        isModality ? widget.initialModality?.id : widget.initialClass?.id;
+    final criadoEm = isModality
+        ? widget.initialModality?.criadoEM
+        : widget.initialClass?.criadoEm;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -47,12 +57,12 @@ class _EditItemScreenState extends State<EditItemScreen> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            if (widget.initialModality != null)
+            if (id != null)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ID: ${widget.initialModality!.id}',
+                    'ID: $id',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -60,14 +70,15 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     ),
                   ),
                   const SizedBox(height: 8.0),
-                  Text(
-                    'Data de Criação: ${widget.initialModality!.criadoEM.toLocal().toString().split(' ')[0]}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 129, 129, 129),
+                  if (criadoEm != null)
+                    Text(
+                      'Data de Criação: ${criadoEm.toLocal().toString().split(' ')[0]}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 129, 129, 129),
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 16.0),
                 ],
               ),
@@ -80,7 +91,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                   controller: controller,
                   labelText: label,
                   readOnly: false,
-                  maxLines: label == 'Regras' ? 5 : 1,
+                  maxLines: label == 'Regras' || label == 'Descrição' ? 5 : 1,
                 ),
               );
             }).toList(),
