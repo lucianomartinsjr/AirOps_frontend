@@ -29,8 +29,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   @override
   void initState() {
     super.initState();
-    isSubscribed =
-        widget.game.inscrito!; // Verifica a inscrição na inicialização
+    isSubscribed = widget.game.inscrito!;
   }
 
   Future<void> inscrever() async {
@@ -95,16 +94,16 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
 
   void _shareViaWhatsApp() async {
     final text = '''
-  🏟️ *Evento:* ${widget.game.descricao}
-  👥 *Organizador:* ${widget.game.nomeOrganizador}
-  📅 *Data:* ${DateFormat('dd/MM/yyyy').format(widget.game.dataEvento)}
-  📍 *Local:* ${widget.game.cidade}
+🏟️ *Evento:* ${widget.game.descricao}
+👥 *Organizador:* ${widget.game.nomeOrganizador}
+📅 *Data:* ${DateFormat('dd/MM/yyyy').format(widget.game.dataEvento)}
+📍 *Local:* ${widget.game.cidade}
 
-  ℹ️ *Detalhes:* 
-    ${widget.game.descricao}
+ℹ️ *Detalhes:* 
+  ${widget.game.descricao}
 
-  Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*. 
-  ''';
+Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*. 
+''';
 
     final whatsappUrl = Uri(
       scheme: 'https',
@@ -155,14 +154,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   GameDetailHeader(game: widget.game),
-                  const SizedBox(height: 8.0),
-                  const Center(
-                    child: Text(
-                      '- Informações -',
-                      style: TextStyle(color: Colors.white70, fontSize: 12.0),
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: 16.0),
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(

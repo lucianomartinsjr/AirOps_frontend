@@ -90,7 +90,6 @@ class ProfileProvider extends ChangeNotifier {
 
   Future<void> saveProfile(GlobalKey<FormState> formKey) async {
     if (formKey.currentState?.validate() ?? false) {
-      // Certifique-se de que selectedModalities contém apenas os IDs das modalidades
       List<int> modalityIds =
           selectedModalities.map((modality) => modality.id).toList();
 

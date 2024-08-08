@@ -158,9 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 profileProvider.classes.firstWhere(
                               (classItem) => classItem.id.toString() == item,
                             );
-                            return classItem != null
-                                ? classItem.nomeClasse
-                                : '';
+                            return classItem.nomeClasse;
                           },
                         ),
                         const SizedBox(height: 10),
@@ -214,57 +212,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         const SizedBox(height: 20),
-                        profileProvider.isEditing
-                            ? SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: profileProvider.isFormValid &&
-                                          profileProvider
-                                              .selectedModalities.isNotEmpty
-                                      ? () {
-                                          FocusScope.of(context).unfocus();
-                                          profileProvider.saveProfile(_formKey);
-                                        }
-                                      : null,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        profileProvider.isFormValid &&
-                                                profileProvider
-                                                    .selectedModalities
-                                                    .isNotEmpty
-                                            ? Colors.red
-                                            : Colors.grey,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 15),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: const Text('Salvar',
-                                      style: TextStyle(fontSize: 18)),
-                                ),
-                              )
-                            : SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    profileProvider.toggleEditing();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color.fromARGB(255, 243, 33, 33),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 15),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: const Text('Editar',
-                                      style: TextStyle(fontSize: 18)),
-                                ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              FocusScope.of(context).unfocus();
+                              if (profileProvider.isEditing) {
+                                profileProvider.saveProfile(_formKey);
+                              } else {
+                                profileProvider.toggleEditing();
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: profileProvider.isEditing
+                                  ? Colors.red
+                                  : const Color.fromARGB(255, 243, 33, 33),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
+                            ),
+                            child: Text(
+                              profileProvider.isEditing ? 'Salvar' : 'Editar',
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

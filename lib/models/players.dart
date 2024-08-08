@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
-
-class Player with ChangeNotifier {
+class Player {
   final String nome;
   final String apelido;
-  final String idClasseOperador;
+  final int idClasseOperador;
   final String contato;
   final String nomeClasse;
 
@@ -17,11 +15,11 @@ class Player with ChangeNotifier {
 
   factory Player.fromJson(Map<String, dynamic> json) {
     return Player(
-      nome: json['nome'],
-      apelido: json['apelido'],
-      idClasseOperador: json['idClasseOperador'],
-      contato: json['contato'],
-      nomeClasse: json['nomeClasse'],
+      nome: json['nome'] as String,
+      apelido: json['apelido'] as String? ?? '',
+      idClasseOperador: json['idClasseOperador'] as int,
+      contato: json['contato'] as String? ?? '',
+      nomeClasse: json['nomeClasse'] as String? ?? '',
     );
   }
 

@@ -122,7 +122,7 @@ class AirsoftService with ChangeNotifier {
         throw Exception('Erro ao buscar jogos organizados pelo jogador');
       }
     } catch (e) {
-      debugPrint('Erro ao buscar jogos organizados pelo jogador> $e');
+      debugPrint('Erro ao buscar jogos organizados pelo jogador: $e');
     }
   }
 

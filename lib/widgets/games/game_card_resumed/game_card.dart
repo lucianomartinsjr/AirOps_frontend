@@ -86,7 +86,6 @@ class GameCard extends StatelessWidget {
               ),
             ),
           ),
-          // Parte inferior com informações dos participantes e ícone de olho
           Container(
             decoration: BoxDecoration(
               color: Colors.grey[700],

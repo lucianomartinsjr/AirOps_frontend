@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/class.dart';
+import '../models/game.dart';
 import '../models/modality.dart';
 import '../models/profile.dart';
 import 'package:http/http.dart' as http;
@@ -80,15 +81,28 @@ class ApiService extends ChangeNotifier {
     }
   }
 
-  Future<List<String>> fetchGames() async {
-    final url = Uri.parse('$baseUrl/games');
-    final response = await http.get(url);
+  Future<List<Game>> fetchAdminGames() async {
+    final url = Uri.parse('$baseUrl/eventos/admin');
 
-    if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      return List<String>.from(responseBody['games']);
-    } else {
-      throw Exception('Não foi possível carregar as classes');
+    try {
+      final token = await _storage.read(key: 'jwt_token');
+      if (token == null) {
+        throw Exception('Token JWT não encontrado');
+      }
+
+      final response = await http.get(url, headers: {
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        return data.map((item) => Game.fromJson(item)).toList();
+      } else {
+        throw Exception(
+            'Não foi possível carregar os jogos. Código de status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Erro ao carregar jogos: $e');
     }
   }
 

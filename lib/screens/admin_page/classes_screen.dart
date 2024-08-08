@@ -62,7 +62,6 @@ class ClassesScreen extends StatelessWidget {
         controllers: {
           'Nome da Classe': nomeClasseController,
           'Descrição': descricaoController,
-          'Data de Criação': criadoEmController,
         },
         isActive: ativo,
         onSave: () {
@@ -75,6 +74,7 @@ class ClassesScreen extends StatelessWidget {
           ));
           Navigator.of(context).pop();
         },
+        initialClass: initialClass,
       ),
     ));
   }
