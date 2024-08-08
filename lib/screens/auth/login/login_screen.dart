@@ -16,7 +16,8 @@ class LoginScreen extends HookWidget {
     useEffect(() {
       Future<void> initialize() async {
         const secureStorage = FlutterSecureStorage();
-        await secureStorage.deleteAll();
+        await secureStorage.delete(key: 'isAdmin');
+        await secureStorage.delete(key: 'hasToChangePassword');
 
         final prefs = await SharedPreferences.getInstance();
         final savedEmail = prefs.getString('savedEmail');
