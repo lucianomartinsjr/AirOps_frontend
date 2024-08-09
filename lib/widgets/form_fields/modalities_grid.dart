@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/modality.dart';
+import '../../models/modality.dart';
 
 class ModalitiesGrid extends StatelessWidget {
   final List<Modality> modalities;
@@ -77,8 +77,8 @@ class ModalitiesGrid extends StatelessWidget {
               color: isEditing
                   ? (isSelected
                       ? Colors.red.withOpacity(0.3)
-                      : Colors.transparent)
-                  : Colors.grey.withOpacity(
+                      : const Color.fromARGB(255, 39, 39, 39))
+                  : const Color.fromARGB(255, 92, 92, 92).withOpacity(
                       0.3), // Cor de fundo cinza quando não editável
             ),
             child: Stack(
@@ -91,7 +91,9 @@ class ModalitiesGrid extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: isEditing
-                            ? (isSelected ? Colors.red : Colors.white)
+                            ? (isSelected
+                                ? const Color.fromARGB(255, 196, 196, 196)
+                                : Colors.white)
                             : const Color.fromARGB(255, 189, 189,
                                 189), // Cor do texto cinza escuro quando não editável
                         fontSize: 14,

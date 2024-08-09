@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../models/game.dart';
 import 'package:intl/intl.dart';
-import '../../../services/airsoft_service.dart';
+import '../../../services/api/airsoft_service.dart';
 import 'game_detail_header.dart';
 import 'game_info_grid.dart';
 import 'game_detail_buttons.dart';

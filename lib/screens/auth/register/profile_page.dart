@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import '../../../models/class.dart';
 import '../../../models/modality.dart';
-import '../../../services/api_service.dart';
+import '../../../services/api/api_service.dart';
 
 class ProfilePage extends StatefulWidget {
   final TextEditingController nameController;

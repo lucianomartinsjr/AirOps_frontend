@@ -2,7 +2,7 @@ import 'package:airops_frontend/widgets/form_fields/date_time_picker_field.dart'
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../services/airsoft_service.dart';
+import '../../services/api/airsoft_service.dart';
 import '../../models/game.dart';
 import '../../widgets/form_fields/custom_text_form_field.dart';
 

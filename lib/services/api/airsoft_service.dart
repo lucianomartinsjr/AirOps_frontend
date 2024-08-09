@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
-import '../models/game.dart';
+import '../../models/game.dart';
 
 class AirsoftService with ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -17,6 +17,8 @@ class AirsoftService with ChangeNotifier {
   List<Game> get games => _filteredGames.isNotEmpty ? _filteredGames : _games;
   List<Game> get subscribedGames => _subscribedGames;
   List<Game> get organizerGames => _organizerGames;
+
+  get gameHistory => null;
 
   Future<String?> _getToken() async {
     return await _storage.read(key: 'jwt_token');
@@ -166,9 +168,11 @@ class AirsoftService with ChangeNotifier {
         },
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         await fetchSubscribedGames();
       } else {
+        debugPrint(
+            'Erro ao inscrever no evento: ${response.statusCode} - ${response.body}');
         throw Exception('Erro ao inscrever no evento');
       }
     } catch (e) {
@@ -241,4 +245,6 @@ class AirsoftService with ChangeNotifier {
 
     notifyListeners();
   }
+
+  fetchGameHistory() {}
 }

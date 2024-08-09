@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../services/api_service.dart';
+import '../../../services/api/api_service.dart';
 
 class EmailPage extends StatefulWidget {
   final TextEditingController emailController;

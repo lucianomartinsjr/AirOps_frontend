@@ -34,7 +34,7 @@ class Profile {
       'cidade': city,
       'telefone': phone,
       'idClasseOperador': classId,
-      'modalidades': modalities?.map((id) => {'id': id}).toList(),
+      'modalidades': modalities,
     };
   }
 }

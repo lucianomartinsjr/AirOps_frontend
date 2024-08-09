@@ -3,15 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/auth/register/register_screen.dart';
 import 'screens/profile_page/change_password.dart';
-import 'services/api_service.dart';
+import 'services/api/api_service.dart';
 import 'providers/profile_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/auth/login/login_screen.dart';
-import 'splash_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/auth/forgot_password/forgot_password_screen.dart';
 import 'screens/games/games_screen.dart';
 import 'screens/profile_page/profile_screen.dart';
-import 'services/airsoft_service.dart';
+import 'services/api/airsoft_service.dart';
 import 'widgets/menu/bottom_navigation.dart';
 
 void main() {

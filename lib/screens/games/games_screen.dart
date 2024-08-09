@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../services/airsoft_service.dart';
+import '../../models/game.dart';
+import '../../services/api/airsoft_service.dart';
 import '../../widgets/games/game_item_detailed/game_list.dart';
 import 'create_game_screen.dart';
+import 'history_game_screen.dart';
 import 'manage_games_screen.dart';
 
 class GamesScreen extends StatefulWidget {
@@ -13,6 +15,11 @@ class GamesScreen extends StatefulWidget {
 }
 
 class _GamesScreenState extends State<GamesScreen> {
+  String _searchQuery = '';
+  String? _selectedDate;
+  String? _selectedModality;
+  String? _selectedLocation;
+
   @override
   void initState() {
     super.initState();
@@ -24,65 +31,249 @@ class _GamesScreenState extends State<GamesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Eventos'),
-          automaticallyImplyLeading: false,
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildMenuButton(
-                    context,
-                    icon: Icons.manage_search,
-                    label: 'Gerenciar meus Jogos',
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const ManageGamesScreen(),
-                      ));
-                    },
-                  ),
-                  _buildMenuButton(
-                    context,
-                    icon: Icons.add,
-                    label: 'Registrar um novo Jogo',
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const CreateGameScreen(),
-                      ));
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'Inscrições',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 18),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Eventos'),
+        automaticallyImplyLeading: false,
+      ),
+      body: Consumer<AirsoftService>(
+        builder: (context, airsoftService, child) {
+          final games = airsoftService.subscribedGames;
+
+          // Opções dinâmicas para os filtros, formatando a data
+          final dateOptions = games
+              .map((game) => _formatDate(game.dataEvento))
+              .toSet()
+              .toList();
+          final modalityOptions = games
+              .map((game) => game.modalidadesJogos ?? '')
+              .where((modality) => modality.isNotEmpty)
+              .toSet()
+              .toList();
+          final locationOptions = games
+              .map((game) => game.cidade ?? '')
+              .where((location) => location.isNotEmpty)
+              .toSet()
+              .toList();
+
+          final filteredGames = _applyFilters(games);
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 12.0, horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildMenuButton(
+                      context,
+                      icon: Icons.history,
+                      label: 'Histórico de Participação',
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const HistoryScreen(),
+                        ));
+                      },
+                    ),
+                    _buildMenuButton(
+                      context,
+                      icon: Icons.manage_search,
+                      label: 'Gerenciar\n Meus Jogos',
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const ManageGamesScreen(),
+                        ));
+                      },
+                    ),
+                    _buildMenuButton(
+                      context,
+                      icon: Icons.add,
+                      label: 'Registrar \nNovo Jogo',
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const CreateGameScreen(),
+                        ));
+                      },
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Expanded(
-              child: Consumer<AirsoftService>(
-                builder: (context, airsoftService, child) {
-                  return GameList(games: airsoftService.subscribedGames);
-                },
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  children: [
+                    _buildSearchField(),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildDropdownRow(
+                            context,
+                            dateOptions,
+                            modalityOptions,
+                            locationOptions,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.clear, color: Colors.white),
+                          onPressed: _clearFilters,
+                          tooltip: 'Limpar Filtros',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Jogos Inscritos',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: filteredGames.isEmpty
+                    ? _buildNoResults()
+                    : GameList(games: filteredGames),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return TextField(
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.search, color: Colors.white),
+        hintText: 'Pesquisar ...',
+        hintStyle: const TextStyle(color: Colors.white54),
+        filled: true,
+        fillColor: Colors.grey[800],
+        contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      style: const TextStyle(color: Colors.white),
+      onChanged: (value) {
+        setState(() {
+          _searchQuery =
+              value.toLowerCase(); // Corrige para permitir a busca por nome
+        });
+      },
+    );
+  }
+
+  Widget _buildDropdownRow(
+    BuildContext context,
+    List<String> dateOptions,
+    List<String> modalityOptions,
+    List<String> locationOptions,
+  ) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildDropdown(
+            context,
+            value: _selectedDate,
+            hint: 'Data',
+            items: dateOptions,
+            onChanged: (value) {
+              setState(() {
+                _selectedDate = value;
+              });
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _buildDropdown(
+            context,
+            value: _selectedModality,
+            hint: 'Modalidade',
+            items: modalityOptions,
+            onChanged: (value) {
+              setState(() {
+                _selectedModality = value;
+              });
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _buildDropdown(
+            context,
+            value: _selectedLocation,
+            hint: 'Localidade',
+            items: locationOptions,
+            onChanged: (value) {
+              setState(() {
+                _selectedLocation = value;
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdown(BuildContext context,
+      {String? value,
+      required String hint,
+      required List<String> items,
+      required void Function(String?) onChanged}) {
+    return SizedBox(
+      height: 35, // Definindo a altura total do widget
+      child: DropdownButtonFormField<String>(
+        value: value,
+        hint: Text(
+          hint,
+          style: const TextStyle(
+              color: Colors.white54, fontSize: 12), // Tamanho da fonte menor
+          overflow: TextOverflow.ellipsis,
+        ),
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.grey[800],
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 4.0, // Redução do padding vertical
+            horizontal: 8.0,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        dropdownColor: Colors.grey[800],
+        style: const TextStyle(
+            color: Colors.white, fontSize: 12), // Tamanho da fonte menor
+        iconEnabledColor: Colors.white,
+        iconSize: 16, // Tamanho do ícone menor
+        items: items.map((item) {
+          return DropdownMenuItem<String>(
+            value: item,
+            child: Text(
+              item,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12, // Tamanho da fonte menor
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-          ],
-        ),
+          );
+        }).toList(),
+        onChanged: onChanged,
       ),
     );
   }
@@ -95,27 +286,93 @@ class _GamesScreenState extends State<GamesScreen> {
       onTap: onTap,
       child: Container(
         width: 150,
-        height: 120,
+        height: 100,
         decoration: BoxDecoration(
-          color: Colors.grey[800],
-          borderRadius: BorderRadius.circular(8.0),
+          color: Colors.grey[850],
+          borderRadius: BorderRadius.circular(12.0),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: Colors.white),
-            const SizedBox(height: 10),
+            Icon(icon, size: 32, color: Colors.white),
+            const SizedBox(height: 8),
             Text(
               label,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 16,
+                fontSize: 14,
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildNoResults() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.redAccent.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Nenhum resultado encontrado.',
+              style: TextStyle(
+                color: Colors.redAccent,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextButton(
+              onPressed: _clearFilters,
+              child: const Text(
+                'Limpar Filtros',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Game> _applyFilters(List<Game> games) {
+    return games.where((game) {
+      final matchesSearchQuery =
+          game.titulo.toLowerCase().contains(_searchQuery);
+      final matchesDate = _selectedDate == null ||
+          _formatDate(game.dataEvento) == _selectedDate;
+      final matchesModality = _selectedModality == null ||
+          game.modalidadesJogos == _selectedModality;
+      final matchesLocation =
+          _selectedLocation == null || game.cidade == _selectedLocation;
+
+      return matchesSearchQuery &&
+          matchesDate &&
+          matchesModality &&
+          matchesLocation;
+    }).toList();
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _searchQuery = '';
+      _selectedDate = null;
+      _selectedModality = null;
+      _selectedLocation = null;
+    });
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
   }
 }
