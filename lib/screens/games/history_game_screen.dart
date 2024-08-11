@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../services/api/airsoft_service.dart';
-import '../../widgets/games/game_card_resumed/game_list_view.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -18,7 +18,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AirsoftService>(context, listen: false)
-          .fetchGameHistory() // Assumindo que existe um método para buscar o histórico
+          .fetchGameHistory()
           .then((_) {
         setState(() {
           _isLoading = false;
@@ -61,7 +61,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 textAlign: TextAlign.center,
                               ),
                             )
-                          : GameListView(games: gameHistory),
+                          : ListView.builder(
+                              itemCount: gameHistory.length,
+                              itemBuilder: (context, index) {
+                                final game = gameHistory[index];
+                                return Card(
+                                  child: ListTile(
+                                    title: Text(game.descricao),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            'Data: ${DateFormat('dd/MM/yyyy').format(game.dataEvento)}'),
+                                        Text(
+                                            'Modalidade: ${game.modalidadesJogos}'),
+                                        Text(
+                                            'Organizador: ${game.nomeOrganizador}'),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                     ),
                     Positioned(
                       bottom: 0,

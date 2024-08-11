@@ -13,12 +13,14 @@ class AirsoftService with ChangeNotifier {
   List<Game> _filteredGames = [];
   List<Game> _subscribedGames = [];
   List<Game> _organizerGames = [];
+  List<Game> _gameHistory =
+      []; // Nova lista para armazenar o histórico de jogos
 
   List<Game> get games => _filteredGames.isNotEmpty ? _filteredGames : _games;
   List<Game> get subscribedGames => _subscribedGames;
   List<Game> get organizerGames => _organizerGames;
-
-  get gameHistory => null;
+  List<Game> get gameHistory =>
+      _gameHistory; // Corrigido para retornar a lista de histórico
 
   Future<String?> _getToken() async {
     return await _storage.read(key: 'jwt_token');
@@ -41,9 +43,11 @@ class AirsoftService with ChangeNotifier {
       );
 
       if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Jogo criado com sucesso!')),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Jogo criado com sucesso!')),
+          );
+        }
       } else {
         throw Exception('Erro ao adicionar jogo');
       }
@@ -246,5 +250,29 @@ class AirsoftService with ChangeNotifier {
     notifyListeners();
   }
 
-  fetchGameHistory() {}
+  Future<void> fetchGameHistory() async {
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        throw Exception('Token não encontrado');
+      }
+
+      final response = await http.get(
+        Uri.parse('$_baseUrl/eventos/historico-jogos'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        _gameHistory = data
+            .map((json) => Game.fromJson(json))
+            .toList(); // Armazena na lista correta
+        notifyListeners();
+      } else {
+        throw Exception('Erro ao buscar histórico de jogos');
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar histórico de jogos: $e');
+    }
+  }
 }
