@@ -25,7 +25,6 @@ class Modality {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'descricao': descricao,
       'regras': regras,
       'ativo': ativo,

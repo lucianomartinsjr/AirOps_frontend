@@ -18,6 +18,7 @@ class GameCard extends StatelessWidget {
       ),
       child: Column(
         children: [
+          // Header
           Container(
             decoration: const BoxDecoration(
               color: Color.fromARGB(135, 48, 48, 48),
@@ -34,38 +35,55 @@ class GameCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          game.titulo,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.0,
-                            color: Colors.white,
-                          ),
-                          softWrap: true,
-                          overflow: TextOverflow.visible,
+                        Row(
+                          children: [
+                            const Icon(Icons.sports_esports,
+                                color: Colors.white, size: 20.0),
+                            const SizedBox(width: 8.0),
+                            Text(
+                              game.titulo,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.0,
+                                color: Colors.white,
+                              ),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 8.0),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Expanded(
-                              child: Text(
-                                '${game.dataEvento.toLocal().day.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().month.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().year} \n${game.dataEvento.toLocal().hour.toString().padLeft(2, '0')}:${game.dataEvento.toLocal().minute.toString().padLeft(2, '0')}',
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                ),
-                                softWrap: true,
-                                overflow: TextOverflow.visible,
+                            const Icon(Icons.event,
+                                color: Colors.white70, size: 16.0),
+                            const SizedBox(width: 8.0),
+                            Text(
+                              '${game.dataEvento.toLocal().day.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().month.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().year} '
+                              '${game.dataEvento.toLocal().hour.toString().padLeft(2, '0')}:${game.dataEvento.toLocal().minute.toString().padLeft(2, '0')}',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14.0,
                               ),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
                             ),
-                            const SizedBox(width: 16.0),
-                            Expanded(
-                              child: Text(
-                                'Período:\n${game.periodo}',
-                                style: const TextStyle(color: Colors.white70),
-                                softWrap: true,
-                                overflow: TextOverflow.visible,
+                          ],
+                        ),
+                        const SizedBox(height: 8.0),
+                        Row(
+                          children: [
+                            const Icon(Icons.schedule,
+                                color: Colors.white70, size: 16.0),
+                            const SizedBox(width: 8.0),
+                            Text(
+                              'Período: ${game.periodo}',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14.0,
                               ),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
                             ),
                           ],
                         ),
@@ -81,11 +99,13 @@ class GameCard extends StatelessWidget {
                         ),
                       );
                     },
+                    tooltip: 'Editar jogo',
                   ),
                 ],
               ),
             ),
           ),
+          // Footer
           Container(
             decoration: BoxDecoration(
               color: Colors.grey[700],
@@ -98,13 +118,21 @@ class GameCard extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Text(
-                      '${game.quantidadeJogadoresInscritos} Participante(s) inscrito(s)',
-                      style: const TextStyle(color: Colors.white70),
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
-                    ),
+                  Row(
+                    children: [
+                      const Icon(Icons.group,
+                          color: Colors.white70, size: 16.0),
+                      const SizedBox(width: 8.0),
+                      Text(
+                        '${game.quantidadeJogadoresInscritos} Participante(s) inscrito(s)',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14.0,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ],
                   ),
                   IconButton(
                     icon: const Icon(Icons.visibility, color: Colors.white70),
@@ -116,6 +144,7 @@ class GameCard extends StatelessWidget {
                         },
                       );
                     },
+                    tooltip: 'Ver participantes',
                   ),
                 ],
               ),

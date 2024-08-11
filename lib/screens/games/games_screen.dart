@@ -14,7 +14,7 @@ class GamesScreen extends StatefulWidget {
   _GamesScreenState createState() => _GamesScreenState();
 }
 
-class _GamesScreenState extends State<GamesScreen> {
+class _GamesScreenState extends State<GamesScreen> with RouteAware {
   String _searchQuery = '';
   String? _selectedDate;
   String? _selectedModality;
@@ -27,6 +27,26 @@ class _GamesScreenState extends State<GamesScreen> {
       Provider.of<AirsoftService>(context, listen: false)
           .fetchSubscribedGames();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Registrar a página para monitorar eventos de navegação
+    RouteObserver<ModalRoute>().subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    // Recarregar os jogos inscritos ao retornar para a página
+    Provider.of<AirsoftService>(context, listen: false).fetchSubscribedGames();
+  }
+
+  @override
+  void dispose() {
+    // Cancelar a inscrição no RouteObserver
+    RouteObserver<ModalRoute>().unsubscribe(this);
+    super.dispose();
   }
 
   @override
@@ -315,7 +335,7 @@ class _GamesScreenState extends State<GamesScreen> {
       child: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Colors.redAccent.withOpacity(0.1),
+          color: Color.fromARGB(255, 105, 105, 105).withOpacity(0.1),
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Column(
@@ -324,7 +344,7 @@ class _GamesScreenState extends State<GamesScreen> {
             const Text(
               'Nenhum resultado encontrado.',
               style: TextStyle(
-                color: Colors.redAccent,
+                color: Color.fromARGB(255, 138, 138, 138),
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -334,7 +354,7 @@ class _GamesScreenState extends State<GamesScreen> {
               child: const Text(
                 'Limpar Filtros',
                 style: TextStyle(
-                  color: Color.fromARGB(255, 255, 255, 255),
+                  color: Color.fromARGB(255, 255, 0, 0),
                   fontWeight: FontWeight.bold,
                 ),
               ),

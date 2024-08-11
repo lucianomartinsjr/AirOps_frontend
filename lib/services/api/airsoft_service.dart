@@ -175,6 +175,7 @@ class AirsoftService with ChangeNotifier {
 
       if (response.statusCode == 201) {
         await fetchSubscribedGames();
+        notifyListeners();
       } else {
         debugPrint(
             'Erro ao inscrever no evento: ${response.statusCode} - ${response.body}');
@@ -201,6 +202,7 @@ class AirsoftService with ChangeNotifier {
 
       if (response.statusCode == 200) {
         await fetchSubscribedGames();
+        notifyListeners();
       } else {
         throw Exception('Erro ao desinscrever do evento');
       }
