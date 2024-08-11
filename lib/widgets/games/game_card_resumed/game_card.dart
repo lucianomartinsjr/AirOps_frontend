@@ -50,7 +50,7 @@ class GameCard extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                '${game.dataEvento.day.toString().padLeft(2, '0')}/${game.dataEvento.month.toString().padLeft(2, '0')}/${game.dataEvento.year} \n    ${game.dataEvento.hour.toString().padLeft(2, '0')}:${game.dataEvento.minute.toString().padLeft(2, '0')}',
+                                '${game.dataEvento.toLocal().day.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().month.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().year} \n${game.dataEvento.toLocal().hour.toString().padLeft(2, '0')}:${game.dataEvento.toLocal().minute.toString().padLeft(2, '0')}',
                                 style: const TextStyle(
                                   color: Colors.white70,
                                 ),

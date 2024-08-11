@@ -83,9 +83,6 @@ class Game {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'idOperadorOrganizador': idOperadorOrganizador,
-      'OperadorOrganizador': nomeOrganizador,
       'titulo': titulo,
       'dataEvento': dataEvento.toUtc().toIso8601String(),
       'descricao': descricao,
@@ -94,13 +91,7 @@ class Game {
       'periodo': periodo,
       'linkCampo': linkCampo,
       'idModalidadeJogo': idModalidadeJogo,
-      'imagemCapa': imagemCapa,
       'numMaxOperadores': numMaxOperadores,
-      'criadoEM': criadoEM?.toUtc().toIso8601String(),
-      'quantidadeJogadores': quantidadeJogadoresInscritos,
-      'jogadores': players?.map((player) => player.toJson()).toList(),
-      'inscrito': inscrito,
-      'ativo': ativo,
     };
   }
 }

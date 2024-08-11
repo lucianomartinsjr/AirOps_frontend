@@ -139,8 +139,8 @@ class AirsoftService with ChangeNotifier {
         throw Exception('Token não encontrado');
       }
 
-      final response = await http.put(
-        Uri.parse('$_baseUrl/games/$id'),
+      final response = await http.patch(
+        Uri.parse('$_baseUrl/eventos/atualizar/$id'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -150,8 +150,9 @@ class AirsoftService with ChangeNotifier {
 
       if (response.statusCode == 200) {
         notifyListeners();
+        fetchOrganizerGames();
       } else {
-        throw Exception('Erro ao atualizar jogo');
+        throw Exception('Erro ao atualizar jogo: ${response.body}');
       }
     } catch (e) {
       debugPrint('Erro ao atualizar jogo: $e');
