@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../models/class.dart';
-import '../models/game.dart';
-import '../models/modality.dart';
-import '../models/profile.dart';
+import '../../models/class.dart';
+import '../../models/game.dart';
+import '../../models/modality.dart';
+import '../../models/profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../models/user.dart';
+import '../../models/user.dart';
 
 class ApiService extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -122,7 +122,7 @@ class ApiService extends ChangeNotifier {
   }
 
   Future<bool> updateProfile(Profile profile) async {
-    final url = Uri.parse('$baseUrl/profile');
+    final url = Uri.parse('$baseUrl/operador/update-profile');
     final response = await http.put(
       url,
       headers: {
@@ -204,6 +204,26 @@ class ApiService extends ChangeNotifier {
         'message':
             'Erro na conexão com o servidor. Por favor, tente novamente mais tarde.'
       };
+    }
+  }
+
+  Future<bool> changePassword(String newPassword) async {
+    final url = Uri.parse('$baseUrl/auth/alterar-senha');
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+      },
+      body: jsonEncode({
+        'novaSenha': newPassword,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 

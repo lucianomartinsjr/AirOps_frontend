@@ -1,8 +1,9 @@
+import 'package:collection/equality.dart';
 import 'package:flutter/material.dart';
 import '../models/class.dart';
 import '../models/profile.dart';
 import '../models/modality.dart';
-import '../services/api_service.dart';
+import '../services/api/api_service.dart';
 
 class ProfileProvider extends ChangeNotifier {
   final nameController = TextEditingController();
@@ -19,6 +20,8 @@ class ProfileProvider extends ChangeNotifier {
 
   late ApiService apiService;
 
+  late Profile _originalProfile; // Armazena o perfil original para comparação
+
   void initialize(ApiService apiService) {
     this.apiService = apiService;
     loadUserProfile();
@@ -28,7 +31,6 @@ class ProfileProvider extends ChangeNotifier {
     try {
       await _fetchProfileData();
     } catch (e) {
-      print(_fetchProfileData());
       print('Error loading profile data: $e');
     }
   }
@@ -42,6 +44,10 @@ class ProfileProvider extends ChangeNotifier {
       if (profileData.isNotEmpty) {
         final profile = Profile.fromJson(profileData);
 
+        // Armazena o perfil original para comparações futuras
+        _originalProfile = profile;
+
+        // Inicializa os controladores e listas com os dados do perfil
         nameController.text = profile.name ?? '';
         nicknameController.text = profile.nickname ?? '';
         cityController.text = profile.city ?? '';
@@ -65,7 +71,7 @@ class ProfileProvider extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      print('Error loading profile data: $e');
+      print('Error fetching profile data: $e');
     }
   }
 
@@ -98,23 +104,50 @@ class ProfileProvider extends ChangeNotifier {
         nickname: nicknameController.text,
         city: cityController.text,
         phone: phoneController.text,
-        classId: int.parse(selectedClass!),
+        classId: int.tryParse(selectedClass!) ?? 0,
         modalities: modalityIds,
       );
 
-      var success = await apiService.updateProfile(updatedProfile);
-      if (success) {
+      // Verifica se há alterações comparando o perfil original com o atualizado
+      if (_profilesAreEqual(_originalProfile, updatedProfile)) {
         ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
           const SnackBar(content: Text('Perfil atualizado com sucesso')),
         );
+        notifyListeners();
         isEditing = false;
-      } else {
+        return;
+      }
+
+      try {
+        bool success = await apiService.updateProfile(updatedProfile);
+        if (success) {
+          ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
+            const SnackBar(content: Text('Perfil atualizado com sucesso')),
+          );
+          isEditing = false;
+          _originalProfile = updatedProfile; // Atualiza o perfil original
+        } else {
+          ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
+            const SnackBar(content: Text('Falha ao atualizar o perfil')),
+          );
+        }
+      } catch (error) {
         ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
-          const SnackBar(content: Text('Falha ao atualizar o perfil')),
+          SnackBar(content: Text('Erro: ${error.toString()}')),
         );
       }
+
       notifyListeners();
     }
+  }
+
+  bool _profilesAreEqual(Profile original, Profile updated) {
+    return original.name == updated.name &&
+        original.nickname == updated.nickname &&
+        original.city == updated.city &&
+        original.phone == updated.phone &&
+        original.classId == updated.classId &&
+        const ListEquality().equals(original.modalities, updated.modalities);
   }
 
   void toggleEditing() {

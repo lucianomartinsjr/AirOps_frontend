@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/profile_provider.dart';
-import '../../services/api_service.dart';
+import '../../services/api/api_service.dart';
 import '../../widgets/form_fields/custom_dropdown_form_field.dart';
 import '../../widgets/form_fields/custom_text_form_field.dart';
-import '../../widgets/modalities_grid.dart';
+import '../../widgets/form_fields/modalities_grid.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -208,17 +208,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Text(
                               profileProvider.modalityError!,
                               style: const TextStyle(
-                                  color: Colors.red, fontSize: 12),
+                                  color: Colors.grey, fontSize: 12),
                             ),
                           ),
                         const SizedBox(height: 20),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               FocusScope.of(context).unfocus();
                               if (profileProvider.isEditing) {
-                                profileProvider.saveProfile(_formKey);
+                                await profileProvider.saveProfile(_formKey);
                               } else {
                                 profileProvider.toggleEditing();
                               }

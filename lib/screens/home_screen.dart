@@ -2,7 +2,7 @@ import 'package:airops_frontend/screens/profile_page/change_password.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../services/airsoft_service.dart';
+import '../services/api/airsoft_service.dart';
 import '../widgets/form_fields/filter_dialog.dart';
 import '../widgets/games/game_item_detailed/game_list.dart';
 import 'admin_page/admin_screen.dart';

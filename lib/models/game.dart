@@ -57,15 +57,18 @@ class Game {
       nomeOrganizador: json['OperadorOrganizador'] as String?,
       cidade: json['cidade'] as String? ?? '',
       titulo: json['titulo'] as String? ?? '',
-      dataEvento: DateTime.parse(json['dataEvento'] as String? ?? ''),
+      dataEvento: json['dataEvento'] != null
+          ? DateTime.parse(json['dataEvento'] as String)
+          : DateTime.now(), // Valor padrão se estiver ausente
       descricao: json['descricao'] as String? ?? '',
-      valor: (json['valor'] as num).toDouble(),
+      valor: (json['valor'] as num?)?.toDouble() ??
+          0.0, // Trata null e fornece valor padrão
       periodo: json['periodo'] as String? ?? '',
       linkCampo: json['linkCampo'] as String? ?? '',
-      idModalidadeJogo: json['idModalidadeJogo'] as int,
+      idModalidadeJogo: json['idModalidadeJogo'] as int? ?? 0, // Valor padrão
       modalidadesJogos: json['ModalidadesJogos'] as String?,
       imagemCapa: json['imagemCapa'] as String? ?? '',
-      numMaxOperadores: json['numMaxOperadores'] as int? ?? 0,
+      numMaxOperadores: json['numMaxOperadores'] as int? ?? 0, // Valor padrão
       criadoEM: json['criadoEM'] != null
           ? DateTime.parse(json['criadoEM'] as String)
           : null,
@@ -74,14 +77,17 @@ class Game {
           : null,
       players: playersList,
       inscrito: json['inscrito'] as bool?,
-      ativo: json['ativo'] ?? true,
+      ativo: json['ativo'] as bool? ?? true, // Valor padrão se estiver ausente
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
+      'idOperadorOrganizador': idOperadorOrganizador,
+      'OperadorOrganizador': nomeOrganizador,
       'titulo': titulo,
-      'dataEvento': dataEvento.toIso8601String(),
+      'dataEvento': dataEvento.toUtc().toIso8601String(),
       'descricao': descricao,
       'cidade': cidade,
       'valor': valor,
@@ -90,6 +96,11 @@ class Game {
       'idModalidadeJogo': idModalidadeJogo,
       'imagemCapa': imagemCapa,
       'numMaxOperadores': numMaxOperadores,
+      'criadoEM': criadoEM?.toUtc().toIso8601String(),
+      'quantidadeJogadores': quantidadeJogadoresInscritos,
+      'jogadores': players?.map((player) => player.toJson()).toList(),
+      'inscrito': inscrito,
+      'ativo': ativo,
     };
   }
 }

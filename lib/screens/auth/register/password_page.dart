@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../widgets/form_fields/password_strength_indicator.dart';
+
 class PasswordPage extends StatefulWidget {
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
@@ -7,12 +9,12 @@ class PasswordPage extends StatefulWidget {
   final VoidCallback onPrevious;
 
   const PasswordPage({
-    Key? key,
+    super.key,
     required this.passwordController,
     required this.confirmPasswordController,
     required this.onNext,
     required this.onPrevious,
-  }) : super(key: key);
+  });
 
   @override
   _PasswordPageState createState() => _PasswordPageState();
@@ -140,6 +142,7 @@ class _PasswordPageState extends State<PasswordPage> {
                 },
               ),
               const SizedBox(height: 20),
+              PasswordStrengthIndicator(controller: widget.passwordController),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

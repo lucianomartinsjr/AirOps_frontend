@@ -1,38 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../services/api/airsoft_service.dart';
-import '../../widgets/games/game_card_resumed/game_list_view.dart';
-import 'create_game_screen.dart';
 
-class ManageGamesScreen extends StatefulWidget {
-  const ManageGamesScreen({super.key});
+class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
 
   @override
-  _ManageGamesScreenState createState() => _ManageGamesScreenState();
+  _HistoryScreenState createState() => _HistoryScreenState();
 }
 
-class _ManageGamesScreenState extends State<ManageGamesScreen> {
-  bool _isLoading = true; // Adiciona um estado para controle de carregamento
+class _HistoryScreenState extends State<HistoryScreen> {
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AirsoftService>(context, listen: false)
-          .fetchOrganizerGames()
+          .fetchGameHistory()
           .then((_) {
         setState(() {
-          _isLoading =
-              false; // Desativa o indicador de carregamento após os jogos serem carregados
+          _isLoading = false;
         });
       }).catchError((error) {
         setState(() {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(
-                    'Erro ao carregar jogos: $error')) // Exibe uma mensagem de erro
-            );
+          content: Text('Erro ao carregar histórico: $error'),
+        ));
       });
     });
   }
@@ -41,7 +38,7 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Meus jogos"),
+        title: const Text("Histórico de jogos"),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
       ),
@@ -49,22 +46,44 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Consumer<AirsoftService>(
               builder: (context, airsoftService, child) {
-                final organizerGames = airsoftService.organizerGames;
+                final gameHistory = airsoftService.gameHistory;
 
                 return Stack(
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: organizerGames.isEmpty
+                      child: gameHistory.isEmpty
                           ? const Center(
                               child: Text(
-                                'Você não possui nenhum jogo registrado',
+                                'Nenhum jogo no histórico',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 18),
                                 textAlign: TextAlign.center,
                               ),
                             )
-                          : GameListView(games: organizerGames),
+                          : ListView.builder(
+                              itemCount: gameHistory.length,
+                              itemBuilder: (context, index) {
+                                final game = gameHistory[index];
+                                return Card(
+                                  child: ListTile(
+                                    title: Text(game.descricao),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            'Data: ${DateFormat('dd/MM/yyyy').format(game.dataEvento)}'),
+                                        Text(
+                                            'Modalidade: ${game.modalidadesJogos}'),
+                                        Text(
+                                            'Organizador: ${game.nomeOrganizador}'),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                     ),
                     Positioned(
                       bottom: 0,
@@ -76,30 +95,6 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        const CreateGameScreen(),
-                                  ));
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 15),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Registrar novo jogo',
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                              ),
-                            ),
                             const SizedBox(height: 8.0),
                             SizedBox(
                               width: double.infinity,

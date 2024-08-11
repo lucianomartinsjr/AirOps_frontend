@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../services/api_service.dart';
+import '../../../services/api/api_service.dart';
 
 class LoginScreen extends HookWidget {
   const LoginScreen({super.key});
@@ -12,6 +12,12 @@ class LoginScreen extends HookWidget {
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final rememberEmail = useState(false);
+    final isPasswordVisible = useState(false);
+
+    final emailError =
+        useState<String?>(null); // Estado para armazenar o erro do email
+    final passwordError =
+        useState<String?>(null); // Estado para armazenar o erro da senha
 
     useEffect(() {
       Future<void> initialize() async {
@@ -34,6 +40,26 @@ class LoginScreen extends HookWidget {
     Future<void> handleLogin() async {
       final email = emailController.text;
       final password = passwordController.text;
+
+      // Validação dos campos
+      bool isValid = true;
+      if (email.isEmpty) {
+        emailError.value = 'Por favor, insira seu email';
+        isValid = false;
+      } else {
+        emailError.value = null;
+      }
+
+      if (password.isEmpty) {
+        passwordError.value = 'Por favor, insira sua senha';
+        isValid = false;
+      } else {
+        passwordError.value = null;
+      }
+
+      if (!isValid) {
+        return;
+      }
 
       if (rememberEmail.value) {
         final prefs = await SharedPreferences.getInstance();
@@ -97,13 +123,15 @@ class LoginScreen extends HookWidget {
                             ),
                             contentPadding: const EdgeInsets.symmetric(
                                 vertical: 15, horizontal: 20),
+                            errorText:
+                                emailError.value, // Mensagem de erro do email
                           ),
                         ),
                         const SizedBox(height: 20),
                         TextField(
                           controller: passwordController,
                           cursorColor: Colors.red,
-                          obscureText: true,
+                          obscureText: !isPasswordVisible.value,
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             labelText: 'Senha',
@@ -116,6 +144,20 @@ class LoginScreen extends HookWidget {
                             ),
                             contentPadding: const EdgeInsets.symmetric(
                                 vertical: 15, horizontal: 20),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                isPasswordVisible.value
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                isPasswordVisible.value =
+                                    !isPasswordVisible.value;
+                              },
+                            ),
+                            errorText: passwordError
+                                .value, // Mensagem de erro da senha
                           ),
                         ),
                         const SizedBox(height: 20),

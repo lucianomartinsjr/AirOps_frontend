@@ -1,12 +1,11 @@
-import 'package:airops_frontend/screens/home_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../models/modality.dart';
-import '../../services/airsoft_service.dart';
+import '../../services/api/airsoft_service.dart';
 import '../../models/game.dart';
-import '../../services/api_service.dart';
+import '../../services/api/api_service.dart';
 import '../../widgets/form_fields/custom_text_form_field.dart';
 import '../../widgets/form_fields/date_time_picker_field.dart';
 import '../../widgets/form_fields/custom_dropdown_form_field.dart'; // Importar aqui
