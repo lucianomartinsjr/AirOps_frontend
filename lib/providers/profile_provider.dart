@@ -1,4 +1,4 @@
-import 'package:collection/equality.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import '../models/class.dart';
 import '../models/profile.dart';
@@ -97,7 +97,7 @@ class ProfileProvider extends ChangeNotifier {
   Future<void> saveProfile(GlobalKey<FormState> formKey) async {
     if (formKey.currentState?.validate() ?? false) {
       List<int> modalityIds =
-          selectedModalities.map((modality) => modality.id).toList();
+          selectedModalities.map((modality) => modality.id!).toList();
 
       Profile updatedProfile = Profile(
         name: nameController.text,

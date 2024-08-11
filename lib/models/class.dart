@@ -1,12 +1,12 @@
 class Class {
-  final int id;
+  final int? id;
   final String nomeClasse;
   final String? descricao;
   final bool? ativo;
   final DateTime? criadoEm;
 
   Class({
-    required this.id,
+    this.id,
     required this.nomeClasse,
     this.descricao,
     this.ativo,
@@ -15,12 +15,9 @@ class Class {
 
   factory Class.fromJson(Map<String, dynamic> json) {
     return Class(
-      id: json['id'],
+      id: json['id'] != null ? int.parse(json['id'].toString()) : null,
       nomeClasse: json['nomeClasse'],
       descricao: json['descricao'],
-      ativo: json['ativo'] != null
-          ? json['ativo'] == 'true' || json['ativo'] == true
-          : null,
       criadoEm:
           json['criadoEm'] != null ? DateTime.parse(json['criadoEm']) : null,
     );
@@ -31,7 +28,7 @@ class Class {
       'id': id,
       'nomeClasse': nomeClasse,
       'descricao': descricao,
-      'ativo': ativo?.toString(),
+      'ativo': ativo,
     };
   }
 }

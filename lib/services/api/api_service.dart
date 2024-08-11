@@ -227,6 +227,121 @@ class ApiService extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateModality(Modality modality) async {
+    try {
+      final url = Uri.parse('$baseUrl/modalidades-jogos/${modality.id}');
+      print('Request URL: $url');
+
+      final headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+      };
+      print('Request Headers: $headers');
+
+      // Verifique o valor de `ativo` antes de enviar a requisição
+      print('Modality active value before request: ${modality.ativo}');
+
+      final body = jsonEncode(modality.toJson());
+      print('Request Body: $body');
+
+      final response = await http.patch(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('Erro ao atualizar modalidade: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Exception caught: $e');
+      return false;
+    }
+  }
+
+  Future<bool> createModality(Modality modality) async {
+    final url = Uri.parse('$baseUrl/modalidades-jogos');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+      },
+      body: jsonEncode(modality.toJson()),
+    );
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      throw Exception('Erro ao criar modalidade: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> createClass(Class classe) async {
+    try {
+      final url = Uri.parse('$baseUrl/classes-operadores');
+      final headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+      };
+      final body = jsonEncode(classe.toJson());
+
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 201) {
+        return true;
+      } else {
+        print('Erro ao criar classe: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro ao criar classe: $e');
+      return false;
+    }
+  }
+
+  Future<bool> updateClass(Class classe) async {
+    if (classe.id == null) {
+      print('Erro: O ID da classe não pode ser nulo ao atualizar.');
+      return false;
+    }
+
+    try {
+      final url = Uri.parse('$baseUrl/classes-operadores/${classe.id}');
+      final headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+      };
+      final body = jsonEncode(classe.toJson());
+
+      final response = await http.patch(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('Erro ao atualizar classe: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro ao atualizar classe: $e');
+      return false;
+    }
+  }
+
   Future<void> clearToken() async {
     await _storage.delete(key: 'jwt_token');
     await _storage.delete(key: 'isAdmin');

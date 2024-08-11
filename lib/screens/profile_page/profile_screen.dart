@@ -197,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           modalities: profileProvider.modalities,
                           selectedModalityIds: profileProvider
                               .selectedModalities
-                              .map((modality) => modality.id)
+                              .map((modality) => modality.id!)
                               .toList(),
                           isEditing: profileProvider.isEditing,
                           onModalityChanged: profileProvider.onModalityChanged,

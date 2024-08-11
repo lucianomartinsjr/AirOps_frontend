@@ -62,7 +62,7 @@ class ModalitiesGrid extends StatelessWidget {
         return GestureDetector(
           onTap: isEditing
               ? () {
-                  onModalityChanged(!isSelected, modality.id);
+                  onModalityChanged(!isSelected, modality.id!);
                 }
               : null,
           child: Container(

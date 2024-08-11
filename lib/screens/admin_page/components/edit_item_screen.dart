@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../models/class.dart';
 import '../../../models/modality.dart';
+import '../../../services/api/api_service.dart';
 import '../../../widgets/form_fields/custom_text_form_field.dart';
 
 class EditItemScreen extends StatefulWidget {
   final String title;
   final Map<String, TextEditingController> controllers;
   final bool isActive;
-  final VoidCallback onSave;
+  final Function(Modality modality)? onSaveModality;
+  final Function(Class classItem)? onSaveClass;
   final Modality? initialModality;
   final Class? initialClass;
 
@@ -16,10 +19,14 @@ class EditItemScreen extends StatefulWidget {
     required this.title,
     required this.controllers,
     required this.isActive,
-    required this.onSave,
+    this.onSaveModality,
+    this.onSaveClass,
     this.initialModality,
     this.initialClass,
+    required this.onSave,
   });
+
+  final Function() onSave;
 
   @override
   _EditItemScreenState createState() => _EditItemScreenState();
@@ -32,6 +39,26 @@ class _EditItemScreenState extends State<EditItemScreen> {
   void initState() {
     super.initState();
     isActive = widget.isActive;
+    debugPrint('Initial isActive in EditItemScreen: $isActive');
+  }
+
+  void _saveItem() {
+    debugPrint('Saving isActive value: $isActive');
+
+    if (widget.initialModality != null) {
+      final modality = Modality(
+        id: widget.initialModality?.id,
+        descricao: widget.controllers['Descrição']!.text,
+        regras: widget.controllers['Regras']!.text,
+        ativo: isActive,
+        criadoEM: widget.initialModality?.criadoEM,
+      );
+      debugPrint('Modality created with active: ${modality.ativo}');
+
+      Provider.of<ApiService>(context, listen: false).updateModality(modality);
+    }
+
+    widget.onSave();
   }
 
   @override
@@ -49,7 +76,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: widget.onSave,
+            onPressed: _saveItem,
           ),
         ],
       ),
@@ -106,9 +133,10 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     onChanged: (value) {
                       setState(() {
                         isActive = value;
+                        debugPrint('isActive switched to: $isActive');
                       });
                     },
-                    activeColor: Colors.green, // Cor do switch
+                    activeColor: Colors.green,
                     activeTrackColor: Colors.greenAccent,
                   ),
                 ],
@@ -119,13 +147,13 @@ class _EditItemScreenState extends State<EditItemScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.red, // Cor do texto do botão
+                  backgroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 12.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                onPressed: widget.onSave,
+                onPressed: _saveItem,
                 child: const Text('Salvar', style: TextStyle(fontSize: 16)),
               ),
             ),

@@ -15,7 +15,7 @@ class GamesAdminScreen extends StatefulWidget {
 class _GamesAdminScreenState extends State<GamesAdminScreen> {
   List<Game> games = [];
   List<Game> filteredGames = [];
-  bool showActiveOnly = true;
+  String selectedFilter = 'Todos';
   String searchQuery = '';
 
   @override
@@ -42,8 +42,10 @@ class _GamesAdminScreenState extends State<GamesAdminScreen> {
       filteredGames = games.where((game) {
         final matchesSearch =
             game.titulo.toLowerCase().contains(searchQuery.toLowerCase());
-        final matchesStatus = showActiveOnly ? game.ativo : true;
-        return matchesSearch && matchesStatus!;
+        final matchesStatus = (selectedFilter == 'Todos') ||
+            (selectedFilter == 'Ativos' && game.ativo!) ||
+            (selectedFilter == 'Inativos' && !game.ativo!);
+        return matchesSearch && matchesStatus;
       }).toList();
     });
   }
@@ -70,38 +72,63 @@ class _GamesAdminScreenState extends State<GamesAdminScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Pesquisar',
-                labelStyle: const TextStyle(color: Colors.white70),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Pesquisar',
+                      labelStyle: const TextStyle(color: Colors.white70),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      prefixIcon:
+                          const Icon(Icons.search, color: Colors.white70),
+                      filled: true,
+                      fillColor:
+                          Colors.grey[800], // Cor de fundo da barra de pesquisa
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                    onChanged: (value) {
+                      setState(() {
+                        searchQuery = value;
+                        _filterGames();
+                      });
+                    },
+                  ),
                 ),
-                prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                filled: true,
-                fillColor:
-                    Colors.grey[800], // Cor de fundo da barra de pesquisa
-              ),
-              style: const TextStyle(color: Colors.white),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                  _filterGames();
-                });
-              },
+                const SizedBox(width: 8.0),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  decoration: BoxDecoration(
+                    color:
+                        Colors.grey[900], // Cor de fundo um pouco mais escura
+                    borderRadius: BorderRadius.circular(10.0),
+                    border: Border.all(color: Colors.grey[800]!),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: selectedFilter,
+                      items: ['Todos', 'Ativos', 'Inativos']
+                          .map((filter) => DropdownMenuItem(
+                                value: filter,
+                                child: Text(filter),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedFilter = value!;
+                          _filterGames();
+                        });
+                      },
+                      dropdownColor: Colors.grey[900],
+                      style: const TextStyle(color: Colors.white),
+                      iconEnabledColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          SwitchListTile(
-            title: const Text('Mostrar apenas ativos',
-                style: TextStyle(color: Colors.white)),
-            value: showActiveOnly,
-            onChanged: (value) {
-              setState(() {
-                showActiveOnly = value;
-                _filterGames();
-              });
-            },
-            activeColor: Colors.red,
           ),
           Expanded(
             child: ListView.builder(

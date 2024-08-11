@@ -350,7 +350,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         titulo: _nameController.text,
                         cidade: _locationController.text,
                         dataEvento: _parseDate(_dateController.text),
-                        idModalidadeJogo: _selectedModality!.id,
+                        idModalidadeJogo: _selectedModality?.id ?? 0,
                         periodo: _selectedPeriod!,
                         nomeOrganizador: _organizerController.text,
                         valor: double.parse(_feeController.text),
