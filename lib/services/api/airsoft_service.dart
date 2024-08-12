@@ -7,7 +7,7 @@ import '../../models/game.dart';
 
 class AirsoftService with ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  final String _baseUrl = 'http://localhost:3000';
+  final String _baseUrl = 'http://airops-backend.up.railway.app';
 
   List<Game> _games = [];
   List<Game> _filteredGames = [];

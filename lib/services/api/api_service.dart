@@ -11,7 +11,7 @@ import '../../models/user.dart';
 
 class ApiService extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  final String baseUrl = 'http://localhost:3000';
+  final String baseUrl = 'http://airops-backend.up.railway.app';
 
   Future<bool> checkEmail(String email) async {
     final url = Uri.parse('$baseUrl/auth/validar-email');
