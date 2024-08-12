@@ -54,140 +54,64 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(16.0),
-                      color: Theme.of(context).primaryColor,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.sports_esports,
-                              color: Colors.white, size: 20.0),
-                          const SizedBox(width: 8.0),
-                          Text(
-                            'Você partiticipou de ${gameHistory.length} eventos.',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
-                        child: gameHistory.isEmpty
-                            ? const Center(
-                                child: Text(
-                                  'Você ainda não participou de nenhum jogo.',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 18),
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                            : ListView.builder(
-                                itemCount: gameHistory.length,
-                                itemBuilder: (context, index) {
-                                  final game = gameHistory[index];
-                                  return Card(
-                                    color: Colors.grey[850],
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 8.0),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    elevation: 2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            game.titulo,
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8.0),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.calendar_today,
-                                                  size: 16,
-                                                  color: Colors.white70),
-                                              const SizedBox(width: 8.0),
-                                              Text(
-                                                DateFormat('dd/MM/yyyy')
-                                                    .format(game.dataEvento),
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.white70),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 8.0),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.sports_esports,
-                                                  size: 16,
-                                                  color: Colors.white70),
-                                              const SizedBox(width: 8.0),
-                                              Text(
-                                                game.modalidadesJogos ??
-                                                    'Modalidade desconhecida',
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.white70),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 8.0),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.person,
-                                                  size: 16,
-                                                  color: Colors.white70),
-                                              const SizedBox(width: 8.0),
-                                              Text(
-                                                game.nomeOrganizador ??
-                                                    'Organizador desconhecido',
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.white70),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
+                      child: gameHistory.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'Nenhum jogo no histórico',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 18),
+                                textAlign: TextAlign.center,
                               ),
-                      ),
+                            )
+                          : ListView.builder(
+                              itemCount: gameHistory.length,
+                              itemBuilder: (context, index) {
+                                final game = gameHistory[index];
+                                return Card(
+                                  child: ListTile(
+                                    title: Text(game.descricao),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            'Data: ${DateFormat('dd/MM/yyyy').format(game.dataEvento)}'),
+                                        Text(
+                                            'Modalidade: ${game.modalidadesJogos}'),
+                                        Text(
+                                            'Organizador: ${game.nomeOrganizador}'),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                     ),
-                    // Botão de retorno
-                    Container(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      padding: const EdgeInsets.all(16.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          backgroundColor: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        child: const SizedBox(
-                          width: double.infinity,
-                          child: Text(
-                            'Retornar',
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                            textAlign: TextAlign.center,
-                          ),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 8.0),
+                            SizedBox(
+                              width: double.infinity,
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  'Retornar',
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.white70),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

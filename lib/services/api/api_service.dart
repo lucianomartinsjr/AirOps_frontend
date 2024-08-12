@@ -247,6 +247,7 @@ class ApiService extends ChangeNotifier {
     );
 
     if (response.statusCode == 200) {
+      await _storage.write(key: 'hasToChangePassword', value: 'false');
       return true;
     } else {
       return false;
