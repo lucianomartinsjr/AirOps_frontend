@@ -11,7 +11,33 @@ import '../../models/user.dart';
 
 class ApiService extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  final String baseUrl = 'http://airops-backend.up.railway.app';
+  final String baseUrl = 'https://airops-backend.up.railway.app';
+
+  Future<bool> forgotPassword(String email) async {
+    final url = Uri.parse('$baseUrl/auth/recuperar-senha');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({'email': email}),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        // Log de erro com a mensagem de resposta do servidor
+        final responseBody = jsonDecode(response.body);
+        print(
+            'Erro ao recuperar senha: ${response.statusCode} - ${responseBody['message']}');
+        return false;
+      }
+    } catch (e) {
+      // Tratamento de exceções e logging do erro
+      print('Exceção capturada ao tentar recuperar senha: $e');
+      return false;
+    }
+  }
 
   Future<bool> checkEmail(String email) async {
     final url = Uri.parse('$baseUrl/auth/validar-email');
