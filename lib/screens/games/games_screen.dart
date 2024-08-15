@@ -254,20 +254,22 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
       required List<String> items,
       required void Function(String?) onChanged}) {
     return SizedBox(
-      height: 35, // Definindo a altura total do widget
+      height: 35,
       child: DropdownButtonFormField<String>(
         value: value,
         hint: Text(
           hint,
           style: const TextStyle(
-              color: Colors.white54, fontSize: 12), // Tamanho da fonte menor
+            color: Colors.white54,
+            fontSize: 12,
+          ),
           overflow: TextOverflow.ellipsis,
         ),
         decoration: InputDecoration(
           filled: true,
           fillColor: Colors.grey[800],
           contentPadding: const EdgeInsets.symmetric(
-            vertical: 4.0, // Redução do padding vertical
+            vertical: 4.0,
             horizontal: 8.0,
           ),
           border: OutlineInputBorder(
@@ -277,18 +279,22 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
         ),
         dropdownColor: Colors.grey[800],
         style: const TextStyle(
-            color: Colors.white, fontSize: 12), // Tamanho da fonte menor
+          color: Colors.white,
+          fontSize: 12,
+        ),
         iconEnabledColor: Colors.white,
-        iconSize: 16, // Tamanho do ícone menor
+        iconSize: 16,
         items: items.map((item) {
           return DropdownMenuItem<String>(
             value: item,
-            child: Text(
-              item,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12, // Tamanho da fonte menor
-                overflow: TextOverflow.ellipsis,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                item,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                ),
               ),
             ),
           );

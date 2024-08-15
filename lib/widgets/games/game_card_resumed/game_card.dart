@@ -59,8 +59,8 @@ class GameCard extends StatelessWidget {
                                 color: Colors.white70, size: 16.0),
                             const SizedBox(width: 8.0),
                             Text(
-                              '${game.dataEvento.toLocal().day.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().month.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().year} '
-                              '${game.dataEvento.toLocal().hour.toString().padLeft(2, '0')}:${game.dataEvento.toLocal().minute.toString().padLeft(2, '0')}',
+                              '${game.dataEvento.day.toString().padLeft(2, '0')}/${game.dataEvento.month.toString().padLeft(2, '0')}/${game.dataEvento.year} '
+                              '${game.dataEvento.hour.toString().padLeft(2, '0')}:${game.dataEvento.minute.toString().padLeft(2, '0')}',
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14.0,

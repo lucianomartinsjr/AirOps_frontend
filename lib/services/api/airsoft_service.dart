@@ -236,13 +236,17 @@ class AirsoftService with ChangeNotifier {
     _filteredGames = _games.where((game) {
       final matchCity = city.isEmpty ||
           game.cidade.toLowerCase().contains(city.toLowerCase());
+
       final matchDate = date.isEmpty ||
           DateFormat('dd/MM/yyyy').format(game.dataEvento) == date;
+
       final matchFree = !isFree || game.valor == 0.0;
+
       final matchPeriod =
-          period == 'Qualquer período' || game.periodo == period;
-      final matchModality =
-          modality == 'Any' || game.modalidadesJogos == modality;
+          period == 'Any' || game.periodo.toLowerCase() == period.toLowerCase();
+
+      final matchModality = modality == 'Any' ||
+          game.modalidadesJogos?.toLowerCase() == modality.toLowerCase();
 
       return matchCity &&
           matchDate &&

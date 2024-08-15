@@ -21,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isFree = false;
   String _selectedPeriod = 'Any';
   String _selectedModality = 'Any';
-  String _selectedFieldType = 'Any';
   bool _isAdmin = false;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
@@ -81,8 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(
-                      255, 159, 0, 0), // Altere esta cor conforme necessário
+                  color: const Color.fromARGB(255, 159, 0, 0),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
                 child: const Text('Alterar agora',
@@ -105,9 +103,18 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<String> cityOptions =
         Provider.of<AirsoftService>(context, listen: false)
             .games
-            .map((game) => game.linkCampo)
+            .map((game) => game.cidade)
             .toSet()
             .toList(); // Obter cidades únicas dos jogos disponíveis
+
+    final List<String> modalityOptions =
+        Provider.of<AirsoftService>(context, listen: false)
+            .games
+            .map((game) => game.modalidadesJogos)
+            .where((modality) => modality != null) // Filtrar valores null
+            .cast<String>() // Cast para List<String>
+            .toSet()
+            .toList(); // Obter modalidades únicas dos jogos disponíveis
 
     showDialog(
       context: context,
@@ -118,13 +125,11 @@ class _HomeScreenState extends State<HomeScreen> {
           isFree: _isFree,
           selectedPeriod: _selectedPeriod,
           selectedModality: _selectedModality,
-          selectedFieldType: _selectedFieldType,
-          onApplyFilters: (city, date, isFree, period, modality, fieldType) {
+          onApplyFilters: (city, date, isFree, period, modality) {
             setState(() {
               _isFree = isFree;
               _selectedPeriod = period;
               _selectedModality = modality;
-              _selectedFieldType = fieldType;
             });
             Provider.of<AirsoftService>(context, listen: false).applyFilters(
               city: city,
@@ -135,6 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
           cityOptions: cityOptions,
+          modalityOptions: modalityOptions,
         );
       },
     );

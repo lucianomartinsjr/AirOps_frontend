@@ -90,6 +90,7 @@ class Game {
       'valor': valor,
       'periodo': periodo,
       'linkCampo': linkCampo,
+      'imagemCapa': imagemCapa,
       'idModalidadeJogo': idModalidadeJogo,
       'numMaxOperadores': numMaxOperadores,
     };

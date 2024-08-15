@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'date_picker_field.dart';
 import 'custom_dropdown_form_field.dart';
-import 'city_autocomplete_field.dart'; // Certifique-se de ajustar o caminho para onde o CityAutocompleteField está localizado
+import 'city_autocomplete_field.dart';
 
 class FilterDialog extends StatefulWidget {
   final TextEditingController cityController;
@@ -9,9 +9,9 @@ class FilterDialog extends StatefulWidget {
   final bool isFree;
   final String selectedPeriod;
   final String selectedModality;
-  final String selectedFieldType;
-  final Function(String, String, bool, String, String, String) onApplyFilters;
+  final Function(String, String, bool, String, String) onApplyFilters;
   final List<String> cityOptions;
+  final List<String> modalityOptions;
 
   const FilterDialog({
     super.key,
@@ -20,9 +20,9 @@ class FilterDialog extends StatefulWidget {
     required this.isFree,
     required this.selectedPeriod,
     required this.selectedModality,
-    required this.selectedFieldType,
     required this.onApplyFilters,
     required this.cityOptions,
+    required this.modalityOptions,
   });
 
   @override
@@ -33,18 +33,13 @@ class _FilterDialogState extends State<FilterDialog> {
   late bool _isFree;
   late String _selectedPeriod;
   late String _selectedModality;
-  late String _selectedFieldType;
 
   @override
   void initState() {
     super.initState();
     _isFree = widget.isFree;
-    _selectedPeriod =
-        widget.selectedPeriod == 'Any' ? '-' : widget.selectedPeriod;
-    _selectedModality =
-        widget.selectedModality == 'Any' ? '-' : widget.selectedModality;
-    _selectedFieldType =
-        widget.selectedFieldType == 'Any' ? '-' : widget.selectedFieldType;
+    _selectedPeriod = widget.selectedPeriod;
+    _selectedModality = widget.selectedModality;
   }
 
   void _clearFilters() {
@@ -52,9 +47,8 @@ class _FilterDialogState extends State<FilterDialog> {
       widget.cityController.clear();
       widget.dateController.clear();
       _isFree = false;
-      _selectedPeriod = '-';
-      _selectedModality = '-';
-      _selectedFieldType = '-';
+      _selectedPeriod = 'Any';
+      _selectedModality = 'Any';
     });
   }
 
@@ -62,9 +56,8 @@ class _FilterDialogState extends State<FilterDialog> {
     return widget.cityController.text.isNotEmpty ||
         widget.dateController.text.isNotEmpty ||
         _isFree ||
-        _selectedPeriod != '-' ||
-        _selectedModality != '-' ||
-        _selectedFieldType != '-';
+        _selectedPeriod != 'Any' ||
+        _selectedModality != 'Any';
   }
 
   @override
@@ -95,7 +88,7 @@ class _FilterDialogState extends State<FilterDialog> {
               const SizedBox(height: 16),
               CustomDropdownFormField(
                 value: _selectedPeriod,
-                items: const ['-', 'Matutino', 'Vespertino', 'Noturno'],
+                items: const ['Any', 'Matutino', 'Vespertino', 'Noturno'],
                 labelText: 'Período',
                 readOnly: false,
                 onChanged: (String? newValue) {
@@ -107,24 +100,12 @@ class _FilterDialogState extends State<FilterDialog> {
               const SizedBox(height: 16),
               CustomDropdownFormField(
                 value: _selectedModality,
-                items: ['-', 'Modalidade 1', 'Modalidade 2', 'Modalidade 3'],
+                items: ['Any', ...widget.modalityOptions],
                 labelText: 'Modalidade',
                 readOnly: false,
                 onChanged: (String? newValue) {
                   setState(() {
                     _selectedModality = newValue!;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              CustomDropdownFormField(
-                value: _selectedFieldType,
-                items: ['-', 'Indoor', 'Outdoor'],
-                labelText: 'Tipo de Campo',
-                readOnly: false,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedFieldType = newValue!;
                   });
                 },
               ),
@@ -182,7 +163,6 @@ class _FilterDialogState extends State<FilterDialog> {
                   _isFree,
                   _selectedPeriod,
                   _selectedModality,
-                  _selectedFieldType,
                 );
                 Navigator.of(context).pop();
               },
