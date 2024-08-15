@@ -11,7 +11,8 @@ import '../../models/user.dart';
 
 class ApiService extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  final String baseUrl = 'https://airops-backend.up.railway.app';
+  // final String baseUrl = 'https://airops-backend.up.railway.app';
+  final String baseUrl = 'http://localhost:3000';
 
   Future<bool> forgotPassword(String email) async {
     final url = Uri.parse('$baseUrl/auth/recuperar-senha');

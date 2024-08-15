@@ -14,10 +14,8 @@ class LoginScreen extends HookWidget {
     final rememberEmail = useState(false);
     final isPasswordVisible = useState(false);
 
-    final emailError =
-        useState<String?>(null); // Estado para armazenar o erro do email
-    final passwordError =
-        useState<String?>(null); // Estado para armazenar o erro da senha
+    final emailError = useState<String?>(null); // Estado para armazenar o erro
+    final passwordError = useState<String?>(null);
 
     useEffect(() {
       Future<void> initialize() async {
@@ -72,12 +70,16 @@ class LoginScreen extends HookWidget {
       final success = await ApiService().login(email, password);
 
       if (success) {
-        Navigator.of(context).pushReplacementNamed('/home-screen');
+        if (context.mounted) {
+          Navigator.of(context).pushReplacementNamed('/home-screen');
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Login falhou. Verifique suas credenciais.')),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Login falhou. Verifique suas credenciais.')),
+          );
+        }
       }
     }
 
