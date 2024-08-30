@@ -143,7 +143,6 @@ class ApiService extends ChangeNotifier {
       final responseBody = jsonDecode(response.body);
       return responseBody;
     } else {
-      print('Failed to fetch profile: ${response.statusCode}');
       throw Exception('Ocorreu um erro ao carregar o perfil');
     }
   }

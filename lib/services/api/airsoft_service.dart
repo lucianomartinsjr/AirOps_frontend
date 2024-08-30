@@ -239,12 +239,9 @@ class AirsoftService with ChangeNotifier {
 
       final matchDate = date.isEmpty ||
           DateFormat('dd/MM/yyyy').format(game.dataEvento) == date;
-
-      final matchFree = !isFree || game.valor == 0.0;
-
+      final matchFree = !isFree || (game.valor == 0.0);
       final matchPeriod =
           period == 'Any' || game.periodo.toLowerCase() == period.toLowerCase();
-
       final matchModality = modality == 'Any' ||
           game.modalidadesJogos?.toLowerCase() == modality.toLowerCase();
 
