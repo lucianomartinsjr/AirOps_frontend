@@ -8,6 +8,7 @@ import '../../models/game.dart';
 class AirsoftService with ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   final String _baseUrl = 'http://localhost:3000';
+  // final String _baseUrl = 'https://airops-backend.up.railway.app';
 
   List<Game> _games = [];
   List<Game> _filteredGames = [];
@@ -139,8 +140,8 @@ class AirsoftService with ChangeNotifier {
         throw Exception('Token não encontrado');
       }
 
-      final response = await http.put(
-        Uri.parse('$_baseUrl/games/$id'),
+      final response = await http.patch(
+        Uri.parse('$_baseUrl/eventos/atualizar/$id'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -150,8 +151,9 @@ class AirsoftService with ChangeNotifier {
 
       if (response.statusCode == 200) {
         notifyListeners();
+        fetchOrganizerGames();
       } else {
-        throw Exception('Erro ao atualizar jogo');
+        throw Exception('Erro ao atualizar jogo: ${response.body}');
       }
     } catch (e) {
       debugPrint('Erro ao atualizar jogo: $e');
@@ -174,6 +176,7 @@ class AirsoftService with ChangeNotifier {
 
       if (response.statusCode == 201) {
         await fetchSubscribedGames();
+        notifyListeners();
       } else {
         debugPrint(
             'Erro ao inscrever no evento: ${response.statusCode} - ${response.body}');
@@ -200,6 +203,7 @@ class AirsoftService with ChangeNotifier {
 
       if (response.statusCode == 200) {
         await fetchSubscribedGames();
+        notifyListeners();
       } else {
         throw Exception('Erro ao desinscrever do evento');
       }
@@ -232,6 +236,7 @@ class AirsoftService with ChangeNotifier {
     _filteredGames = _games.where((game) {
       final matchCity = city.isEmpty ||
           game.cidade.toLowerCase().contains(city.toLowerCase());
+
       final matchDate = date.isEmpty ||
           DateFormat('dd/MM/yyyy').format(game.dataEvento) == date;
       final matchFree = !isFree || (game.valor == 0.0);

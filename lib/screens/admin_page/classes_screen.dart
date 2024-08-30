@@ -5,11 +5,29 @@ import '../../services/api/api_service.dart';
 import 'components/base_edit_screen.dart';
 import 'components/edit_item_screen.dart';
 
-class ClassesScreen extends StatelessWidget {
+class ClassesScreen extends StatefulWidget {
+  @override
+  _ClassesScreenState createState() => _ClassesScreenState();
+}
+
+class _ClassesScreenState extends State<ClassesScreen> {
+  late Future<List<Class>> _classesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadClasses();
+  }
+
+  void _loadClasses() {
+    _classesFuture =
+        Provider.of<ApiService>(context, listen: false).fetchClasses();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Class>>(
-      future: Provider.of<ApiService>(context, listen: false).fetchClasses(),
+      future: _classesFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -20,24 +38,38 @@ class ClassesScreen extends StatelessWidget {
           return BaseScreen(
             title: 'Classes',
             items: items.map((cls) => cls.nomeClasse).toList(),
-            onAdd: () {
-              _navigateToEditScreen(
+            onAdd: () async {
+              final result = await _navigateToEditScreen(
                 context,
                 'Adicionar Classe',
-                (cls) {
+                (cls) async {
                   // Adicionar nova classe
+                  return await Provider.of<ApiService>(context, listen: false)
+                      .createClass(cls);
                 },
               );
+              if (result == true) {
+                setState(() {
+                  _loadClasses(); // Recarrega a lista de classes após adicionar
+                });
+              }
             },
-            onEdit: (index) {
-              _navigateToEditScreen(
+            onEdit: (index) async {
+              final result = await _navigateToEditScreen(
                 context,
                 'Editar Classe',
-                (cls) {
+                (cls) async {
                   // Editar classe existente
+                  return await Provider.of<ApiService>(context, listen: false)
+                      .updateClass(cls);
                 },
                 initialClass: items[index],
               );
+              if (result == true) {
+                setState(() {
+                  _loadClasses(); // Recarrega a lista de classes após edição
+                });
+              }
             },
           );
         }
@@ -45,18 +77,16 @@ class ClassesScreen extends StatelessWidget {
     );
   }
 
-  void _navigateToEditScreen(
-      BuildContext context, String title, ValueChanged<Class> onSave,
+  Future<bool?> _navigateToEditScreen(
+      BuildContext context, String title, Future<bool> Function(Class) onSave,
       {Class? initialClass}) {
     final nomeClasseController =
         TextEditingController(text: initialClass?.nomeClasse ?? '');
     final descricaoController =
         TextEditingController(text: initialClass?.descricao ?? '');
-    final criadoEmController = TextEditingController(
-        text: initialClass?.criadoEm?.toIso8601String() ?? '');
     bool ativo = initialClass?.ativo ?? true;
 
-    Navigator.of(context).push(MaterialPageRoute(
+    return Navigator.of(context).push<bool>(MaterialPageRoute(
       builder: (context) => EditItemScreen(
         title: title,
         controllers: {
@@ -64,15 +94,20 @@ class ClassesScreen extends StatelessWidget {
           'Descrição': descricaoController,
         },
         isActive: ativo,
-        onSave: () {
-          onSave(Class(
-            id: initialClass?.id ?? 0,
+        onSave: () async {
+          final newClass = Class(
+            id: initialClass?.id,
             nomeClasse: nomeClasseController.text,
-            descricao: descricaoController.text,
+            descricao: descricaoController.text.isNotEmpty
+                ? descricaoController.text
+                : null,
             ativo: ativo,
-            criadoEm: DateTime.tryParse(criadoEmController.text),
-          ));
-          Navigator.of(context).pop();
+            criadoEm: initialClass?.criadoEm,
+          );
+          final success = await onSave(newClass);
+          if (success) {
+            Navigator.of(context).pop(true);
+          }
         },
         initialClass: initialClass,
       ),

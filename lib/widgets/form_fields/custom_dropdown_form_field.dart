@@ -45,11 +45,13 @@ class CustomDropdownFormField<T> extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide.none,
           ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         ),
         validator: validator,
         dropdownColor: const Color(0xFF2F2F2F),
         icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-        alignment: Alignment.bottomCenter,
+        alignment: Alignment.centerLeft, // Ajusta o alinhamento do conteúdo
       ),
     );
   }

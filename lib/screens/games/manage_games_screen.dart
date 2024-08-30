@@ -12,7 +12,9 @@ class ManageGamesScreen extends StatefulWidget {
 }
 
 class _ManageGamesScreenState extends State<ManageGamesScreen> {
-  bool _isLoading = true; // Adiciona um estado para controle de carregamento
+  bool _isLoading = true;
+  String _searchQuery = '';
+  String _filter = 'Ativos'; // Define "Ativos" como padrão
 
   @override
   void initState() {
@@ -22,17 +24,15 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
           .fetchOrganizerGames()
           .then((_) {
         setState(() {
-          _isLoading =
-              false; // Desativa o indicador de carregamento após os jogos serem carregados
+          _isLoading = false;
         });
       }).catchError((error) {
         setState(() {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(
-                    'Erro ao carregar jogos: $error')) // Exibe uma mensagem de erro
-            );
+          content: Text('Erro ao carregar jogos: $error'),
+        ));
       });
     });
   }
@@ -42,23 +42,94 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Meus jogos"),
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        backgroundColor: Colors.grey[850], // Cinza escuro para o AppBar
         elevation: 0,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Consumer<AirsoftService>(
               builder: (context, airsoftService, child) {
-                final organizerGames = airsoftService.organizerGames;
+                final organizerGames =
+                    airsoftService.organizerGames.where((game) {
+                  final matchesSearchQuery = game.titulo
+                      .toLowerCase()
+                      .contains(_searchQuery.toLowerCase());
+                  final matchesFilter = _filter == 'Todos' ||
+                      (_filter == 'Ativos' && (game.ativo ?? false)) ||
+                      (_filter == 'Inativos' && !(game.ativo ?? true));
+                  return matchesSearchQuery && matchesFilter;
+                }).toList();
 
-                return Stack(
+                return Column(
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: 'Buscar jogos...',
+                                prefixIcon:
+                                    Icon(Icons.search, color: Colors.white),
+                                hintStyle: TextStyle(color: Colors.white54),
+                                filled: true,
+                                fillColor: Colors.grey[700],
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                              style: TextStyle(color: Colors.white),
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchQuery = value;
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            flex: 1,
+                            child: DropdownButtonFormField<String>(
+                              value: _filter,
+                              decoration: InputDecoration(
+                                labelText: 'Filtrar',
+                                labelStyle: TextStyle(color: Colors.white),
+                                filled: true,
+                                fillColor:
+                                    const Color.fromARGB(255, 54, 54, 54),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                              dropdownColor: Colors.grey[800],
+                              items: ['Todos', 'Ativos', 'Inativos']
+                                  .map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value,
+                                      style: TextStyle(color: Colors.white)),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _filter = newValue!;
+                                });
+                              },
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
                       child: organizerGames.isEmpty
                           ? const Center(
                               child: Text(
-                                'Você não possui nenhum jogo registrado',
+                                'Nenhum jogo encontrado',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 18),
                                 textAlign: TextAlign.center,
@@ -66,56 +137,50 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                             )
                           : GameListView(games: organizerGames),
                     ),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        const CreateGameScreen(),
-                                  ));
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 15),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Registrar novo jogo',
-                                  style: TextStyle(fontSize: 18),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      const CreateGameScreen(),
+                                ));
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 15),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 8.0),
-                            SizedBox(
-                              width: double.infinity,
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text(
-                                  'Retornar',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.white70),
-                                ),
+                              child: const Text(
+                                'Registrar novo jogo',
+                                style: TextStyle(fontSize: 18),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 8.0),
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                'Retornar',
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.white70),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

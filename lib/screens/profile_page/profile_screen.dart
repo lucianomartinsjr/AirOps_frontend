@@ -60,10 +60,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (confirmed == true) {
       await profileProvider.clearUserData();
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        '/login',
-        (Route<dynamic> route) => false,
-      );
+      if (context.mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/login',
+          (Route<dynamic> route) => false,
+        );
+      }
     }
   }
 
@@ -197,7 +199,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           modalities: profileProvider.modalities,
                           selectedModalityIds: profileProvider
                               .selectedModalities
-                              .map((modality) => modality.id)
+                              .map((modality) => modality.id!)
                               .toList(),
                           isEditing: profileProvider.isEditing,
                           onModalityChanged: profileProvider.onModalityChanged,

@@ -5,11 +5,29 @@ import '../../services/api/api_service.dart';
 import 'components/base_edit_screen.dart';
 import 'components/edit_item_screen.dart';
 
-class ModalitiesScreen extends StatelessWidget {
+class ModalitiesScreen extends StatefulWidget {
+  @override
+  _ModalitiesScreenState createState() => _ModalitiesScreenState();
+}
+
+class _ModalitiesScreenState extends State<ModalitiesScreen> {
+  late Future<List<Modality>> _modalitiesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadModalities();
+  }
+
+  void _loadModalities() {
+    _modalitiesFuture =
+        Provider.of<ApiService>(context, listen: false).fetchModalities();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Modality>>(
-      future: Provider.of<ApiService>(context, listen: false).fetchModalities(),
+      future: _modalitiesFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -24,8 +42,21 @@ class ModalitiesScreen extends StatelessWidget {
               _navigateToEditScreen(
                 context,
                 'Adicionar Modalidade',
-                (modality) {
-                  // Adicionar nova modalidade
+                (modality) async {
+                  try {
+                    await Provider.of<ApiService>(context, listen: false)
+                        .createModality(modality);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Modalidade criada com sucesso!')),
+                    );
+                    setState(() {
+                      _loadModalities(); // Recarrega as modalidades
+                    });
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erro ao criar modalidade: $e')),
+                    );
+                  }
                 },
               );
             },
@@ -33,8 +64,27 @@ class ModalitiesScreen extends StatelessWidget {
               _navigateToEditScreen(
                 context,
                 'Editar Modalidade',
-                (modality) {
-                  // Editar modalidade existente
+                (modality) async {
+                  try {
+                    final updatedModality = modality.copyWith(
+                      id: items[index].id,
+                      criadoEM: items[index].criadoEM,
+                    );
+                    await Provider.of<ApiService>(context, listen: false)
+                        .updateModality(updatedModality);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Modalidade atualizada com sucesso!')),
+                    );
+                    setState(() {
+                      _loadModalities(); // Recarrega as modalidades
+                    });
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text('Erro ao atualizar modalidade: $e')),
+                    );
+                  }
                 },
                 initialModality: items[index],
               );
@@ -46,17 +96,21 @@ class ModalitiesScreen extends StatelessWidget {
   }
 
   void _navigateToEditScreen(
-      BuildContext context, String title, ValueChanged<Modality> onSave,
-      {Modality? initialModality}) {
+    BuildContext context,
+    String title,
+    ValueChanged<Modality> onSave, {
+    Modality? initialModality,
+  }) {
     final descricaoController =
         TextEditingController(text: initialModality?.descricao ?? '');
     final rulesController =
         TextEditingController(text: initialModality?.regras ?? '');
-    final creationDateController =
-        TextEditingController(text: initialModality?.criadoEM.toString() ?? '');
-    bool isActive = initialModality?.ativo ?? true;
+    // Inicializa o valor de isActive corretamente
+    bool isActive =
+        initialModality?.ativo ?? false; // Altere para false como padrão
 
-    Navigator.of(context).push(MaterialPageRoute(
+    Navigator.of(context)
+        .push(MaterialPageRoute(
       builder: (context) => EditItemScreen(
         title: title,
         controllers: {
@@ -65,17 +119,24 @@ class ModalitiesScreen extends StatelessWidget {
         },
         isActive: isActive,
         onSave: () {
-          onSave(Modality(
-            id: initialModality?.id ?? 0,
+          final modality = Modality(
+            id: initialModality?.id,
             descricao: descricaoController.text,
             regras: rulesController.text,
-            criadoEM: DateTime.parse(creationDateController.text),
+            criadoEM: initialModality?.criadoEM,
             ativo: isActive,
-          ));
+          );
+
+          onSave(modality);
           Navigator.of(context).pop();
         },
         initialModality: initialModality,
       ),
-    ));
+    ))
+        .then((_) {
+      setState(() {
+        _loadModalities();
+      });
+    });
   }
 }

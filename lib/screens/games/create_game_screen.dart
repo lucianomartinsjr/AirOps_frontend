@@ -29,7 +29,6 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   final _detailsController = TextEditingController();
   final _organizerController = TextEditingController();
   final _feeController = TextEditingController();
-  final _imageUrlController = TextEditingController();
   final _locationLinkController = TextEditingController();
   final _numMaxOperadoresController = TextEditingController();
   List<Modality> _modalities = [];
@@ -83,7 +82,6 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     _detailsController.dispose();
     _organizerController.dispose();
     _feeController.dispose();
-    _imageUrlController.dispose();
     _locationLinkController.dispose();
     _numMaxOperadoresController.dispose();
     super.dispose();
@@ -316,18 +314,6 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       ),
                       const SizedBox(height: 10),
                       CustomTextFormField(
-                        controller: _imageUrlController,
-                        labelText: 'URL da Imagem *',
-                        readOnly: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira a URL da imagem';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      CustomTextFormField(
                         controller: _locationLinkController,
                         labelText: 'Link do Maps *',
                         readOnly: false,
@@ -364,16 +350,19 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         titulo: _nameController.text,
                         cidade: _locationController.text,
                         dataEvento: _parseDate(_dateController.text),
-                        idModalidadeJogo: _selectedModality!.id,
+                        idModalidadeJogo: _selectedModality?.id ?? 0,
                         periodo: _selectedPeriod!,
                         nomeOrganizador: _organizerController.text,
                         valor: double.parse(_feeController.text),
-                        imagemCapa: _imageUrlController.text,
+                        imagemCapa:
+                            'https://rhtdycglcfuvyopxhhgl.supabase.co/storage/v1/object/sign/imagens/airops.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJpbWFnZW5zL2Fpcm9wcy5qcGciLCJpYXQiOjE3MjM0MDM1MjYsImV4cCI6MTc1NDkzOTUyNn0.-OEXSZO8n3LJdBW89FaL9Jc7dlk1saLCykVu46ymJts&t=2024-08-11T19%3A12%3A07.048Z', // Use sua URL padrão aqui
                         descricao: _detailsController.text,
                         linkCampo: _locationLinkController.text,
                         numMaxOperadores:
                             int.parse(_numMaxOperadoresController.text),
                       );
+
+                      // Adiciona o jogo e navega para a tela inicial
                       Provider.of<AirsoftService>(context, listen: false)
                           .addGame(newGame, context);
                       Navigator.of(context)

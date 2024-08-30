@@ -11,7 +11,34 @@ import '../../models/user.dart';
 
 class ApiService extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  // final String baseUrl = 'https://airops-backend.up.railway.app';
   final String baseUrl = 'http://localhost:3000';
+
+  Future<bool> forgotPassword(String email) async {
+    final url = Uri.parse('$baseUrl/auth/recuperar-senha');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({'email': email}),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        // Log de erro com a mensagem de resposta do servidor
+        final responseBody = jsonDecode(response.body);
+        print(
+            'Erro ao recuperar senha: ${response.statusCode} - ${responseBody['message']}');
+        return false;
+      }
+    } catch (e) {
+      // Tratamento de exceções e logging do erro
+      print('Exceção capturada ao tentar recuperar senha: $e');
+      return false;
+    }
+  }
 
   Future<bool> checkEmail(String email) async {
     final url = Uri.parse('$baseUrl/auth/validar-email');
@@ -220,8 +247,124 @@ class ApiService extends ChangeNotifier {
     );
 
     if (response.statusCode == 200) {
+      await _storage.write(key: 'hasToChangePassword', value: 'false');
       return true;
     } else {
+      return false;
+    }
+  }
+
+  Future<bool> updateModality(Modality modality) async {
+    try {
+      final url = Uri.parse('$baseUrl/modalidades-jogos/${modality.id}');
+      print('Request URL: $url');
+
+      final headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+      };
+      print('Request Headers: $headers');
+
+      // Verifique o valor de `ativo` antes de enviar a requisição
+      print('Modality active value before request: ${modality.ativo}');
+
+      final body = jsonEncode(modality.toJson());
+      print('Request Body: $body');
+
+      final response = await http.patch(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('Erro ao atualizar modalidade: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Exception caught: $e');
+      return false;
+    }
+  }
+
+  Future<bool> createModality(Modality modality) async {
+    final url = Uri.parse('$baseUrl/modalidades-jogos');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+      },
+      body: jsonEncode(modality.toJson()),
+    );
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      throw Exception('Erro ao criar modalidade: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> createClass(Class classe) async {
+    try {
+      final url = Uri.parse('$baseUrl/classes-operadores');
+      final headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+      };
+      final body = jsonEncode(classe.toJson());
+
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 201) {
+        return true;
+      } else {
+        print('Erro ao criar classe: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro ao criar classe: $e');
+      return false;
+    }
+  }
+
+  Future<bool> updateClass(Class classe) async {
+    if (classe.id == null) {
+      print('Erro: O ID da classe não pode ser nulo ao atualizar.');
+      return false;
+    }
+
+    try {
+      final url = Uri.parse('$baseUrl/classes-operadores/${classe.id}');
+      final headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+      };
+      final body = jsonEncode(classe.toJson());
+
+      final response = await http.patch(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('Erro ao atualizar classe: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro ao atualizar classe: $e');
       return false;
     }
   }

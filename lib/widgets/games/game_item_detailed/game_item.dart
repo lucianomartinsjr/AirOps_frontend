@@ -92,7 +92,7 @@ class GameItem extends StatelessWidget {
                   _buildInfoColumn(
                       'Taxa de campo', 'R\$${game.valor.toStringAsFixed(2)}'),
                   _buildDateColumn(
-                      '${game.dataEvento.toLocal().day.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().month.toString().padLeft(2, '0')}/${game.dataEvento.toLocal().year} \n${game.dataEvento.toLocal().hour.toString().padLeft(2, '0')}:${game.dataEvento.toLocal().minute.toString().padLeft(2, '0')}'),
+                      '${game.dataEvento.day.toString().padLeft(2, '0')}/${game.dataEvento.month.toString().padLeft(2, '0')}/${game.dataEvento.year} \n${game.dataEvento.hour.toString().padLeft(2, '0')}:${game.dataEvento.minute.toString().padLeft(2, '0')}'),
                 ],
               ),
             ),
