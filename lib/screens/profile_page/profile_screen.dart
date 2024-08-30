@@ -60,10 +60,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (confirmed == true) {
       await profileProvider.clearUserData();
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        '/login',
-        (Route<dynamic> route) => false,
-      );
+      if (context.mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/login',
+          (Route<dynamic> route) => false,
+        );
+      }
     }
   }
 
