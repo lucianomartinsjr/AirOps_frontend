@@ -1,3 +1,4 @@
+import 'package:airops_frontend/screens/games/create_game_screen.dart';
 import 'package:airops_frontend/screens/profile_page/change_password.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -201,7 +202,45 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: Consumer<AirsoftService>(
               builder: (context, airsoftService, child) {
-                return GameList(games: airsoftService.games);
+                if (airsoftService.games.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Nenhum jogo disponível no momento.',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const CreateGameScreen(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor:
+                                const Color.fromARGB(255, 255, 0, 0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24.0, vertical: 12.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            elevation: 5,
+                          ),
+                          child: const Text(
+                            'Que tal organizar um novo jogo ?',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  return GameList(games: airsoftService.games);
+                }
               },
             ),
           ),
