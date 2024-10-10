@@ -5,7 +5,7 @@ class AdminButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const AdminButton({
+  const AdminButton({super.key, 
     required this.title,
     required this.icon,
     required this.onTap,
@@ -26,11 +26,11 @@ class AdminButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: Colors.white, size: 30),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(color: Colors.white, fontSize: 14),
             ),
           ],
         ),

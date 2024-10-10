@@ -51,6 +51,8 @@ dependencies:
   shared_preferences: ^2.2.3
   phosphor_flutter: ^2.1.0
   collection: ^1.18.0
+  animations: ^2.0.11
+  get_it: ^8.0.0
 
 
 dev_dependencies:

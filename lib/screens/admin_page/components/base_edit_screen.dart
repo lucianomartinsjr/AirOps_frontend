@@ -29,7 +29,7 @@ class _BaseScreenState extends State<BaseScreen> {
 
     // Filtrar itens com base na pesquisa e no estado ativo/inativo
     final filteredItems = widget.items.where((item) {
-      final isActive =
+      const isActive =
           true; // Substitua com a lógica real para determinar se o item está ativo ou inativo
       final normalizedItem = removeDiacritics(item.toLowerCase());
       final normalizedQuery = removeDiacritics(searchQuery.toLowerCase());

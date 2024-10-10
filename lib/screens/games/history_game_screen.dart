@@ -67,7 +67,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         children: [
                           Text(
                             'Jogos participados: $_gameCount',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,

@@ -6,6 +6,8 @@ import 'components/base_edit_screen.dart';
 import 'components/edit_item_screen.dart';
 
 class ClassesScreen extends StatefulWidget {
+  const ClassesScreen({super.key});
+
   @override
   _ClassesScreenState createState() => _ClassesScreenState();
 }

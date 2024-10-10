@@ -5,6 +5,8 @@ import '../../services/api/api_service.dart';
 import '../../models/user.dart';
 
 class UsersScreen extends StatefulWidget {
+  const UsersScreen({super.key});
+
   @override
   _UsersScreenState createState() => _UsersScreenState();
 }
@@ -40,11 +42,11 @@ class _UsersScreenState extends State<UsersScreen> {
     dummySearchList.addAll(allUsers);
     if (query.isNotEmpty) {
       List<User> dummyListData = [];
-      dummySearchList.forEach((item) {
+      for (var item in dummySearchList) {
         if (item.nome.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
-      });
+      }
       setState(() {
         filteredUsers.clear();
         filteredUsers.addAll(dummyListData);

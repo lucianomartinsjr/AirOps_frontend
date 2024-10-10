@@ -13,6 +13,7 @@ class LoginScreen extends HookWidget {
     final passwordController = useTextEditingController();
     final rememberEmail = useState(false);
     final isPasswordVisible = useState(false);
+    final isLoading = useState(false);
 
     final emailError = useState<String?>(null); // Estado para armazenar o erro
     final passwordError = useState<String?>(null);
@@ -36,6 +37,9 @@ class LoginScreen extends HookWidget {
     }, []);
 
     Future<void> handleLogin() async {
+      if (isLoading.value) return;
+      isLoading.value = true;
+
       final email = emailController.text;
       final password = passwordController.text;
 
@@ -56,6 +60,7 @@ class LoginScreen extends HookWidget {
       }
 
       if (!isValid) {
+        isLoading.value = false; // Adicione esta linha
         return;
       }
 
@@ -81,112 +86,96 @@ class LoginScreen extends HookWidget {
           );
         }
       }
+
+      isLoading.value = false;
     }
 
     return Scaffold(
       backgroundColor: const Color(0xFF222222),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SingleChildScrollView(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 40),
-                  Image.asset('assets/images/logo.png', height: 250),
-                  const Text(
-                    'Login',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 40),
-                  SizedBox(
-                    width: double.infinity,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        TextField(
-                          controller: emailController,
-                          cursorColor: Colors.red,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            labelText: 'Email',
-                            labelStyle: const TextStyle(color: Colors.white),
-                            filled: true,
-                            fillColor: const Color(0xFF2F2F2F),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 20),
-                            errorText:
-                                emailError.value, // Mensagem de erro do email
+                        const SizedBox(height: 60),
+                        Image.asset('assets/images/logo.png', height: 200),
+                        const SizedBox(height: 30),
+                        const Text(
+                          'Bem-vindo de volta',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Faça login para continuar',
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                        const SizedBox(height: 40),
+                        _buildTextField(
+                          controller: emailController,
+                          label: 'Email',
+                          errorText: emailError.value,
+                          icon: Icons.email_outlined,
+                        ),
                         const SizedBox(height: 20),
-                        TextField(
+                        _buildTextField(
                           controller: passwordController,
-                          cursorColor: Colors.red,
-                          obscureText: !isPasswordVisible.value,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            labelText: 'Senha',
-                            labelStyle: const TextStyle(color: Colors.white),
-                            filled: true,
-                            fillColor: const Color(0xFF2F2F2F),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 20),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                isPasswordVisible.value
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: Colors.grey,
-                              ),
-                              onPressed: () {
-                                isPasswordVisible.value =
-                                    !isPasswordVisible.value;
-                              },
-                            ),
-                            errorText: passwordError
-                                .value, // Mensagem de erro da senha
-                          ),
+                          label: 'Senha',
+                          errorText: passwordError.value,
+                          icon: Icons.lock_outline,
+                          isPassword: true,
+                          isPasswordVisible: isPasswordVisible,
                         ),
                         const SizedBox(height: 20),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Lembrar email',
-                              style: TextStyle(color: Colors.white),
+                            Row(
+                              children: [
+                                Transform.scale(
+                                  scale: 0.8,
+                                  child: Switch(
+                                    value: rememberEmail.value,
+                                    onChanged: (value) {
+                                      rememberEmail.value = value;
+                                    },
+                                    activeColor: Colors.red,
+                                    activeTrackColor: Colors.red.withOpacity(0.5),
+                                    inactiveThumbColor: Colors.grey,
+                                    inactiveTrackColor: Colors.grey.withOpacity(0.5),
+                                  ),
+                                ),
+                                const Text(
+                                  'Lembrar email',
+                                  style: TextStyle(color: Colors.white, fontSize: 14),
+                                ),
+                              ],
                             ),
-                            Transform.scale(
-                              scale: 0.8,
-                              child: Switch(
-                                value: rememberEmail.value,
-                                onChanged: (value) {
-                                  rememberEmail.value = value;
-                                },
-                                activeColor: Colors.red,
-                                activeTrackColor: Colors.red.withOpacity(0.5),
-                                inactiveThumbColor: Colors.grey,
-                                inactiveTrackColor:
-                                    Colors.grey.withOpacity(0.5),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pushNamed('/forgot-password');
+                              },
+                              child: const Text(
+                                'Esqueceu a senha?',
+                                style: TextStyle(color: Colors.red, fontSize: 14),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 30),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -198,40 +187,85 @@ class LoginScreen extends HookWidget {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
+                              elevation: 2,
                             ),
-                            child: const Text('Entrar',
-                                style: TextStyle(fontSize: 18)),
+                            child: const Text('Entrar', style: TextStyle(fontSize: 18)),
                           ),
+                        ),
+                        const SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Não possui conta?',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pushNamed('/register');
+                              },
+                              child: const Text(
+                                'Cadastre-se',
+                                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/register');
-                    },
-                    child: const Text(
-                      'Não possui conta? \nClique aqui para se cadastrar.',
-                      style: TextStyle(color: Colors.white),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/forgot-password');
-                    },
-                    child: const Text(
-                      'Esqueceu sua senha?',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              if (isLoading.value)
+                Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: const Center(
+                    child: CircularProgressIndicator(color: Colors.red),
+                  ),
+                ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    String? errorText,
+    bool isPassword = false,
+    ValueNotifier<bool>? isPasswordVisible,
+  }) {
+    return TextField(
+      controller: controller,
+      cursorColor: Colors.red,
+      obscureText: isPassword && !(isPasswordVisible?.value ?? false),
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.grey),
+        filled: true,
+        fillColor: const Color(0xFF2F2F2F),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        prefixIcon: Icon(icon, color: Colors.grey),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  isPasswordVisible!.value ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.grey,
+                ),
+                onPressed: () {
+                  isPasswordVisible.value = !isPasswordVisible.value;
+                },
+              )
+            : null,
+        contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        errorText: errorText,
       ),
     );
   }

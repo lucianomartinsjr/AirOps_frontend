@@ -341,7 +341,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
       child: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Color.fromARGB(255, 105, 105, 105).withOpacity(0.1),
+          color: const Color.fromARGB(255, 105, 105, 105).withOpacity(0.1),
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Column(

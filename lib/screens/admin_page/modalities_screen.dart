@@ -6,6 +6,8 @@ import 'components/base_edit_screen.dart';
 import 'components/edit_item_screen.dart';
 
 class ModalitiesScreen extends StatefulWidget {
+  const ModalitiesScreen({super.key});
+
   @override
   _ModalitiesScreenState createState() => _ModalitiesScreenState();
 }
@@ -47,7 +49,7 @@ class _ModalitiesScreenState extends State<ModalitiesScreen> {
                     await Provider.of<ApiService>(context, listen: false)
                         .createModality(modality);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Modalidade criada com sucesso!')),
+                      const SnackBar(content: Text('Modalidade criada com sucesso!')),
                     );
                     setState(() {
                       _loadModalities(); // Recarrega as modalidades

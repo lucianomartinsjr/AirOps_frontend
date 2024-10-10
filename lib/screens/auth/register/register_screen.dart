@@ -70,7 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         nickname: apelido,
         city: cidade,
         phone: telefone,
-        idClasseOperador: int.tryParse(classe!),
+        idClasseOperador: int.tryParse(classe),
         modalityIds: modalidades.map((e) => int.tryParse(e) ?? 0).toList(),
       );
 

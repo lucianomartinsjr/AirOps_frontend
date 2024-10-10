@@ -313,12 +313,14 @@ class ApiService extends ChangeNotifier {
   Future<bool> createClass(Class classe) async {
     try {
       final url = Uri.parse('$baseUrl/classes-operadores');
+      final token = await _storage.read(key: 'jwt_token');
+
       final headers = {
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
+        'Authorization': 'Bearer $token',
       };
       final body = jsonEncode(classe.toJson());
-
+      
       final response = await http.post(
         url,
         headers: headers,

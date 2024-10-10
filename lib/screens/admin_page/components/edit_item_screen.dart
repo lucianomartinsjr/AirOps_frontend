@@ -121,7 +121,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                   maxLines: label == 'Regras' || label == 'Descrição' ? 5 : 1,
                 ),
               );
-            }).toList(),
+            }),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Row(

@@ -52,130 +52,135 @@ class _PasswordPageState extends State<PasswordPage> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          onChanged: _validateForm,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Crie sua Senha',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: widget.passwordController,
-                obscureText: !_isPasswordVisible,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Senha *',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xFF2F2F2F),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Crie sua Senha'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: widget.onPrevious,
+          ),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              onChanged: _validateForm,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Escolha uma senha forte',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Sua senha deve ter pelo menos 6 caracteres e incluir uma combinação de números, letras e caracteres especiais.',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira uma senha';
-                  } else if (value.length < 6) {
-                    return 'A senha deve ter pelo menos 6 caracteres';
-                  }
-                  return null;
-                },
+                  const SizedBox(height: 24),
+                  _buildPasswordField(),
+                  const SizedBox(height: 16),
+                  _buildConfirmPasswordField(),
+                  const SizedBox(height: 24),
+                  PasswordStrengthIndicator(controller: widget.passwordController),
+                  const SizedBox(height: 32),
+                  _buildNextButton(),
+                ],
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: widget.confirmPasswordController,
-                obscureText: !_isConfirmPasswordVisible,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Confirme a Senha *',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xFF2F2F2F),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isConfirmPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                      });
-                    },
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, confirme sua senha';
-                  } else if (value != widget.passwordController.text) {
-                    return 'As senhas não coincidem';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              PasswordStrengthIndicator(controller: widget.passwordController),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isFormValid
-                      ? () {
-                          FocusScope.of(context).unfocus();
-                          widget.onNext();
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isFormValid ? Colors.red : Colors.grey,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text('Próximo', style: TextStyle(fontSize: 18)),
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  FocusScope.of(context).unfocus();
-                  widget.onPrevious();
-                },
-                child:
-                    const Text('Voltar', style: TextStyle(color: Colors.white)),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildPasswordField() {
+    return TextFormField(
+      controller: widget.passwordController,
+      obscureText: !_isPasswordVisible,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: 'Senha',
+        labelStyle: const TextStyle(color: Colors.white),
+        prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
+        suffixIcon: _buildVisibilityToggle(_isPasswordVisible, (value) => _isPasswordVisible = value),
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+      ),
+      validator: _validatePassword,
+    );
+  }
+
+  Widget _buildConfirmPasswordField() {
+    return TextFormField(
+      controller: widget.confirmPasswordController,
+      obscureText: !_isConfirmPasswordVisible,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: 'Confirme a Senha',
+        labelStyle: const TextStyle(color: Colors.white),
+        prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
+        suffixIcon: _buildVisibilityToggle(_isConfirmPasswordVisible, (value) => _isConfirmPasswordVisible = value),
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+      ),
+      validator: _validateConfirmPassword,
+    );
+  }
+
+  Widget _buildVisibilityToggle(bool isVisible, ValueChanged<bool> onChanged) {
+    return IconButton(
+      icon: Icon(
+        isVisible ? Icons.visibility_off : Icons.visibility,
+        color: Colors.white,
+      ),
+      onPressed: () => setState(() => onChanged(!isVisible)),
+    );
+  }
+
+  Widget _buildNextButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _isFormValid ? widget.onNext : null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isFormValid ? Colors.red : Colors.grey,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: const Text('Próximo', style: TextStyle(fontSize: 18)),
+      ),
+    );
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor, insira uma senha';
+    } else if (value.length < 6) {
+      return 'A senha deve ter pelo menos 6 caracteres';
+    }
+    return null;
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor, confirme sua senha';
+    } else if (value != widget.passwordController.text) {
+      return 'As senhas não coincidem';
+    }
+    return null;
   }
 }

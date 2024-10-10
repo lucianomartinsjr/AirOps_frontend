@@ -106,16 +106,16 @@ class _HomeScreenState extends State<HomeScreen> {
             .games
             .map((game) => game.cidade)
             .toSet()
-            .toList(); // Obter cidades únicas dos jogos disponíveis
+            .toList(); 
 
     final List<String> modalityOptions =
         Provider.of<AirsoftService>(context, listen: false)
             .games
             .map((game) => game.modalidadesJogos)
-            .where((modality) => modality != null) // Filtrar valores null
-            .cast<String>() // Cast para List<String>
+            .where((modality) => modality != null) 
+            .cast<String>() 
             .toSet()
-            .toList(); // Obter modalidades únicas dos jogos disponíveis
+            .toList(); 
 
     showDialog(
       context: context,
@@ -151,8 +151,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Air Ops'),
-        automaticallyImplyLeading: false,
+        title: const Text('Air Ops', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        centerTitle: true,
+        elevation: 0,
         actions: [
           if (_isAdmin)
             IconButton(
@@ -161,90 +162,83 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Pesquisar',
-                      prefixIcon: const Icon(Icons.search),
-                      fillColor: Colors.white24,
-                      hintStyle: const TextStyle(color: Colors.white54),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide.none,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Pesquisar jogos',
+                          hintStyle: TextStyle(color: Colors.white70),
+                          prefixIcon: Icon(Icons.search, color: Colors.white70),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        ),
+                        style: TextStyle(color: Colors.white),
+                        onChanged: (value) {
+                          Provider.of<AirsoftService>(context, listen: false).searchGames(value);
+                        },
                       ),
                     ),
-                    onChanged: (value) {
-                      Provider.of<AirsoftService>(context, listen: false)
-                          .searchGames(value);
-                    },
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.filter_list, color: Colors.white),
-                  onPressed: _openFilterDialog,
-                ),
-              ],
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-            ),
-          ),
-          Expanded(
-            child: Consumer<AirsoftService>(
-              builder: (context, airsoftService, child) {
-                if (airsoftService.games.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Nenhum jogo disponível no momento.',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                  const SizedBox(width: 10),
+                  ClipOval(
+                    child: Material(
+                      color: Theme.of(context).primaryColor,
+                      child: InkWell(
+                        onTap: _openFilterDialog,
+                        child: Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Icon(Icons.filter_list, color: Colors.white),
                         ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const CreateGameScreen(),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor:
-                                const Color.fromARGB(255, 255, 0, 0),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24.0, vertical: 12.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            elevation: 5,
-                          ),
-                          child: const Text(
-                            'Que tal organizar um novo jogo ?',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  );
-                } else {
-                  return GameList(games: airsoftService.games);
-                }
-              },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Consumer<AirsoftService>(
+                builder: (context, airsoftService, child) {
+                  if (airsoftService.games.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.event, size: 100, color: Colors.white38),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Nenhum jogo disponível no momento.',
+                            style: TextStyle(fontSize: 18, color: Colors.white70),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            'Tente ajustar os filtros ou volte mais tarde.',
+                            style: TextStyle(fontSize: 16, color: Colors.white54),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return GameList(games: airsoftService.games);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

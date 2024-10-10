@@ -72,8 +72,8 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                               decoration: InputDecoration(
                                 hintText: 'Buscar jogos...',
                                 prefixIcon:
-                                    Icon(Icons.search, color: Colors.white),
-                                hintStyle: TextStyle(color: Colors.white54),
+                                    const Icon(Icons.search, color: Colors.white),
+                                hintStyle: const TextStyle(color: Colors.white54),
                                 filled: true,
                                 fillColor: Colors.grey[700],
                                 border: OutlineInputBorder(
@@ -81,7 +81,7 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                                   borderSide: BorderSide.none,
                                 ),
                               ),
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                               onChanged: (value) {
                                 setState(() {
                                   _searchQuery = value;
@@ -96,7 +96,7 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                               value: _filter,
                               decoration: InputDecoration(
                                 labelText: 'Filtrar',
-                                labelStyle: TextStyle(color: Colors.white),
+                                labelStyle: const TextStyle(color: Colors.white),
                                 filled: true,
                                 fillColor:
                                     const Color.fromARGB(255, 54, 54, 54),
@@ -111,7 +111,7 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(value,
-                                      style: TextStyle(color: Colors.white)),
+                                      style: const TextStyle(color: Colors.white)),
                                 );
                               }).toList(),
                               onChanged: (String? newValue) {
@@ -119,7 +119,7 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                                   _filter = newValue!;
                                 });
                               },
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                             ),
                           ),
                         ],

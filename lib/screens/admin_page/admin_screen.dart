@@ -7,6 +7,8 @@ import 'users_screen.dart';
 import 'classes_screen.dart';
 
 class AdminScreen extends StatelessWidget {
+  const AdminScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +21,7 @@ class AdminScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AdminHeader(),
+            const AdminHeader(),
             const SizedBox(height: 30),
             Wrap(
               spacing: 20,
@@ -31,7 +33,7 @@ class AdminScreen extends StatelessWidget {
                   icon: Icons.manage_accounts,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => ClassesScreen(),
+                      builder: (context) => const ClassesScreen(),
                     ));
                   },
                 ),
@@ -40,7 +42,7 @@ class AdminScreen extends StatelessWidget {
                   icon: Icons.category,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => ModalitiesScreen(),
+                      builder: (context) => const ModalitiesScreen(),
                     ));
                   },
                 ),
@@ -58,7 +60,7 @@ class AdminScreen extends StatelessWidget {
                   icon: Icons.people,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => UsersScreen(),
+                      builder: (context) => const UsersScreen(),
                     ));
                   },
                 ),

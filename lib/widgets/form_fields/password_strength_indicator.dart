@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 class PasswordStrengthIndicator extends StatelessWidget {
   final TextEditingController controller;
 
-  const PasswordStrengthIndicator({required this.controller, Key? key})
-      : super(key: key);
+  const PasswordStrengthIndicator({required this.controller, super.key});
 
   @override
   Widget build(BuildContext context) {

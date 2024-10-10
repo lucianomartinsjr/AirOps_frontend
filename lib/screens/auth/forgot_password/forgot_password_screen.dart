@@ -11,7 +11,7 @@ class ForgotPasswordScreen extends HookWidget {
     final emailController = useTextEditingController();
     final apiService = ApiService();
 
-    Future<void> _handleForgotPassword() async {
+    Future<void> handleForgotPassword() async {
       final email = emailController.text;
 
       // Exibe o diálogo de confirmação imediatamente
@@ -177,7 +177,7 @@ class ForgotPasswordScreen extends HookWidget {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: _handleForgotPassword,
+                            onPressed: handleForgotPassword,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
                               foregroundColor: Colors.white,

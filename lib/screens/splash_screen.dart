@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'auth/login/login_screen.dart';
+import 'dart:async';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -9,43 +10,72 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
-    _checkInternetConnection();
+    _setupAnimation();
+    _initializeApp();
+  }
+
+  void _setupAnimation() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
+  }
+
+  Future<void> _initializeApp() async {
+    // Garante que a tela de splash seja exibida por pelo menos 3 segundos
+    await Future.wait([
+      _checkInternetConnection(),
+      Future.delayed(const Duration(seconds: 3)),
+    ]);
   }
 
   Future<void> _checkInternetConnection() async {
-    final connectivityResult = await Connectivity().checkConnectivity();
-
-    if (connectivityResult == ConnectivityResult.none) {
-      _showNoInternetDialog();
-    } else {
-      _navigateToLogin();
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        _showNoInternetDialog();
+      } else {
+        _navigateToLogin();
+      }
+    } catch (e) {
+      _showErrorDialog("Erro ao verificar a conexão");
     }
   }
 
   void _showNoInternetDialog() {
+    _showDialog(
+      "Sem conexão com a Internet",
+      "Por favor, verifique sua conexão e tente novamente.",
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    _showDialog("Erro", message);
+  }
+
+  void _showDialog(String title, String content) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text(
-            "Sem conexão com a Internet",
-            style: TextStyle(color: Colors.white),
-          ),
-          content: const Text(
-            "Por favor, verifique sua conexão e tente novamente.",
-            style: TextStyle(color: Colors.white70),
-          ),
+          title: Text(title, style: const TextStyle(color: Colors.white)),
+          content: Text(content, style: const TextStyle(color: Colors.white70)),
           backgroundColor: Colors.grey[900],
           actions: <Widget>[
             TextButton(
-              child: const Text(
-                "Tentar novamente",
-                style: TextStyle(color: Colors.redAccent),
-              ),
+              child: const Text("Tentar novamente", style: TextStyle(color: Colors.redAccent)),
               onPressed: () {
                 Navigator.of(context).pop();
                 _checkInternetConnection();
@@ -78,14 +108,17 @@ class _SplashScreenState extends State<SplashScreen> {
       child: Scaffold(
         body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 40),
-              Image.asset(
-                'assets/images/logo.png',
-                height: 300,
+              FadeTransition(
+                opacity: _animation,
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  height: 300,
+                  semanticLabel: 'Logo do aplicativo',
+                ),
               ),
-              const SizedBox(height: 200),
+              const SizedBox(height: 50),
               const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
               ),
@@ -93,11 +126,18 @@ class _SplashScreenState extends State<SplashScreen> {
               const Text(
                 "Carregando...",
                 style: TextStyle(fontSize: 18, color: Colors.white),
+                semanticsLabel: 'Carregando o aplicativo',
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 }

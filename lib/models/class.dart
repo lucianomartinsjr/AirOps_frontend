@@ -25,7 +25,6 @@ class Class {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'nomeClasse': nomeClasse,
       'descricao': descricao,
       'ativo': ativo,
