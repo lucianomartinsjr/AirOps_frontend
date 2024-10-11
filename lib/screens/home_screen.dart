@@ -1,4 +1,3 @@
-import 'package:airops_frontend/screens/games/create_game_screen.dart';
 import 'package:airops_frontend/screens/profile_page/change_password.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +11,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -96,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _openAdminScreen() {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => AdminScreen(),
+      builder: (context) => const AdminScreen(),
     ));
   }
 
@@ -106,16 +105,16 @@ class _HomeScreenState extends State<HomeScreen> {
             .games
             .map((game) => game.cidade)
             .toSet()
-            .toList(); 
+            .toList();
 
     final List<String> modalityOptions =
         Provider.of<AirsoftService>(context, listen: false)
             .games
             .map((game) => game.modalidadesJogos)
-            .where((modality) => modality != null) 
-            .cast<String>() 
+            .where((modality) => modality != null)
+            .cast<String>()
             .toSet()
-            .toList(); 
+            .toList();
 
     showDialog(
       context: context,
@@ -149,9 +148,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Air Ops', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        title: const Text('Air Ops',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
         centerTitle: true,
         elevation: 0,
         actions: [
@@ -162,82 +164,117 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[800],
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Pesquisar jogos',
-                          hintStyle: TextStyle(color: Colors.white70),
-                          prefixIcon: Icon(Icons.search, color: Colors.white70),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [theme.primaryColor, theme.scaffoldBackgroundColor],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          inputDecorationTheme: InputDecorationTheme(
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
                         ),
-                        style: TextStyle(color: Colors.white),
-                        onChanged: (value) {
-                          Provider.of<AirsoftService>(context, listen: false).searchGames(value);
-                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
+                              hintText: 'Pesquisar jogos',
+                              hintStyle: TextStyle(color: Colors.white70),
+                              prefixIcon:
+                                  Icon(Icons.search, color: Colors.white70),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 15),
+                            ),
+                            style: const TextStyle(color: Colors.white),
+                            onChanged: (value) {
+                              Provider.of<AirsoftService>(context,
+                                      listen: false)
+                                  .searchGames(value);
+                              setState(() {}); // Adicione esta linha
+                            },
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  ClipOval(
-                    child: Material(
-                      color: Theme.of(context).primaryColor,
-                      child: InkWell(
-                        onTap: _openFilterDialog,
-                        child: Padding(
-                          padding: EdgeInsets.all(12),
-                          child: Icon(Icons.filter_list, color: Colors.white),
+                    const SizedBox(width: 10),
+                    ClipOval(
+                      child: Material(
+                        color: Colors.white.withOpacity(0.1),
+                        child: InkWell(
+                          onTap: _openFilterDialog,
+                          child: const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: Icon(Icons.filter_list, color: Colors.white),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: Consumer<AirsoftService>(
-                builder: (context, airsoftService, child) {
-                  if (airsoftService.games.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.event, size: 100, color: Colors.white38),
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Nenhum jogo disponível no momento.',
-                            style: TextStyle(fontSize: 18, color: Colors.white70),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Tente ajustar os filtros ou volte mais tarde.',
-                            style: TextStyle(fontSize: 16, color: Colors.white54),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    return GameList(games: airsoftService.games);
-                  }
-                },
+              Expanded(
+                child: Consumer<AirsoftService>(
+                  builder: (context, airsoftService, child) {
+                    if (airsoftService.games.isEmpty) {
+                      return const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.event, size: 100, color: Colors.white38),
+                            SizedBox(height: 20),
+                            Text(
+                              'Nenhum jogo disponível no momento.',
+                              style: TextStyle(
+                                  fontSize: 18, color: Colors.white70),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Tente ajustar os filtros ou volte mais tarde.',
+                              style: TextStyle(
+                                  fontSize: 16, color: Colors.white54),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return GameList(games: airsoftService.games);
+                    }
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

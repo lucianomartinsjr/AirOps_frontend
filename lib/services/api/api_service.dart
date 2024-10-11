@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:logging/logging.dart';
 import '../../models/class.dart';
 import '../../models/game.dart';
 import '../../models/modality.dart';
 import '../../models/profile.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
+import '../../constants/api_contants.dart';
 import '../../models/user.dart';
 
 class ApiService extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  // final String baseUrl = 'https://airops-backend.up.railway.app';
-  final String baseUrl = 'http://localhost:3000';
+  final String baseUrl = ApiConstants.baseUrl;
+  final Logger _logger = Logger('ApiService');
 
   Future<bool> forgotPassword(String email) async {
     final url = Uri.parse('$baseUrl/auth/recuperar-senha');
@@ -29,13 +30,13 @@ class ApiService extends ChangeNotifier {
       } else {
         // Log de erro com a mensagem de resposta do servidor
         final responseBody = jsonDecode(response.body);
-        print(
+        _logger.warning(
             'Erro ao recuperar senha: ${response.statusCode} - ${responseBody['message']}');
         return false;
       }
     } catch (e) {
       // Tratamento de exceções e logging do erro
-      print('Exceção capturada ao tentar recuperar senha: $e');
+      _logger.severe('Exceção capturada ao tentar recuperar senha: $e');
       return false;
     }
   }
@@ -257,19 +258,19 @@ class ApiService extends ChangeNotifier {
   Future<bool> updateModality(Modality modality) async {
     try {
       final url = Uri.parse('$baseUrl/modalidades-jogos/${modality.id}');
-      print('Request URL: $url');
+      _logger.info('Request URL: $url');
 
       final headers = {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
       };
-      print('Request Headers: $headers');
+      _logger.info('Request Headers: $headers');
 
       // Verifique o valor de `ativo` antes de enviar a requisição
-      print('Modality active value before request: ${modality.ativo}');
+      _logger.info('Modality active value before request: ${modality.ativo}');
 
       final body = jsonEncode(modality.toJson());
-      print('Request Body: $body');
+      _logger.info('Request Body: $body');
 
       final response = await http.patch(
         url,
@@ -277,17 +278,17 @@ class ApiService extends ChangeNotifier {
         body: body,
       );
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      _logger.info('Response Status Code: ${response.statusCode}');
+      _logger.info('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('Erro ao atualizar modalidade: ${response.statusCode}');
+        _logger.warning('Erro ao atualizar modalidade: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('Exception caught: $e');
+      _logger.severe('Exception caught: $e');
       return false;
     }
   }
@@ -320,7 +321,7 @@ class ApiService extends ChangeNotifier {
         'Authorization': 'Bearer $token',
       };
       final body = jsonEncode(classe.toJson());
-      
+
       final response = await http.post(
         url,
         headers: headers,
@@ -330,18 +331,18 @@ class ApiService extends ChangeNotifier {
       if (response.statusCode == 201) {
         return true;
       } else {
-        print('Erro ao criar classe: ${response.statusCode}');
+        _logger.warning('Erro ao criar classe: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('Erro ao criar classe: $e');
+      _logger.severe('Erro ao criar classe: $e');
       return false;
     }
   }
 
   Future<bool> updateClass(Class classe) async {
     if (classe.id == null) {
-      print('Erro: O ID da classe não pode ser nulo ao atualizar.');
+      _logger.warning('Erro: O ID da classe não pode ser nulo ao atualizar.');
       return false;
     }
 
@@ -362,11 +363,11 @@ class ApiService extends ChangeNotifier {
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('Erro ao atualizar classe: ${response.statusCode}');
+        _logger.warning('Erro ao atualizar classe: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('Erro ao atualizar classe: $e');
+      _logger.severe('Erro ao atualizar classe: $e');
       return false;
     }
   }

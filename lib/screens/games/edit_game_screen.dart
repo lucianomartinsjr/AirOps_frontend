@@ -8,6 +8,7 @@ import '../../widgets/form_fields/custom_text_form_field.dart';
 import '../../widgets/form_fields/custom_dropdown_form_field.dart';
 import '../../models/modality.dart';
 import '../../services/api/api_service.dart';
+import 'package:logging/logging.dart';
 
 class EditGameScreen extends StatefulWidget {
   final Game game;
@@ -15,10 +16,10 @@ class EditGameScreen extends StatefulWidget {
   const EditGameScreen({super.key, required this.game});
 
   @override
-  _EditGameScreenState createState() => _EditGameScreenState();
+  EditGameScreenState createState() => EditGameScreenState();
 }
 
-class _EditGameScreenState extends State<EditGameScreen> {
+class EditGameScreenState extends State<EditGameScreen> {
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController _nameController;
@@ -45,6 +46,8 @@ class _EditGameScreenState extends State<EditGameScreen> {
   ];
 
   final List<String> _periods = ['Matutino', 'Vespertino', 'Noturno'];
+
+  final _logger = Logger('EditGameScreenState');
 
   @override
   void initState() {
@@ -83,11 +86,13 @@ class _EditGameScreenState extends State<EditGameScreen> {
       List<Modality> modalities =
           await Provider.of<ApiService>(context, listen: false)
               .fetchModalities();
-      setState(() {
-        _modalities = modalities;
-      });
+      if (mounted) {
+        setState(() {
+          _modalities = modalities;
+        });
+      }
     } catch (error) {
-      print("Erro ao buscar modalidades: $error");
+      _logger.warning("Erro ao buscar modalidades: $error");
     }
   }
 
@@ -126,11 +131,15 @@ class _EditGameScreenState extends State<EditGameScreen> {
       try {
         await Provider.of<AirsoftService>(context, listen: false)
             .updateGame(widget.game.id ?? 0, updatedGame);
-        Navigator.of(context).pop();
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Falha ao atualizar o jogo: $e')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Falha ao atualizar o jogo: $e')),
+          );
+        }
       }
     }
   }
@@ -253,7 +262,7 @@ class _EditGameScreenState extends State<EditGameScreen> {
                             child: CustomDropdownFormField<String>(
                               value: _selectedPeriod,
                               items: _periods,
-                              labelText: 'Período *',
+                              labelText: 'Perodo *',
                               readOnly: false,
                               onChanged: (String? newValue) {
                                 setState(() {

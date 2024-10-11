@@ -20,6 +20,7 @@ class Class {
       descricao: json['descricao'],
       criadoEm:
           json['criadoEm'] != null ? DateTime.parse(json['criadoEm']) : null,
+      ativo: json['ativo'] ?? true,
     );
   }
 

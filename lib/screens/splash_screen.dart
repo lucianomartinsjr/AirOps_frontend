@@ -7,10 +7,11 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
 
@@ -75,7 +76,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           backgroundColor: Colors.grey[900],
           actions: <Widget>[
             TextButton(
-              child: const Text("Tentar novamente", style: TextStyle(color: Colors.redAccent)),
+              child: const Text("Tentar novamente",
+                  style: TextStyle(color: Colors.redAccent)),
               onPressed: () {
                 Navigator.of(context).pop();
                 _checkInternetConnection();

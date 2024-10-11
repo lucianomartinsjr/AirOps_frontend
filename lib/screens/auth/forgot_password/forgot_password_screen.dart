@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:animate_do/animate_do.dart';
 import '../../../services/api/api_service.dart';
 import 'password_reset_confirmation.dart';
 
@@ -10,80 +11,113 @@ class ForgotPasswordScreen extends HookWidget {
   Widget build(BuildContext context) {
     final emailController = useTextEditingController();
     final apiService = ApiService();
+    final contextRef = useRef<BuildContext?>(null);
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        contextRef.value = context;
+      });
+      return null;
+    }, []);
 
     Future<void> handleForgotPassword() async {
       final email = emailController.text;
 
-      // Exibe o diálogo de confirmação imediatamente
       final shouldSendEmail = await showDialog<bool>(
-        context: context,
+        context: contextRef.value!,
+        barrierDismissible: false,
         builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: const Color(0xFF2F2F2F),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            title: const Row(
-              children: [
-                Text(
-                  'Confirmação',
-                  style: TextStyle(color: Colors.white),
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: FadeInUp(
+              duration: const Duration(milliseconds: 300),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2F2F2F),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
                 ),
-                Icon(Icons.question_mark,
-                    color: Color.fromARGB(255, 255, 255, 255)),
-                SizedBox(width: 10),
-              ],
-            ),
-            content: Text(
-              'Deseja realmente enviar uma nova senha para o email $email?',
-              style: const TextStyle(color: Colors.white),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context)
-                      .pop(false); // Fecha o diálogo e retorna false
-                },
-                style: TextButton.styleFrom(
-                  // backgroundColor: Colors.red
-                  //     .withOpacity(0.1), // Fundo com leve transparência
-                  foregroundColor: Colors.red, // Cor do texto
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 12), // Espaçamento
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(8), // Bordas arredondadas
-                  ),
-                  textStyle: const TextStyle(
-                    fontSize: 16, // Tamanho do texto
-                    fontWeight: FontWeight.bold, // Negrito para destaque
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.email_outlined,
+                      size: 80,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Confirmação',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Você está prestes a solicitar uma nova senha para:',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      email,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        OutlinedButton(
+                          onPressed: () =>
+                              Navigator.of(contextRef.value!).pop(false),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white70,
+                            side: const BorderSide(color: Colors.white24),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: const Text('Cancelar',
+                              style: TextStyle(fontSize: 16)),
+                        ),
+                        ElevatedButton(
+                          onPressed: () =>
+                              Navigator.of(contextRef.value!).pop(true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 3,
+                          ),
+                          child: const Text('Confirmar',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                child: const Text('Cancelar'),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context)
-                      .pop(true); // Fecha o diálogo e retorna true
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.green
-                      .withOpacity(0.1), // Fundo com leve transparência
-                  foregroundColor: Colors.green, // Cor do texto
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 12), // Espaçamento
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(8), // Bordas arredondadas
-                  ),
-                  textStyle: const TextStyle(
-                    fontSize: 16, // Tamanho do texto
-                    fontWeight: FontWeight.bold, // Negrito para destaque
-                  ),
-                ),
-                child: const Text('Enviar'),
-              ),
-            ],
+            ),
           );
         },
       );
@@ -93,7 +127,7 @@ class ForgotPasswordScreen extends HookWidget {
         final isEmailValid = await apiService.checkEmail(email);
 
         if (!isEmailValid) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(contextRef.value!).showSnackBar(
             const SnackBar(
               content: Row(
                 children: [
@@ -112,7 +146,7 @@ class ForgotPasswordScreen extends HookWidget {
         final response = await apiService.forgotPassword(email);
 
         if (!response) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(contextRef.value!).showSnackBar(
             const SnackBar(
               content: Row(
                 children: [
@@ -126,7 +160,7 @@ class ForgotPasswordScreen extends HookWidget {
           );
         } else {
           // Você pode adicionar uma ação após o envio bem-sucedido, como uma navegação direta
-          Navigator.of(context).pushReplacement(
+          Navigator.of(contextRef.value!).pushReplacement(
             MaterialPageRoute(
               builder: (context) => const PasswordResetConfirmationScreen(),
             ),
@@ -136,72 +170,119 @@ class ForgotPasswordScreen extends HookWidget {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF222222), // Cor de fundo #222222
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SingleChildScrollView(
-          child: Center(
+      backgroundColor: const Color(0xFF222222),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: const EdgeInsets.all(24.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.asset('assets/images/logo.png', height: 250),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Recuperar Senha',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  Center(
+                    child: FadeInDown(
+                      duration: const Duration(milliseconds: 800),
+                      child: Image.asset('assets/images/logo.png', height: 120),
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: emailController,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            labelText: 'Email',
-                            labelStyle: const TextStyle(color: Colors.white),
-                            filled: true,
-                            fillColor: const Color(0xFF2F2F2F),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
+                  const SizedBox(height: 40),
+                  FadeInLeft(
+                    duration: const Duration(milliseconds: 800),
+                    child: const Text(
+                      'Recuperar Senha',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  FadeInLeft(
+                    duration: const Duration(milliseconds: 800),
+                    delay: const Duration(milliseconds: 200),
+                    child: const Text(
+                      'Digite seu e-mail para receber instruções de recuperação de senha.',
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  FadeInUp(
+                    duration: const Duration(milliseconds: 800),
+                    child: TextFormField(
+                      controller: emailController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'E-mail',
+                        labelStyle: const TextStyle(color: Colors.white70),
+                        prefixIcon:
+                            const Icon(Icons.email, color: Colors.white70),
+                        filled: true,
+                        fillColor: const Color(0xFF2F2F2F),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: handleForgotPassword,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text('Enviar',
-                                style: TextStyle(fontSize: 18)),
-                          ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 2),
                         ),
-                        const SizedBox(height: 20),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop('/login_screen');
-                            FocusScope.of(context).unfocus();
-                          },
-                          child: const Text(
-                            '← Retornar ao login',
-                            style: TextStyle(color: Colors.white),
-                          ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Colors.white24, width: 1),
                         ),
-                      ],
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => handleForgotPassword(),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  FadeInUp(
+                    duration: const Duration(milliseconds: 800),
+                    delay: const Duration(milliseconds: 200),
+                    child: ElevatedButton(
+                      onPressed: handleForgotPassword,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        minimumSize: const Size(double.infinity, 50),
+                        elevation: 5,
+                      ),
+                      child:
+                          const Text('Enviar', style: TextStyle(fontSize: 18)),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Center(
+                    child: FadeInUp(
+                      duration: const Duration(milliseconds: 800),
+                      delay: const Duration(milliseconds: 400),
+                      child: TextButton.icon(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon:
+                            const Icon(Icons.arrow_back, color: Colors.white70),
+                        label: const Text(
+                          'Voltar para o login',
+                          style: TextStyle(color: Colors.white70, fontSize: 16),
+                        ),
+                      ),
                     ),
                   ),
                 ],

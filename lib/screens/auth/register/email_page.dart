@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../services/api/api_service.dart';
-import 'package:flutter/services.dart';
 
 class EmailPage extends StatefulWidget {
   final TextEditingController emailController;
@@ -14,10 +13,11 @@ class EmailPage extends StatefulWidget {
   });
 
   @override
-  _EmailPageState createState() => _EmailPageState();
+  EmailPageState createState() => EmailPageState();
 }
 
-class _EmailPageState extends State<EmailPage> with SingleTickerProviderStateMixin {
+class EmailPageState extends State<EmailPage>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final FocusNode _focusNode = FocusNode();
   bool _emailExists = false;
@@ -92,7 +92,7 @@ class _EmailPageState extends State<EmailPage> with SingleTickerProviderStateMix
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop('/login_screen'),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       backgroundColor: const Color(0xFF222222),
@@ -107,51 +107,57 @@ class _EmailPageState extends State<EmailPage> with SingleTickerProviderStateMix
               children: [
                 const Text(
                   'Qual é o seu e-mail?',
-                  style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                Text(
+                const Text(
                   'Usaremos este e-mail para criar sua conta.',
                   style: TextStyle(color: Color(0xFFBDBDBD), fontSize: 16),
                 ),
                 const SizedBox(height: 32),
-                Stack(
-                  alignment: Alignment.centerRight,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    TextFormField(
-                      controller: widget.emailController,
-                      focusNode: _focusNode,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        labelText: 'Seu e-mail',
-                        labelStyle: TextStyle(color: Colors.grey[400]),
-                        filled: true,
-                        fillColor: const Color(0xFF2F2F2F),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
+                    Expanded(
+                      child: TextFormField(
+                        controller: widget.emailController,
+                        focusNode: _focusNode,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          labelText: 'Seu e-mail',
+                          labelStyle: TextStyle(color: Colors.grey[400]),
+                          filled: true,
+                          fillColor: const Color(0xFF2F2F2F),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          suffixIcon: widget.emailController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear,
+                                      color: Colors.grey),
+                                  onPressed: () {
+                                    widget.emailController.clear();
+                                    _validateForm();
+                                  },
+                                )
+                              : null,
                         ),
-                        suffixIcon: widget.emailController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear, color: Colors.grey),
-                                onPressed: () {
-                                  widget.emailController.clear();
-                                  _validateForm();
-                                },
-                              )
-                            : null,
+                        validator: _emailValidator,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) =>
+                            _isFormValid ? _submitForm() : null,
                       ),
-                      validator: _emailValidator,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _isFormValid ? _submitForm() : null,
                     ),
-                    Positioned(
-                      right: 12,
-                      child: FadeTransition(
-                        opacity: _animation,
-                        child: const Icon(Icons.check_circle, color: Colors.green),
-                      ),
+                    const SizedBox(width: 8),
+                    FadeTransition(
+                      opacity: _animation,
+                      child: const Icon(Icons.check_circle,
+                          color: Colors.green, size: 24),
                     ),
                   ],
                 ),
@@ -173,7 +179,8 @@ class _EmailPageState extends State<EmailPage> with SingleTickerProviderStateMix
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Continuar', style: TextStyle(fontSize: 18)),
+                    child:
+                        const Text('Continuar', style: TextStyle(fontSize: 18)),
                   ),
                 ),
               ],
@@ -190,9 +197,11 @@ class _EmailPageState extends State<EmailPage> with SingleTickerProviderStateMix
     if (!_emailExists) {
       widget.onNext();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Este e-mail já está cadastrado')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Este e-mail já está cadastrado')),
+        );
+      }
     }
   }
 }

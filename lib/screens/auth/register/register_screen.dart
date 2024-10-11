@@ -8,10 +8,10 @@ class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  RegisterScreenState createState() => RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class RegisterScreenState extends State<RegisterScreen> {
   final PageController _pageController = PageController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -55,10 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (email.isEmpty || senha.isEmpty || nome.isEmpty || classe == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Por favor, preencha todos os campos obrigatórios.')),
-      );
+      _showSnackBar('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -74,21 +71,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
         modalityIds: modalidades.map((e) => int.tryParse(e) ?? 0).toList(),
       );
 
+      if (!mounted) return; // Verificação de mounted
+
       if (success['success'] == true) {
         Navigator.of(context).pushReplacementNamed('/home-screen');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Falha ao realizar o cadastro: ${success['message']}')),
-        );
+        _showSnackBar('Falha ao realizar o cadastro: ${success['message']}');
       }
     } catch (e) {
       debugPrint('Erro ao cadastrar: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
-      );
+      if (!mounted) return; // Verificação de mounted
+      _showSnackBar('Erro: $e');
     }
+  }
+
+  void _showSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override

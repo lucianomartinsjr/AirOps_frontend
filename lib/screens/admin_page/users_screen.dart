@@ -8,10 +8,11 @@ class UsersScreen extends StatefulWidget {
   const UsersScreen({super.key});
 
   @override
-  _UsersScreenState createState() => _UsersScreenState();
+  UsersScreenState createState() => UsersScreenState();
 }
 
-class _UsersScreenState extends State<UsersScreen> {
+class UsersScreenState extends State<UsersScreen> {
+  late final BuildContext _context;
   TextEditingController searchController = TextEditingController();
   List<User> allUsers = [];
   List<User> filteredUsers = [];
@@ -19,21 +20,28 @@ class _UsersScreenState extends State<UsersScreen> {
   @override
   void initState() {
     super.initState();
-    fetchUsers();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _context = context;
+      fetchUsers();
+    });
   }
 
   Future<void> fetchUsers() async {
     try {
       final users =
-          await Provider.of<ApiService>(context, listen: false).fetchUsers();
-      setState(() {
-        allUsers = users;
-        filteredUsers = users;
-      });
+          await Provider.of<ApiService>(_context, listen: false).fetchUsers();
+      if (mounted) {
+        setState(() {
+          allUsers = users;
+          filteredUsers = users;
+        });
+      }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao carregar dados: $error')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(_context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar dados: $error')),
+        );
+      }
     }
   }
 
@@ -142,22 +150,26 @@ class _UsersScreenState extends State<UsersScreen> {
                                     onChanged: (value) async {
                                       user.isAdmin = value;
                                       try {
-                                        await Provider.of<ApiService>(context,
+                                        await Provider.of<ApiService>(_context,
                                                 listen: false)
                                             .updateUser(user);
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'Usuário atualizado com sucesso')),
-                                        );
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(_context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'Usuário atualizado com sucesso')),
+                                          );
+                                        }
                                       } catch (error) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                              content: Text(
-                                                  'Erro ao atualizar usuário: $error')),
-                                        );
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(_context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Erro ao atualizar usuário: $error')),
+                                          );
+                                        }
                                       }
                                     },
                                     activeColor: Colors.green,

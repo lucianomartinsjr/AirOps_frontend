@@ -17,10 +17,10 @@ class PasswordPage extends StatefulWidget {
   });
 
   @override
-  _PasswordPageState createState() => _PasswordPageState();
+  PasswordPageState createState() => PasswordPageState();
 }
 
-class _PasswordPageState extends State<PasswordPage> {
+class PasswordPageState extends State<PasswordPage> {
   final _formKey = GlobalKey<FormState>();
   bool _isFormValid = false;
   bool _isPasswordVisible = false;
@@ -84,7 +84,8 @@ class _PasswordPageState extends State<PasswordPage> {
                   const SizedBox(height: 16),
                   _buildConfirmPasswordField(),
                   const SizedBox(height: 24),
-                  PasswordStrengthIndicator(controller: widget.passwordController),
+                  PasswordStrengthIndicator(
+                      controller: widget.passwordController),
                   const SizedBox(height: 32),
                   _buildNextButton(),
                 ],
@@ -105,7 +106,8 @@ class _PasswordPageState extends State<PasswordPage> {
         labelText: 'Senha',
         labelStyle: const TextStyle(color: Colors.white),
         prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
-        suffixIcon: _buildVisibilityToggle(_isPasswordVisible, (value) => _isPasswordVisible = value),
+        suffixIcon: _buildVisibilityToggle(
+            _isPasswordVisible, (value) => _isPasswordVisible = value),
         enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.white),
         ),
@@ -126,7 +128,8 @@ class _PasswordPageState extends State<PasswordPage> {
         labelText: 'Confirme a Senha',
         labelStyle: const TextStyle(color: Colors.white),
         prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
-        suffixIcon: _buildVisibilityToggle(_isConfirmPasswordVisible, (value) => _isConfirmPasswordVisible = value),
+        suffixIcon: _buildVisibilityToggle(_isConfirmPasswordVisible,
+            (value) => _isConfirmPasswordVisible = value),
         enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.white),
         ),

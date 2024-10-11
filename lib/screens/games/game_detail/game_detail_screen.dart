@@ -14,10 +14,10 @@ class GameDetailScreen extends StatefulWidget {
   const GameDetailScreen({super.key, required this.game, required this.token});
 
   @override
-  _GameDetailScreenState createState() => _GameDetailScreenState();
+  GameDetailScreenState createState() => GameDetailScreenState();
 }
 
-class _GameDetailScreenState extends State<GameDetailScreen> {
+class GameDetailScreenState extends State<GameDetailScreen> {
   bool isError = false;
   bool isSuccess = false;
   bool isSubscribed = false;
@@ -41,14 +41,17 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
 
     try {
       await _airsoftService.subscribeToEvent(widget.game.id);
+      if (!mounted) return;
       setState(() {
         isSuccess = true;
         isSubscribed = true;
       });
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Inscrição realizada com sucesso!')),
       );
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         isError = true;
         errorMessage = 'Erro ao realizar inscrição. Tente novamente.';
@@ -65,14 +68,17 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
 
     try {
       await _airsoftService.unsubscribeFromEvent(widget.game.id);
+      if (!mounted) return;
       setState(() {
         isSuccess = true;
         isSubscribed = false;
       });
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Desinscrição realizada com sucesso!')),
       );
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         isError = true;
         errorMessage = 'Erro ao realizar desinscrição. Tente novamente.';
@@ -86,6 +92,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     if (await canLaunchUrl(googleMapsUrl)) {
       await launchUrl(googleMapsUrl);
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Não foi possível abrir o Google Maps')),
       );
@@ -115,19 +122,20 @@ Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*.
     if (await canLaunchUrl(whatsappUrl)) {
       await launchUrl(whatsappUrl);
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ocorreu um erro')),
       );
     }
   }
 
-  void _scrollToDetails() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
+  // void _scrollToDetails() {
+  //   _scrollController.animateTo(
+  //     _scrollController.position.maxScrollExtent,
+  //     duration: const Duration(milliseconds: 300),
+  //     curve: Curves.easeInOut,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -144,99 +152,115 @@ Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*.
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              controller: _scrollController,
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   GameDetailHeader(game: widget.game),
                   const SizedBox(height: 16.0),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[800],
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Center(
-                      child: GameInfoGrid(game: widget.game),
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  const Center(
-                    child: Text(
-                      '- Descrição - ',
-                      style: TextStyle(color: Colors.white70, fontSize: 12.0),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isExpanded = !_isExpanded;
-                      });
-                      if (!_isExpanded) {
-                        _scrollToDetails();
-                      }
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[800],
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 8.0),
-                          AnimatedCrossFade(
-                            firstChild: Text(
-                              widget.game.descricao,
-                              maxLines: 2,
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 16.0),
-                            ),
-                            secondChild: Text(
-                              widget.game.descricao,
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 16.0),
-                            ),
-                            crossFadeState: _isExpanded
-                                ? CrossFadeState.showSecond
-                                : CrossFadeState.showFirst,
-                            duration: const Duration(milliseconds: 300),
-                          ),
-                          const SizedBox(height: 10),
-                          const Align(
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.more_horiz,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  _buildInfoCard(
+                    child: GameInfoGrid(game: widget.game),
                   ),
                   const SizedBox(height: 16.0),
+                  _buildDescriptionCard(),
                 ],
               ),
             ),
           ),
-          GameDetailButtons(
-            isError: isError,
-            isSuccess: isSuccess,
-            errorMessage: errorMessage,
-            onMapTap: _openMap,
-            onInscreverTap: isSubscribed ? desinscrever : inscrever,
-            isSubscribed: isSubscribed,
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: GameDetailButtons(
+                isError: isError,
+                isSuccess: isSuccess,
+                errorMessage: errorMessage,
+                onMapTap: _openMap,
+                onInscreverTap: isSubscribed ? desinscrever : inscrever,
+                isSubscribed: isSubscribed,
+              ),
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCard({required Widget child}) {
+    return Card(
+      color: Colors.grey[800],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: child,
+      ),
+    );
+  }
+
+  Widget _buildDescriptionCard() {
+    return GestureDetector(
+      onTap: () {
+        if (_isExpanded) {
+          setState(() {
+            _isExpanded = false;
+          });
+        }
+      },
+      child: _buildInfoCard(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Descrição',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8.0),
+              AnimatedCrossFade(
+                firstChild: Text(
+                  widget.game.descricao,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white, fontSize: 14.0),
+                ),
+                secondChild: Text(
+                  widget.game.descricao,
+                  style: const TextStyle(color: Colors.white, fontSize: 14.0),
+                ),
+                crossFadeState: _isExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 300),
+                sizeCurve: Curves.easeInOut,
+              ),
+              const SizedBox(height: 8.0),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _isExpanded = !_isExpanded;
+                    });
+                  },
+                  child: Text(
+                    _isExpanded ? 'Ver menos' : 'Ver mais',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:logging/logging.dart';
 import '../../../models/class.dart';
 import '../../../models/modality.dart';
 import '../../../services/api/api_service.dart';
@@ -29,16 +30,17 @@ class ProfilePage extends StatefulWidget {
   });
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  ProfilePageState createState() => ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedClassId;
   final List<String> _selectedModalityIds = [];
   List<Class> _classes = [];
   List<Modality> _modalities = [];
   bool _isFormValid = false;
+  final _logger = Logger('ProfilePage');
 
   @override
   void initState() {
@@ -55,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
         _classes = classes;
       });
     } catch (error) {
-      print("Erro ao buscar classes: $error");
+      _logger.warning('Erro ao buscar classes', error);
     }
   }
 

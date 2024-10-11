@@ -15,10 +15,10 @@ class CityAutocompleteField extends StatefulWidget {
   });
 
   @override
-  _CityAutocompleteFieldState createState() => _CityAutocompleteFieldState();
+  CityAutocompleteFieldState createState() => CityAutocompleteFieldState();
 }
 
-class _CityAutocompleteFieldState extends State<CityAutocompleteField> {
+class CityAutocompleteFieldState extends State<CityAutocompleteField> {
   final GlobalKey _fieldKey = GlobalKey();
   double _fieldWidth = 0;
 

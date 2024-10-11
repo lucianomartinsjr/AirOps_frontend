@@ -14,10 +14,10 @@ class CreateGameScreen extends StatefulWidget {
   const CreateGameScreen({super.key});
 
   @override
-  _CreateGameScreenState createState() => _CreateGameScreenState();
+  CreateGameScreenState createState() => CreateGameScreenState();
 }
 
-class _CreateGameScreenState extends State<CreateGameScreen> {
+class CreateGameScreenState extends State<CreateGameScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
@@ -103,290 +103,321 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text('Criar Novo Jogo'),
-        ),
+        title: const Text('Criar Novo Jogo'),
+        centerTitle: true,
       ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 5),
-                      CustomTextFormField(
-                        controller: _nameController,
-                        labelText: 'Titulo *',
-                        readOnly: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira o titulo do jogo';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      Autocomplete<String>(
-                        optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text.isEmpty) {
-                            return const Iterable<String>.empty();
-                          }
-                          return _cities.where((String option) {
-                            return option
-                                .toLowerCase()
-                                .contains(textEditingValue.text.toLowerCase());
-                          });
-                        },
-                        onSelected: (String selection) {
-                          _locationController.text = selection;
-                        },
-                        fieldViewBuilder: (BuildContext context,
-                            TextEditingController fieldTextEditingController,
-                            FocusNode fieldFocusNode,
-                            VoidCallback onFieldSubmitted) {
-                          return CustomTextFormField(
-                            controller: fieldTextEditingController,
-                            focusNode: fieldFocusNode,
-                            labelText: 'Cidade/UF *',
-                            readOnly: false,
-                            maxLines: 1,
-                            validator: _validateLocation,
-                          );
-                        },
-                        optionsViewBuilder: (BuildContext context,
-                            AutocompleteOnSelected<String> onSelected,
-                            Iterable<String> options) {
-                          return Align(
-                            alignment: Alignment.topLeft,
-                            child: Material(
-                              elevation: 4.0,
-                              child: Container(
-                                color: Colors.grey[850],
-                                child: ListView.builder(
-                                  padding: const EdgeInsets.all(8.0),
-                                  itemCount: options.length,
-                                  shrinkWrap: true,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    final String option =
-                                        options.elementAt(index);
-                                    return GestureDetector(
-                                      onTap: () {
-                                        onSelected(option);
-                                      },
-                                      child: ListTile(
-                                        title: Text(option,
-                                            style: const TextStyle(
-                                                color: Colors.white)),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DateTimePickerField(
-                              controller: _dateController,
-                              labelText: 'Data e Hora *',
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Por favor, selecione a data e a hora';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: CustomDropdownFormField<String>(
-                              value: _selectedPeriod,
-                              items: _periods,
-                              labelText: 'Período *',
+      body: Stack(
+        children: [
+          GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 16),
+                        _buildSection(
+                          'Informaçes Básicas',
+                          [
+                            CustomTextFormField(
+                              controller: _nameController,
+                              labelText: 'Título do Jogo',
                               readOnly: false,
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedPeriod = newValue;
-                                });
-                              },
-                              validator: (value) {
-                                if (value == null) {
-                                  return 'Por favor, selecione o período';
-                                }
-                                return null;
-                              },
+                              prefixIcon:
+                                  const Icon(Icons.title, color: Colors.white),
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? 'Campo obrigatório'
+                                  : null,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      CustomDropdownFormField<Modality>(
-                        value: _selectedModality,
-                        items: _modalities,
-                        labelText: 'Modalidade *',
-                        readOnly: false,
-                        itemAsString: (Modality modality) => modality.descricao,
-                        onChanged: (Modality? newValue) {
-                          setState(() {
-                            _selectedModality = newValue;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Por favor, selecione a modalidade';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomTextFormField(
-                              controller: _numMaxOperadoresController,
-                              labelText: 'Núm. Máx. de Operadores *',
+                            const SizedBox(height: 16),
+                            _buildLocationField(),
+                            const SizedBox(height: 16),
+                            _buildDateAndPeriodRow(),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        _buildSection(
+                          'Detalhes do Jogo',
+                          [
+                            CustomDropdownFormField<Modality>(
+                              value: _selectedModality,
+                              items: _modalities,
+                              labelText: 'Modalidade',
                               readOnly: false,
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Por favor, insira o número máximo de operadores';
-                                }
-                                return null;
+                              prefixIcon: const Icon(Icons.category,
+                                  color: Colors.white),
+                              itemAsString: (Modality modality) =>
+                                  modality.descricao,
+                              onChanged: (Modality? newValue) {
+                                setState(() => _selectedModality = newValue);
                               },
+                              validator: (value) => value == null
+                                  ? 'Selecione uma modalidade'
+                                  : null,
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: CustomTextFormField(
-                              controller: _feeController,
-                              labelText: 'Taxa *',
-                              readOnly: _isFree,
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (_isFree ||
-                                    (value != null && value.isNotEmpty)) {
-                                  return null;
-                                }
-                                return 'Por favor, insira a taxa';
-                              },
+                            const SizedBox(height: 16),
+                            _buildParticipantsAndFeeRow(),
+                            const SizedBox(height: 16),
+                            CustomTextFormField(
+                              controller: _locationLinkController,
+                              labelText: 'Link do Maps',
+                              readOnly: false,
+                              prefixIcon:
+                                  const Icon(Icons.map, color: Colors.white),
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? 'Insira o link do Maps'
+                                  : null,
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Column(
-                            children: [
-                              const Text('Gratuito'),
-                              Transform.scale(
-                                scale: 0.8,
-                                child: Switch(
-                                  value: _isFree,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _isFree = value;
-                                      if (_isFree == true) {
-                                        _feeController.text = '0';
-                                      }
-                                    });
-                                  },
-                                  activeColor: Colors.red,
-                                  activeTrackColor: Colors.red.withOpacity(0.5),
-                                  inactiveThumbColor: Colors.grey,
-                                  inactiveTrackColor:
-                                      Colors.grey.withOpacity(0.5),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: _locationLinkController,
-                        labelText: 'Link do Maps *',
-                        readOnly: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira o link do Maps';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      CustomTextFormField(
-                        controller: _detailsController,
-                        labelText: 'Detalhes',
-                        readOnly: false,
-                        maxLines: 5,
-                      ),
-                      const SizedBox(height: 80),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      final newGame = Game(
-                        titulo: _nameController.text,
-                        cidade: _locationController.text,
-                        dataEvento: _parseDate(_dateController.text),
-                        idModalidadeJogo: _selectedModality?.id ?? 0,
-                        periodo: _selectedPeriod!,
-                        nomeOrganizador: _organizerController.text,
-                        valor: double.parse(_feeController.text),
-                        imagemCapa:
-                            'https://rhtdycglcfuvyopxhhgl.supabase.co/storage/v1/object/sign/imagens/airops.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJpbWFnZW5zL2Fpcm9wcy5qcGciLCJpYXQiOjE3MjM0MDM1MjYsImV4cCI6MTc1NDkzOTUyNn0.-OEXSZO8n3LJdBW89FaL9Jc7dlk1saLCykVu46ymJts&t=2024-08-11T19%3A12%3A07.048Z', // Use sua URL padrão aqui
-                        descricao: _detailsController.text,
-                        linkCampo: _locationLinkController.text,
-                        numMaxOperadores:
-                            int.parse(_numMaxOperadoresController.text),
-                      );
-
-                      // Adiciona o jogo e navega para a tela inicial
-                      Provider.of<AirsoftService>(context, listen: false)
-                          .addGame(newGame, context);
-                      Navigator.of(context)
-                          .pushReplacementNamed('/home-screen');
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                            const SizedBox(height: 16),
+                            CustomTextFormField(
+                              controller: _detailsController,
+                              labelText: 'Detalhes do Jogo',
+                              readOnly: false,
+                              prefixIcon: const Icon(Icons.description,
+                                  color: Colors.white),
+                              maxLines: 5,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 100), // Espaço para o botão fixo
+                      ],
                     ),
                   ),
-                  child: const Text(
-                    'Criar Jogo',
-                    style: TextStyle(fontSize: 18),
-                  ),
                 ),
               ),
             ),
-          ],
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: ElevatedButton(
+                onPressed: _submitForm,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('Criar Jogo',
+                    style: TextStyle(fontSize: 18, color: Colors.white)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection(String title, List<Widget> children) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        ...children,
+      ],
+    );
+  }
+
+  Widget _buildLocationField() {
+    return Autocomplete<String>(
+      optionsBuilder: (TextEditingValue textEditingValue) {
+        if (textEditingValue.text.isEmpty) {
+          return const Iterable<String>.empty();
+        }
+        return _cities.where((String option) {
+          return option
+              .toLowerCase()
+              .contains(textEditingValue.text.toLowerCase());
+        });
+      },
+      onSelected: (String selection) {
+        _locationController.text = selection;
+      },
+      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+        return CustomTextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          labelText: 'Cidade/UF',
+          readOnly: false,
+          prefixIcon: const Icon(Icons.location_city, color: Colors.white),
+          validator: _validateLocation,
+        );
+      },
+      optionsViewBuilder: (context, onSelected, options) {
+        return _buildAutocompleteOptions(options, onSelected);
+      },
+    );
+  }
+
+  Widget _buildAutocompleteOptions(
+      Iterable<String> options, AutocompleteOnSelected<String> onSelected) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Material(
+        elevation: 4.0,
+        child: Container(
+          constraints: const BoxConstraints(maxHeight: 200),
+          color: Colors.grey[850],
+          child: ListView.builder(
+            padding: const EdgeInsets.all(8.0),
+            itemCount: options.length,
+            itemBuilder: (BuildContext context, int index) {
+              final String option = options.elementAt(index);
+              return InkWell(
+                onTap: () => onSelected(option),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
+                  child:
+                      Text(option, style: const TextStyle(color: Colors.white)),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildDateAndPeriodRow() {
+    return Column(
+      children: [
+        DateTimePickerField(
+          controller: _dateController,
+          labelText: 'Data e Hora',
+          prefixIcon: const Icon(Icons.event, color: Colors.white),
+          validator: (value) =>
+              value?.isEmpty ?? true ? 'Selecione a data e hora' : null,
+        ),
+        const SizedBox(height: 16),
+        CustomDropdownFormField<String>(
+          value: _selectedPeriod,
+          items: _periods,
+          labelText: 'Período',
+          readOnly: false,
+          prefixIcon: const Icon(Icons.access_time, color: Colors.white),
+          onChanged: (String? newValue) {
+            setState(() => _selectedPeriod = newValue);
+          },
+          validator: (value) => value == null ? 'Selecione o período' : null,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildParticipantsAndFeeRow() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 2,
+          child: _buildMaxOperatorsField(),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          flex: 3,
+          child: _buildFeeFieldWithSwitch(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMaxOperatorsField() {
+    return CustomTextFormField(
+      controller: _numMaxOperadoresController,
+      labelText: 'Máx. Operadores',
+      readOnly: false,
+      prefixIcon: const Icon(Icons.group, color: Colors.white),
+      keyboardType: TextInputType.number,
+      validator: (value) => value?.isEmpty ?? true ? 'Campo obrigatório' : null,
+    );
+  }
+
+  Widget _buildFeeFieldWithSwitch() {
+    return Stack(
+      alignment: Alignment.centerRight,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 60),
+          child: CustomTextFormField(
+            controller: _feeController,
+            labelText: 'Taxa',
+            readOnly: _isFree,
+            prefixIcon: const Icon(Icons.attach_money, color: Colors.white),
+            keyboardType: TextInputType.number,
+            validator: (value) => _isFree || (value?.isNotEmpty ?? false)
+                ? null
+                : 'Insira a taxa',
+          ),
+        ),
+        Positioned(
+          right: 8,
+          child: _buildFreeSwitch(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFreeSwitch() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Transform.scale(
+          scale: 0.7,
+          child: Switch(
+            value: _isFree,
+            onChanged: (value) {
+              setState(() {
+                _isFree = value;
+                if (_isFree) {
+                  _feeController.text = '0';
+                } else {
+                  _feeController.text = '';
+                }
+              });
+            },
+            activeColor: Colors.green,
+            activeTrackColor: Colors.green.withOpacity(0.5),
+            inactiveThumbColor: Colors.grey[400],
+            inactiveTrackColor: Colors.grey[700],
+          ),
+        ),
+        const Text('Gratuito', style: TextStyle(fontSize: 9)),
+      ],
+    );
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      final newGame = Game(
+        titulo: _nameController.text,
+        cidade: _locationController.text,
+        dataEvento: _parseDate(_dateController.text),
+        idModalidadeJogo: _selectedModality?.id ?? 0,
+        periodo: _selectedPeriod!,
+        nomeOrganizador: _organizerController.text,
+        valor: double.parse(_feeController.text),
+        imagemCapa:
+            'https://rhtdycglcfuvyopxhhgl.supabase.co/storage/v1/object/sign/imagens/airops.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJpbWFnZW5zL2Fpcm9wcy5qcGciLCJpYXQiOjE3MjM0MDM1MjYsImV4cCI6MTc1NDkzOTUyNn0.-OEXSZO8n3LJdBW89FaL9Jc7dlk1saLCykVu46ymJts&t=2024-08-11T19%3A12%3A07.048Z',
+        descricao: _detailsController.text,
+        linkCampo: _locationLinkController.text,
+        numMaxOperadores: int.parse(_numMaxOperadoresController.text),
+      );
+
+      Provider.of<AirsoftService>(context, listen: false)
+          .addGame(newGame, context);
+      Navigator.of(context).pushReplacementNamed('/home-screen');
+    }
   }
 }

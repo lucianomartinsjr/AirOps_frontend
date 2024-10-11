@@ -8,6 +8,7 @@ class CustomDropdownFormField<T> extends StatelessWidget {
   final FormFieldValidator<T>? validator;
   final ValueChanged<T?>? onChanged;
   final String Function(T)? itemAsString;
+  final Widget? prefixIcon; // Adicionado
 
   const CustomDropdownFormField({
     super.key,
@@ -18,6 +19,7 @@ class CustomDropdownFormField<T> extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.itemAsString,
+    this.prefixIcon, // Adicionado
   });
 
   @override
@@ -47,6 +49,7 @@ class CustomDropdownFormField<T> extends StatelessWidget {
           ),
           contentPadding:
               const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          prefixIcon: prefixIcon, // Adicionado
         ),
         validator: validator,
         dropdownColor: const Color(0xFF2F2F2F),

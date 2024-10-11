@@ -1,80 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class DateTimePickerField extends StatefulWidget {
+class DateTimePickerField extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
   final FormFieldValidator<String>? validator;
+  final Widget? prefixIcon;
 
   const DateTimePickerField({
+    super.key,
     required this.controller,
     required this.labelText,
     this.validator,
-    super.key,
+    this.prefixIcon,
   });
 
-  @override
-  _DateTimePickerFieldState createState() => _DateTimePickerFieldState();
-}
-
-class _DateTimePickerFieldState extends State<DateTimePickerField> {
-  Future<void> _selectDateTime() async {
+  Future<void> _selectDateTime(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
-      locale: const Locale('pt', 'BR'),
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2101),
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
-            primaryColor: Colors.red,
-            hintColor: Colors.red,
             colorScheme: const ColorScheme.dark(primary: Colors.red),
-            buttonTheme: const ButtonThemeData(
-              textTheme: ButtonTextTheme.primary,
-            ),
+            dialogBackgroundColor: const Color(0xFF2F2F2F),
           ),
           child: child!,
         );
       },
     );
 
-    if (!mounted) return;
-
     if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-        builder: (context, child) {
-          return Theme(
-            data: ThemeData.dark().copyWith(
-              primaryColor: Colors.red,
-              buttonTheme: const ButtonThemeData(
-                textTheme: ButtonTextTheme.primary,
+      if (context.mounted) {
+        final TimeOfDay? pickedTime = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.now(),
+          builder: (context, child) {
+            return Theme(
+              data: ThemeData.dark().copyWith(
+                colorScheme: const ColorScheme.dark(primary: Colors.red),
+                dialogBackgroundColor: const Color(0xFF2F2F2F),
               ),
-              colorScheme: const ColorScheme.dark(primary: Colors.red)
-                  .copyWith(secondary: Colors.red),
-            ),
-            child: child!,
-          );
-        },
-      );
+              child: child!,
+            );
+          },
+        );
 
-      if (!mounted) return;
-
-      if (pickedTime != null) {
-        setState(() {
-          final dateTime = DateTime(
+        if (pickedTime != null) {
+          final DateTime pickedDateTime = DateTime(
             pickedDate.year,
             pickedDate.month,
             pickedDate.day,
             pickedTime.hour,
             pickedTime.minute,
           );
-          widget.controller.text =
-              DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
-        });
+          controller.text =
+              DateFormat('dd/MM/yyyy HH:mm').format(pickedDateTime);
+        }
       }
     }
   }
@@ -82,9 +66,11 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: widget.controller,
+      controller: controller,
+      readOnly: true,
+      onTap: () => _selectDateTime(context),
       decoration: InputDecoration(
-        labelText: widget.labelText,
+        labelText: labelText,
         labelStyle: const TextStyle(color: Colors.white),
         filled: true,
         fillColor: const Color(0xFF2F2F2F),
@@ -92,11 +78,11 @@ class _DateTimePickerFieldState extends State<DateTimePickerField> {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
         ),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
+        prefixIcon: prefixIcon,
+        suffixIcon: const Icon(Icons.calendar_today, color: Colors.white),
       ),
-      readOnly: true,
-      onTap: _selectDateTime,
-      validator: widget.validator,
+      style: const TextStyle(color: Colors.white),
+      validator: validator,
     );
   }
 }

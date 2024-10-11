@@ -53,6 +53,10 @@ dependencies:
   collection: ^1.18.0
   animations: ^2.0.11
   get_it: ^8.0.0
+  animate_do: ^3.3.4
+  lottie: ^3.1.2
+  rive: ^0.13.14
+  logging: ^1.2.0
 
 
 dev_dependencies:
@@ -84,6 +88,9 @@ flutter:
   assets:
     - assets/images/logo.png
     - assets/images/splash_logo.svg
+    - assets/images/airops-cover.jpg
+    - assets/animations/email_confirmation.json
+    - assets/animations/email_confirmation.lottie
 
   #   - images/a_dot_ham.jpeg
 

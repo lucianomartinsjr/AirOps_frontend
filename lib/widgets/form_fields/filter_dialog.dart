@@ -26,10 +26,10 @@ class FilterDialog extends StatefulWidget {
   });
 
   @override
-  _FilterDialogState createState() => _FilterDialogState();
+  FilterDialogState createState() => FilterDialogState();
 }
 
-class _FilterDialogState extends State<FilterDialog> {
+class FilterDialogState extends State<FilterDialog> {
   late bool _isFree;
   late String _selectedPeriod;
   late String _selectedModality;
@@ -66,7 +66,8 @@ class _FilterDialogState extends State<FilterDialog> {
       backgroundColor: Colors.grey[800],
       title: const Text(
         'Filtrar por',
-        style: TextStyle(color: Colors.white),
+        style: TextStyle(
+            color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
       ),
       content: SingleChildScrollView(
         child: SizedBox(
@@ -74,46 +75,51 @@ class _FilterDialogState extends State<FilterDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
-              DatePickerField(
-                controller: widget.dateController,
-                labelText: 'Data',
-              ),
               const SizedBox(height: 16),
-              CityAutocompleteField(
-                controller: widget.cityController,
-                cityOptions: widget.cityOptions,
-                labelText: 'Cidade',
-              ),
-              const SizedBox(height: 16),
-              CustomDropdownFormField(
-                value: _selectedPeriod,
-                items: const ['Any', 'Matutino', 'Vespertino', 'Noturno'],
-                labelText: 'Período',
-                readOnly: false,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedPeriod = newValue!;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              CustomDropdownFormField(
-                value: _selectedModality,
-                items: ['Any', ...widget.modalityOptions],
-                labelText: 'Modalidade',
-                readOnly: false,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedModality = newValue!;
-                  });
-                },
-              ),
+              _buildFilterSection(
+                  'Data',
+                  DatePickerField(
+                    controller: widget.dateController,
+                    labelText: 'Selecione uma data',
+                  )),
+              _buildFilterSection(
+                  'Cidade',
+                  CityAutocompleteField(
+                    controller: widget.cityController,
+                    cityOptions: widget.cityOptions,
+                    labelText: 'Digite o nome da cidade',
+                  )),
+              _buildFilterSection(
+                  'Período',
+                  CustomDropdownFormField(
+                    value: _selectedPeriod,
+                    items: const ['Any', 'Matutino', 'Vespertino', 'Noturno'],
+                    labelText: 'Escolha o período',
+                    readOnly: false,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedPeriod = newValue!;
+                      });
+                    },
+                  )),
+              _buildFilterSection(
+                  'Modalidade',
+                  CustomDropdownFormField(
+                    value: _selectedModality,
+                    items: ['Any', ...widget.modalityOptions],
+                    labelText: 'Selecione a modalidade',
+                    readOnly: false,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedModality = newValue!;
+                      });
+                    },
+                  )),
               const SizedBox(height: 16),
               SwitchListTile(
                 title: const Text(
-                  'Gratuito',
-                  style: TextStyle(color: Colors.white),
+                  'Apenas eventos gratuitos',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
                 value: _isFree,
                 onChanged: (bool value) {
@@ -179,6 +185,22 @@ class _FilterDialogState extends State<FilterDialog> {
               ),
             ),
           ),
+      ],
+    );
+  }
+
+  Widget _buildFilterSection(String title, Widget content) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+              color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        content,
+        const SizedBox(height: 24),
       ],
     );
   }

@@ -4,6 +4,9 @@ import '../models/class.dart';
 import '../models/profile.dart';
 import '../models/modality.dart';
 import '../services/api/api_service.dart';
+import 'package:logging/logging.dart';
+
+final _logger = Logger('ProfileProvider');
 
 class ProfileProvider extends ChangeNotifier {
   final nameController = TextEditingController();
@@ -31,7 +34,7 @@ class ProfileProvider extends ChangeNotifier {
     try {
       await _fetchProfileData();
     } catch (e) {
-      print('Error loading profile data: $e');
+      _logger.warning('Erro ao carregar dados do perfil', e);
     }
   }
 
@@ -66,12 +69,12 @@ class ProfileProvider extends ChangeNotifier {
             }).toList() ??
             [];
       } else {
-        print('Profile data is empty');
+        _logger.info('Dados do perfil estão vazios');
       }
 
       notifyListeners();
     } catch (e) {
-      print('Error fetching profile data: $e');
+      _logger.warning('Erro ao buscar dados do perfil: $e');
     }
   }
 
@@ -127,11 +130,13 @@ class ProfileProvider extends ChangeNotifier {
           isEditing = false;
           _originalProfile = updatedProfile; // Atualiza o perfil original
         } else {
+          _logger.warning('Falha ao atualizar o perfil');
           ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
             const SnackBar(content: Text('Falha ao atualizar o perfil')),
           );
         }
       } catch (error) {
+        _logger.severe('Erro ao atualizar o perfil: $error');
         ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
           SnackBar(content: Text('Erro: ${error.toString()}')),
         );

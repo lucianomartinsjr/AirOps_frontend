@@ -12,8 +12,8 @@ class GameDetailHeader extends StatelessWidget {
       height: 200,
       width: double.infinity,
       decoration: BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(game.imagemCapa),
+        image: const DecorationImage(
+          image: AssetImage('assets/images/airops-cover.jpg'),
           fit: BoxFit.cover,
         ),
         borderRadius: BorderRadius.circular(8.0),

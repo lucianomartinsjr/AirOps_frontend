@@ -11,10 +11,10 @@ class GamesScreen extends StatefulWidget {
   const GamesScreen({super.key});
 
   @override
-  _GamesScreenState createState() => _GamesScreenState();
+  GamesScreenState createState() => GamesScreenState();
 }
 
-class _GamesScreenState extends State<GamesScreen> with RouteAware {
+class GamesScreenState extends State<GamesScreen> with RouteAware {
   String _searchQuery = '';
   String? _selectedDate;
   String? _selectedModality;
@@ -71,7 +71,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
               .toSet()
               .toList();
           final locationOptions = games
-              .map((game) => game.cidade ?? '')
+              .map((game) => game.cidade)
               .where((location) => location.isNotEmpty)
               .toSet()
               .toList();
@@ -83,40 +83,48 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
               Padding(
                 padding: const EdgeInsets.symmetric(
                     vertical: 12.0, horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildMenuButton(
-                      context,
-                      icon: Icons.history,
-                      label: 'Histórico de Participação',
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const HistoryScreen(),
-                        ));
-                      },
-                    ),
-                    _buildMenuButton(
-                      context,
-                      icon: Icons.manage_search,
-                      label: 'Gerenciar\n Meus Jogos',
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const ManageGamesScreen(),
-                        ));
-                      },
-                    ),
-                    _buildMenuButton(
-                      context,
-                      icon: Icons.add,
-                      label: 'Registrar \nNovo Jogo',
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const CreateGameScreen(),
-                        ));
-                      },
-                    ),
-                  ],
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final buttonWidth = (constraints.maxWidth - 32) / 3;
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildMenuButton(
+                          context,
+                          icon: Icons.history,
+                          label: 'Histórico de Participação',
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const HistoryScreen(),
+                            ));
+                          },
+                          width: buttonWidth,
+                        ),
+                        _buildMenuButton(
+                          context,
+                          icon: Icons.manage_search,
+                          label: 'Gerenciar\n Meus Jogos',
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const ManageGamesScreen(),
+                            ));
+                          },
+                          width: buttonWidth,
+                        ),
+                        _buildMenuButton(
+                          context,
+                          icon: Icons.add,
+                          label: 'Registrar \nNovo Jogo',
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const CreateGameScreen(),
+                            ));
+                          },
+                          width: buttonWidth,
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
               Padding(
@@ -188,8 +196,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
       style: const TextStyle(color: Colors.white),
       onChanged: (value) {
         setState(() {
-          _searchQuery =
-              value.toLowerCase(); // Corrige para permitir a busca por nome
+          _searchQuery = value.toLowerCase();
         });
       },
     );
@@ -307,11 +314,12 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
   Widget _buildMenuButton(BuildContext context,
       {required IconData icon,
       required String label,
-      required VoidCallback onTap}) {
+      required VoidCallback onTap,
+      required double width}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 150,
+        width: width,
         height: 100,
         decoration: BoxDecoration(
           color: Colors.grey[850],
@@ -322,12 +330,16 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
           children: [
             Icon(icon, size: 32, color: Colors.white),
             const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
+            Flexible(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
               ),
             ),
           ],

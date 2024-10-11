@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/game.dart';
 import '../../../screens/games/edit_game_screen.dart';
-import 'players_dialog.dart';
+import 'players_screen.dart';
 
 class GameCard extends StatelessWidget {
   final Game game;
@@ -11,146 +11,140 @@ class GameCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 4,
       color: Colors.grey[850],
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
       ),
-      child: Column(
+      child: Stack(
         children: [
-          // Header
-          Container(
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(135, 48, 48, 48),
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(16.0),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.sports_esports,
-                                color: Colors.white, size: 20.0),
-                            const SizedBox(width: 8.0),
-                            Text(
-                              game.titulo,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16.0,
-                                color: Colors.white,
-                              ),
-                              softWrap: true,
-                              overflow: TextOverflow.visible,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8.0),
-                        Row(
-                          children: [
-                            const Icon(Icons.event,
-                                color: Colors.white70, size: 16.0),
-                            const SizedBox(width: 8.0),
-                            Text(
-                              '${game.dataEvento.day.toString().padLeft(2, '0')}/${game.dataEvento.month.toString().padLeft(2, '0')}/${game.dataEvento.year} '
-                              '${game.dataEvento.hour.toString().padLeft(2, '0')}:${game.dataEvento.minute.toString().padLeft(2, '0')}',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14.0,
-                              ),
-                              softWrap: true,
-                              overflow: TextOverflow.visible,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8.0),
-                        Row(
-                          children: [
-                            const Icon(Icons.schedule,
-                                color: Colors.white70, size: 16.0),
-                            const SizedBox(width: 8.0),
-                            Text(
-                              'Período: ${game.periodo}',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14.0,
-                              ),
-                              softWrap: true,
-                              overflow: TextOverflow.visible,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Cabeçalho
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withOpacity(0.8),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16.0),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.white70),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => EditGameScreen(game: game),
-                        ),
-                      );
-                    },
-                    tooltip: 'Editar jogo',
+                ),
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  game.titulo,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.0,
+                    color: Colors.white,
                   ),
-                ],
+                  softWrap: true,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
               ),
-            ),
-          ),
-          // Footer
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[700],
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(16.0),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.group,
-                          color: Colors.white70, size: 16.0),
-                      const SizedBox(width: 8.0),
-                      Text(
-                        '${game.quantidadeJogadoresInscritos} Participante(s) inscrito(s)',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14.0,
-                        ),
-                        softWrap: true,
-                        overflow: TextOverflow.visible,
+              // Conteúdo
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoRow(
+                        Icons.event, _formatDateTime(game.dataEvento)),
+                    const SizedBox(height: 12.0),
+                    _buildInfoRow(Icons.schedule, 'Período: ${game.periodo}'),
+                    const SizedBox(height: 12.0),
+                    _buildInfoRow(Icons.group,
+                        '${game.quantidadeJogadoresInscritos} Participante(s)'),
+                    const SizedBox(height: 24.0),
+                    Center(
+                      child: _buildActionButton(
+                        context,
+                        icon: Icons.visibility,
+                        label: 'Visualizar Participantes Inscritos',
+                        onPressed: () => _showParticipants(context),
                       ),
-                    ],
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.visibility, color: Colors.white70),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return PlayersDialog(game: game);
-                        },
-                      );
-                    },
-                    tooltip: 'Ver participantes',
-                  ),
-                ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            top: 8.0,
+            right: 8.0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.edit, color: Colors.white),
+                onPressed: () => _editGame(context),
+                tooltip: 'Editar',
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.white70, size: 20.0),
+        const SizedBox(width: 12.0),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.white, fontSize: 16.0),
+            softWrap: true,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+      icon: Icon(icon),
+      label: Text(label),
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      ),
+    );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year} '
+        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
+  void _editGame(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => EditGameScreen(game: game),
+      ),
+    );
+  }
+
+  void _showParticipants(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PlayersScreen(game: game),
       ),
     );
   }

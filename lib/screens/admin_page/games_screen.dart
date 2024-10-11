@@ -3,16 +3,16 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../models/game.dart';
 import '../../services/api/api_service.dart';
-import '../../widgets/games/game_card_resumed/players_dialog.dart';
+import '../../widgets/games/game_card_resumed/players_screen.dart'; // Atualize este import
 
 class GamesAdminScreen extends StatefulWidget {
   const GamesAdminScreen({super.key});
 
   @override
-  _GamesAdminScreenState createState() => _GamesAdminScreenState();
+  GamesAdminScreenState createState() => GamesAdminScreenState();
 }
 
-class _GamesAdminScreenState extends State<GamesAdminScreen> {
+class GamesAdminScreenState extends State<GamesAdminScreen> {
   List<Game> games = [];
   List<Game> filteredGames = [];
   String selectedFilter = 'Todos';
@@ -163,9 +163,10 @@ class _GamesAdminScreenState extends State<GamesAdminScreen> {
                       icon:
                           const Icon(Icons.remove_red_eye, color: Colors.white),
                       onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => PlayersDialog(game: game),
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => PlayersScreen(game: game),
+                          ),
                         );
                       },
                     ),

@@ -14,10 +14,10 @@ class DatePickerField extends StatefulWidget {
   });
 
   @override
-  _DatePickerFieldState createState() => _DatePickerFieldState();
+  DatePickerFieldState createState() => DatePickerFieldState();
 }
 
-class _DatePickerFieldState extends State<DatePickerField> {
+class DatePickerFieldState extends State<DatePickerField> {
   Future<void> _selectDate() async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,

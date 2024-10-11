@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../services/api/airsoft_service.dart';
+import '../../models/game.dart'; // Adicione esta linha para importar o modelo Game
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
   @override
-  _HistoryScreenState createState() => _HistoryScreenState();
+  HistoryScreenState createState() => HistoryScreenState();
 }
 
-class _HistoryScreenState extends State<HistoryScreen> {
+class HistoryScreenState extends State<HistoryScreen> {
   bool _isLoading = true;
   String _searchQuery = '';
   int _gameCount = 0;
@@ -40,8 +41,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Histórico de jogos"),
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        title: const Text("Histórico de Jogos"),
+        backgroundColor: Theme.of(context).primaryColor,
         elevation: 0,
       ),
       body: _isLoading
@@ -60,140 +61,158 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                 return Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Jogos participados: $_gameCount',
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          TextField(
-                            onChanged: (value) {
-                              setState(() {
-                                _searchQuery = value;
-                              });
-                            },
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Pesquisar...',
-                              hintStyle: const TextStyle(color: Colors.white54),
-                              prefixIcon: const Icon(Icons.search,
-                                  color: Colors.white54),
-                              filled: true,
-                              fillColor: Colors.grey[850],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    _buildSearchBar(),
+                    _buildGameCount(),
                     Expanded(
                       child: gameHistory.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'Nenhum jogo encontrado',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 18),
-                                textAlign: TextAlign.center,
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: gameHistory.length,
-                              itemBuilder: (context, index) {
-                                final game = gameHistory[index];
-                                return Card(
-                                  color: Colors.grey[850],
-                                  margin: const EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 16.0),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16.0),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          game.titulo,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16.0,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8.0),
-                                        Text(
-                                          'Data: ${DateFormat('dd/MM/yyyy HH:mm').format(game.dataEvento.toLocal())}',
-                                          style: const TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4.0),
-                                        Text(
-                                          'Modalidade: ${game.modalidadesJogos}',
-                                          style: const TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4.0),
-                                        Text(
-                                          'Organizador: ${game.nomeOrganizador}',
-                                          style: const TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                          ? _buildEmptyState()
+                          : _buildGameList(gameHistory),
                     ),
-                    Container(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      padding: const EdgeInsets.all(16.0),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 30),
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            'Retornar',
-                            style: TextStyle(
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildReturnButton(),
                   ],
                 );
               },
             ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: TextField(
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          hintText: 'Pesquisar jogos...',
+          hintStyle: const TextStyle(color: Colors.white54),
+          prefixIcon: const Icon(Icons.search, color: Colors.white54),
+          filled: true,
+          fillColor: Colors.grey[850],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGameCount() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Text(
+        'Jogos participados: $_gameCount',
+        style: const TextStyle(
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.sports_esports, size: 80, color: Colors.grey[600]),
+          const SizedBox(height: 16),
+          Text(
+            'Nenhum jogo encontrado',
+            style: TextStyle(color: Colors.grey[400], fontSize: 18),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameList(List<Game> gameHistory) {
+    return ListView.builder(
+      itemCount: gameHistory.length,
+      itemBuilder: (context, index) {
+        final game = gameHistory[index];
+        return _buildGameCard(game);
+      },
+    );
+  }
+
+  Widget _buildGameCard(Game game) {
+    return Card(
+      color: Colors.grey[850],
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16.0),
+        title: Text(
+          game.titulo,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18.0,
+            color: Colors.white,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8.0),
+            _buildInfoRow(Icons.calendar_today,
+                'Data: ${DateFormat('dd/MM/yyyy HH:mm').format(game.dataEvento.toLocal())}'),
+            _buildInfoRow(
+                Icons.category, 'Modalidade: ${game.modalidadesJogos}'),
+            _buildInfoRow(Icons.person, 'Organizador: ${game.nomeOrganizador}'),
+          ],
+        ),
+        onTap: () {
+          // Adicione aqui a navegação para os detalhes do jogo
+        },
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: Colors.white70),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.white70, fontSize: 14.0),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReturnButton() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      child: ElevatedButton(
+        onPressed: () => Navigator.pop(context),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        child: const Text(
+          'Retornar',
+          style: TextStyle(fontSize: 18),
+        ),
+      ),
     );
   }
 }

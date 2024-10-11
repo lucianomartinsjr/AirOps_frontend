@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
+import '../../constants/api_contants.dart';
 import '../../models/game.dart';
 
 class AirsoftService with ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  final String _baseUrl = 'http://localhost:3000';
-  // final String _baseUrl = 'https://airops-backend.up.railway.app';
+  final String _baseUrl = ApiConstants.baseUrl;
 
   List<Game> _games = [];
   List<Game> _filteredGames = [];
@@ -218,7 +218,7 @@ class AirsoftService with ChangeNotifier {
     } else {
       _filteredGames = _games
           .where((game) =>
-              game.descricao.toLowerCase().contains(query.toLowerCase()) ||
+              game.titulo.toLowerCase().contains(query.toLowerCase()) ||
               game.cidade.toLowerCase().contains(query.toLowerCase()) ||
               game.nomeOrganizador!.toLowerCase().contains(query.toLowerCase()))
           .toList();

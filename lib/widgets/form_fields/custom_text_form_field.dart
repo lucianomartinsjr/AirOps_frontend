@@ -10,6 +10,7 @@ class CustomTextFormField extends StatefulWidget {
   final VoidCallback? onTap;
   final int? maxLines;
   final FocusNode? focusNode;
+  final Widget? prefixIcon; // Adicionado
 
   const CustomTextFormField({
     required this.controller,
@@ -21,14 +22,15 @@ class CustomTextFormField extends StatefulWidget {
     this.onTap,
     this.maxLines = 1,
     this.focusNode,
+    this.prefixIcon, // Adicionado
     super.key,
   });
 
   @override
-  _CustomTextFormFieldState createState() => _CustomTextFormFieldState();
+  CustomTextFormFieldState createState() => CustomTextFormFieldState();
 }
 
-class _CustomTextFormFieldState extends State<CustomTextFormField> {
+class CustomTextFormFieldState extends State<CustomTextFormField> {
   bool _obscureText = true;
 
   @override
@@ -58,6 +60,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
             borderSide: BorderSide.none,
           ),
           floatingLabelBehavior: FloatingLabelBehavior.always,
+          prefixIcon: widget.prefixIcon, // Adicionado
           suffixIcon: widget.obscureText && widget.maxLines == 1
               ? IconButton(
                   icon: Icon(

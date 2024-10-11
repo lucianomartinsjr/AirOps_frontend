@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Importe o pacote intl para formatação de data
 import '../../../models/game.dart';
 import '../../../screens/games/game_detail/game_detail_screen.dart';
 
@@ -9,140 +10,147 @@ class GameItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => GameDetailScreen(
-              game: game,
-              token: '', // Passe o token aqui se necessário
-            ),
-          ),
-        );
-      },
-      child: Card(
-        color: Colors.grey[850],
-        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      elevation: 4,
+      color: Colors.grey[850],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: InkWell(
+        onTap: () => _navigateToGameDetail(context),
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 6),
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(game.imagemCapa),
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          game.titulo,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16.0,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          'Modalidade: ${game.modalidadesJogos}',
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                        Text(
-                          'Período: ${game.periodo}',
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                        Text(
-                          'Local: ${game.cidade}',
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              padding: const EdgeInsets.only(
+                  left: 12.0), // Adiciona espaço à esquerda da imagem
+              child: _buildImage(),
             ),
-            Container(
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 73, 73, 73),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(8.0),
-                  bottomRight: Radius.circular(8.0),
-                ),
-              ),
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildInfoColumn(
-                      'Organizador', game.nomeOrganizador ?? 'N/A'),
-                  _buildInfoColumn(
-                      'Taxa de campo', 'R\$${game.valor.toStringAsFixed(2)}'),
-                  _buildDateColumn(
-                      '${game.dataEvento.day.toString().padLeft(2, '0')}/${game.dataEvento.month.toString().padLeft(2, '0')}/${game.dataEvento.year} \n${game.dataEvento.hour.toString().padLeft(2, '0')}:${game.dataEvento.minute.toString().padLeft(2, '0')}'),
-                ],
-              ),
-            ),
+            const SizedBox(
+                width: 12), // Mantém o espaço entre a imagem e o conteúdo
+            Expanded(child: _buildContent(context)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoColumn(String label, String value) {
-    return Flexible(
+  Widget _buildImage() {
+    return SizedBox(
+      width: 120, // Aumentamos o tamanho da imagem
+      height: 120, // Aumentamos o tamanho da imagem
+      child: ClipRRect(
+        borderRadius:
+            BorderRadius.circular(8), // Arredonda todos os cantos da imagem
+        child: Image.asset(
+          'assets/images/airops-cover.jpg',
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 12.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
+            game.titulo,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4.0),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          const SizedBox(height: 4),
+          _buildDateTimeRow(),
+          const SizedBox(height: 4),
+          _buildInfoRow(
+              Icons.sports_soccer, game.modalidadesJogos ?? 'Não especificado',
+              isBold: true),
+          const SizedBox(height: 4),
+          _buildInfoRow(Icons.access_time, game.periodo),
+          const SizedBox(height: 4),
+          _buildInfoRow(Icons.location_on, game.cidade),
+          const SizedBox(height: 8),
+          _buildFooter(context),
         ],
       ),
     );
   }
 
-  Widget _buildDateColumn(String value) {
-    return Flexible(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
+  Widget _buildDateTimeRow() {
+    final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+    final formattedDateTime = dateFormat.format(game.dataEvento);
+    return _buildInfoRow(
+      Icons.calendar_today,
+      formattedDateTime,
+      isBold: true,
+      textColor: Colors.white,
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text,
+      {bool isBold = false, Color? textColor}) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.red[300]),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: textColor ?? Colors.grey[300],
+              fontSize: 12,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             ),
-            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFooter(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextButton(
+          onPressed: () => _navigateToGameDetail(context),
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.grey[300],
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(
+            'Ver Detalhes',
+            style: TextStyle(fontSize: 12, color: Colors.grey[300]),
+          ),
+        ),
+        Text(
+          game.valor == 0.0
+              ? 'GRATUITO'
+              : 'R\$${game.valor.toStringAsFixed(2)}',
+          style: TextStyle(
+            color: game.valor == 0.0 ? Colors.green[300] : Colors.red[300],
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _navigateToGameDetail(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => GameDetailScreen(game: game, token: ''),
       ),
     );
   }

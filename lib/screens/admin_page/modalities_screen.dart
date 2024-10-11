@@ -9,10 +9,10 @@ class ModalitiesScreen extends StatefulWidget {
   const ModalitiesScreen({super.key});
 
   @override
-  _ModalitiesScreenState createState() => _ModalitiesScreenState();
+  ModalitiesScreenState createState() => ModalitiesScreenState();
 }
 
-class _ModalitiesScreenState extends State<ModalitiesScreen> {
+class ModalitiesScreenState extends State<ModalitiesScreen> {
   late Future<List<Modality>> _modalitiesFuture;
 
   @override
@@ -39,7 +39,14 @@ class _ModalitiesScreenState extends State<ModalitiesScreen> {
           final items = snapshot.data ?? [];
           return BaseScreen(
             title: 'Modalidades',
-            items: items.map((modality) => modality.descricao).toList(),
+            items: items
+                .map((modality) => {
+                      'id': modality.id,
+                      'descricao': modality.descricao,
+                      'ativo': modality
+                          .ativo, // Use false como valor padrão se ativo for null
+                    })
+                .toList(),
             onAdd: () {
               _navigateToEditScreen(
                 context,
@@ -48,16 +55,31 @@ class _ModalitiesScreenState extends State<ModalitiesScreen> {
                   try {
                     await Provider.of<ApiService>(context, listen: false)
                         .createModality(modality);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Modalidade criada com sucesso!')),
-                    );
+                    if (mounted) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Modalidade criada com sucesso!')),
+                          );
+                        }
+                      });
+                    }
                     setState(() {
-                      _loadModalities(); // Recarrega as modalidades
+                      _loadModalities();
                     });
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Erro ao criar modalidade: $e')),
-                    );
+                    if (mounted) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Erro ao criar modalidade: $e')),
+                          );
+                        }
+                      });
+                    }
                   }
                 },
               );
@@ -74,18 +96,32 @@ class _ModalitiesScreenState extends State<ModalitiesScreen> {
                     );
                     await Provider.of<ApiService>(context, listen: false)
                         .updateModality(updatedModality);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Modalidade atualizada com sucesso!')),
-                    );
+                    if (mounted) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Modalidade atualizada com sucesso!')),
+                          );
+                        }
+                      });
+                    }
                     setState(() {
-                      _loadModalities(); // Recarrega as modalidades
+                      _loadModalities();
                     });
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Erro ao atualizar modalidade: $e')),
-                    );
+                    if (mounted) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('Erro ao atualizar modalidade: $e')),
+                          );
+                        }
+                      });
+                    }
                   }
                 },
                 initialModality: items[index],
@@ -107,9 +143,7 @@ class _ModalitiesScreenState extends State<ModalitiesScreen> {
         TextEditingController(text: initialModality?.descricao ?? '');
     final rulesController =
         TextEditingController(text: initialModality?.regras ?? '');
-    // Inicializa o valor de isActive corretamente
-    bool isActive =
-        initialModality?.ativo ?? false; // Altere para false como padrão
+    bool isActive = initialModality?.ativo ?? false;
 
     Navigator.of(context)
         .push(MaterialPageRoute(
@@ -120,13 +154,13 @@ class _ModalitiesScreenState extends State<ModalitiesScreen> {
           'Regras': rulesController,
         },
         isActive: isActive,
-        onSave: () {
+        onSave: (bool newIsActive) {
           final modality = Modality(
             id: initialModality?.id,
             descricao: descricaoController.text,
             regras: rulesController.text,
             criadoEM: initialModality?.criadoEM,
-            ativo: isActive,
+            ativo: newIsActive,
           );
 
           onSave(modality);

@@ -8,10 +8,10 @@ class ManageGamesScreen extends StatefulWidget {
   const ManageGamesScreen({super.key});
 
   @override
-  _ManageGamesScreenState createState() => _ManageGamesScreenState();
+  ManageGamesScreenState createState() => ManageGamesScreenState();
 }
 
-class _ManageGamesScreenState extends State<ManageGamesScreen> {
+class ManageGamesScreenState extends State<ManageGamesScreen> {
   bool _isLoading = true;
   String _searchQuery = '';
   String _filter = 'Ativos'; // Define "Ativos" como padrão
@@ -67,19 +67,22 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                            flex: 3,
+                            flex: 2,
                             child: TextField(
                               decoration: InputDecoration(
                                 hintText: 'Buscar jogos...',
-                                prefixIcon:
-                                    const Icon(Icons.search, color: Colors.white),
-                                hintStyle: const TextStyle(color: Colors.white54),
+                                prefixIcon: const Icon(Icons.search,
+                                    color: Colors.white),
+                                hintStyle:
+                                    const TextStyle(color: Colors.white54),
                                 filled: true,
                                 fillColor: Colors.grey[700],
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide.none,
                                 ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 12),
                               ),
                               style: const TextStyle(color: Colors.white),
                               onChanged: (value) {
@@ -89,14 +92,15 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                               },
                             ),
                           ),
-                          const SizedBox(width: 16.0),
+                          const SizedBox(width: 8),
                           Expanded(
                             flex: 1,
                             child: DropdownButtonFormField<String>(
                               value: _filter,
                               decoration: InputDecoration(
                                 labelText: 'Filtrar',
-                                labelStyle: const TextStyle(color: Colors.white),
+                                labelStyle:
+                                    const TextStyle(color: Colors.white),
                                 filled: true,
                                 fillColor:
                                     const Color.fromARGB(255, 54, 54, 54),
@@ -104,6 +108,8 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide.none,
                                 ),
+                                contentPadding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
                               ),
                               dropdownColor: Colors.grey[800],
                               items: ['Todos', 'Ativos', 'Inativos']
@@ -111,7 +117,8 @@ class _ManageGamesScreenState extends State<ManageGamesScreen> {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(value,
-                                      style: const TextStyle(color: Colors.white)),
+                                      style:
+                                          const TextStyle(color: Colors.white)),
                                 );
                               }).toList(),
                               onChanged: (String? newValue) {

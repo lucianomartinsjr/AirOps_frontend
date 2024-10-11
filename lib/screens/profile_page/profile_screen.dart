@@ -10,10 +10,10 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  ProfileScreenState createState() => ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -33,21 +33,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          title: const Text('Confirmar Logout',
-              style: TextStyle(color: Colors.white)),
-          content: const Text('Você tem certeza que deseja sair?',
-              style: TextStyle(color: Colors.white)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Confirmar Logout',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.logout,
+                size: 64,
+                color: Colors.white70,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Você tem certeza que deseja sair?',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
           actions: <Widget>[
             TextButton(
-              child:
-                  const Text('Cancelar', style: TextStyle(color: Colors.white)),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              onPressed: () => Navigator.of(context).pop(false),
             ),
-            TextButton(
-              child:
-                  const Text('Confirmar', style: TextStyle(color: Colors.red)),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Confirmar',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(true);
                 Navigator.of(context).pushNamed('/login');
@@ -71,8 +102,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      canPop: false,
       child: Consumer<ProfileProvider>(
         builder: (context, profileProvider, child) {
           return Scaffold(
@@ -102,154 +133,255 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            body: GestureDetector(
-              onTap: () {
-                FocusScope.of(context).unfocus();
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    onChanged: profileProvider.validateForm,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          '- Clique na chave para alterar sua senha -',
-                          style: TextStyle(color: Colors.white30, fontSize: 10),
-                        ),
-                        const SizedBox(height: 20),
-                        CustomTextFormField(
-                          controller: profileProvider.nameController,
-                          labelText: 'Nome Completo *',
-                          readOnly: !profileProvider.isEditing,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor, insira seu nome completo';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        CustomTextFormField(
-                          controller: profileProvider.nicknameController,
-                          labelText: 'Apelido (Opcional)',
-                          readOnly: !profileProvider.isEditing,
-                        ),
-                        const SizedBox(height: 10),
-                        CustomDropdownFormField<String>(
-                          value: profileProvider.selectedClass,
-                          items: profileProvider.classes
-                              .map((classItem) => classItem.id.toString())
-                              .toList(),
-                          labelText: 'Qual classe você mais joga? *',
-                          readOnly: !profileProvider.isEditing,
-                          validator: (value) {
-                            if (profileProvider.isEditing && value == null) {
-                              return 'Por favor, selecione uma classe';
-                            }
-                            return null;
-                          },
-                          onChanged: (newValue) {
-                            profileProvider.selectedClass = newValue;
-                            profileProvider.validateForm();
-                          },
-                          itemAsString: (String item) {
-                            final classItem =
-                                profileProvider.classes.firstWhere(
-                              (classItem) => classItem.id.toString() == item,
-                            );
-                            return classItem.nomeClasse;
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        CustomTextFormField(
-                          controller: profileProvider.cityController,
-                          labelText: 'Cidade *',
-                          readOnly: !profileProvider.isEditing,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor, insira sua cidade';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        CustomTextFormField(
-                          controller: profileProvider.phoneController,
-                          labelText: 'Telefone *',
-                          readOnly: !profileProvider.isEditing,
-                          validator: (value) {
-                            if (profileProvider.isEditing) {
-                              if (value == null || value.isEmpty) {
-                                return 'Por favor, insira seu telefone';
-                              }
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'Modalidades Preferidas *',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                        const SizedBox(height: 10),
-                        ModalitiesGrid(
-                          modalities: profileProvider.modalities,
-                          selectedModalityIds: profileProvider
-                              .selectedModalities
-                              .map((modality) => modality.id!)
-                              .toList(),
-                          isEditing: profileProvider.isEditing,
-                          onModalityChanged: profileProvider.onModalityChanged,
-                        ),
-                        if (profileProvider.modalityError != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Text(
-                              profileProvider.modalityError!,
-                              style: const TextStyle(
-                                  color: Colors.grey, fontSize: 12),
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          _buildProfileHeader(profileProvider),
+                          Form(
+                            key: _formKey,
+                            onChanged: profileProvider.validateForm,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildFormSection(
+                                  title: 'Informações Pessoais',
+                                  children: [
+                                    CustomTextFormField(
+                                      controller:
+                                          profileProvider.nameController,
+                                      labelText: 'Nome Completo *',
+                                      readOnly: !profileProvider.isEditing,
+                                      prefixIcon: const Icon(Icons.person),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Por favor, insira seu nome completo';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    CustomTextFormField(
+                                      controller:
+                                          profileProvider.nicknameController,
+                                      labelText: 'Apelido (Opcional)',
+                                      readOnly: !profileProvider.isEditing,
+                                      prefixIcon: const Icon(Icons.face),
+                                    ),
+                                  ],
+                                ),
+                                _buildFormSection(
+                                  title: 'Localização e Contato',
+                                  children: [
+                                    CustomTextFormField(
+                                      controller:
+                                          profileProvider.cityController,
+                                      labelText: 'Cidade *',
+                                      readOnly: !profileProvider.isEditing,
+                                      prefixIcon:
+                                          const Icon(Icons.location_city),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Por favor, insira sua cidade';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    CustomTextFormField(
+                                      controller:
+                                          profileProvider.phoneController,
+                                      labelText: 'Telefone *',
+                                      readOnly: !profileProvider.isEditing,
+                                      prefixIcon: const Icon(Icons.phone),
+                                      validator: (value) {
+                                        if (profileProvider.isEditing) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Por favor, insira seu telefone';
+                                          }
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                _buildFormSection(
+                                  title: 'Preferências de Jogo',
+                                  children: [
+                                    CustomDropdownFormField<String>(
+                                      value: profileProvider.selectedClass,
+                                      items: profileProvider.classes
+                                          .where((classItem) =>
+                                              classItem.ativo ?? false)
+                                          .map((classItem) =>
+                                              classItem.id.toString())
+                                          .toList(),
+                                      labelText:
+                                          'Qual classe você mais joga? *',
+                                      readOnly: !profileProvider.isEditing,
+                                      prefixIcon:
+                                          const Icon(Icons.sports_esports),
+                                      validator: (value) {
+                                        if (profileProvider.isEditing &&
+                                            value == null) {
+                                          return 'Por favor, selecione uma classe';
+                                        }
+                                        return null;
+                                      },
+                                      onChanged: (newValue) {
+                                        profileProvider.selectedClass =
+                                            newValue;
+                                        profileProvider.validateForm();
+                                      },
+                                      itemAsString: (String item) {
+                                        final classItem =
+                                            profileProvider.classes.firstWhere(
+                                          (classItem) =>
+                                              classItem.id.toString() == item &&
+                                              (classItem.ativo ?? false),
+                                        );
+                                        return classItem.nomeClasse;
+                                      },
+                                    ),
+                                    const SizedBox(height: 20),
+                                    const Text(
+                                      'Modalidades Preferidas *',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 18),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    ModalitiesGrid(
+                                      modalities: profileProvider.modalities
+                                          .where((modality) => modality.ativo)
+                                          .toList(), // Filtrar apenas modalidades ativas
+                                      selectedModalityIds: profileProvider
+                                          .selectedModalities
+                                          .map((modality) => modality.id!)
+                                          .toList(),
+                                      isEditing: profileProvider.isEditing,
+                                      onModalityChanged:
+                                          profileProvider.onModalityChanged,
+                                    ),
+                                  ],
+                                ),
+                                if (profileProvider.modalityError != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10),
+                                    child: Text(
+                                      profileProvider.modalityError!,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 12),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              FocusScope.of(context).unfocus();
-                              if (profileProvider.isEditing) {
-                                await profileProvider.saveProfile(_formKey);
-                              } else {
-                                profileProvider.toggleEditing();
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: profileProvider.isEditing
-                                  ? Colors.red
-                                  : const Color.fromARGB(255, 243, 33, 33),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: Text(
-                              profileProvider.isEditing ? 'Salvar' : 'Editar',
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: FloatingActionButton.extended(
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+                        if (profileProvider.isEditing) {
+                          await profileProvider.saveProfile(_formKey);
+                        } else {
+                          profileProvider.toggleEditing();
+                        }
+                      },
+                      icon: Icon(
+                        profileProvider.isEditing ? Icons.save : Icons.edit,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        profileProvider.isEditing ? 'Salvar' : 'Editar',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: profileProvider.isEditing
+                          ? Colors.green
+                          : Colors.grey[850],
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildProfileHeader(ProfileProvider profileProvider) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6.0),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.grey[300],
+            child: Text(
+              profileProvider.nameController.text.isNotEmpty
+                  ? profileProvider.nameController.text[0].toUpperCase()
+                  : '?',
+              style: const TextStyle(
+                  fontSize: 24,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  profileProvider.nameController.text,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(
+                    height: 4), // Espaçamento entre o nome e o apelido
+                Text(
+                  profileProvider.nicknameController.text.isNotEmpty
+                      ? profileProvider.nicknameController.text
+                      : 'Sem apelido',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormSection(
+      {required String title, required List<Widget> children}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        ...children,
+      ],
     );
   }
 }
