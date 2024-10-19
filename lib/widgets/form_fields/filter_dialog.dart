@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../utils/cities.dart';
 import 'date_picker_field.dart';
 import 'custom_dropdown_form_field.dart';
-import 'city_autocomplete_field.dart';
 
 class FilterDialog extends StatefulWidget {
   final TextEditingController cityController;
@@ -10,7 +10,6 @@ class FilterDialog extends StatefulWidget {
   final String selectedPeriod;
   final String selectedModality;
   final Function(String, String, bool, String, String) onApplyFilters;
-  final List<String> cityOptions;
   final List<String> modalityOptions;
 
   const FilterDialog({
@@ -21,7 +20,6 @@ class FilterDialog extends StatefulWidget {
     required this.selectedPeriod,
     required this.selectedModality,
     required this.onApplyFilters,
-    required this.cityOptions,
     required this.modalityOptions,
   });
 
@@ -84,10 +82,12 @@ class FilterDialogState extends State<FilterDialog> {
                   )),
               _buildFilterSection(
                   'Cidade',
-                  CityAutocompleteField(
+                  CidadesUtil.construirCampoAutocompleteCidade(
                     controller: widget.cityController,
-                    cityOptions: widget.cityOptions,
-                    labelText: 'Digite o nome da cidade',
+                    onChanged: (value) {
+                      setState(() {});
+                    },
+                    readOnly: false,
                   )),
               _buildFilterSection(
                   'Período',

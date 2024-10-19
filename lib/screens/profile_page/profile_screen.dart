@@ -5,6 +5,9 @@ import '../../services/api/api_service.dart';
 import '../../widgets/form_fields/custom_dropdown_form_field.dart';
 import '../../widgets/form_fields/custom_text_form_field.dart';
 import '../../widgets/form_fields/modalities_grid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import '../../utils/cities.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,17 +16,105 @@ class ProfileScreen extends StatefulWidget {
   ProfileScreenState createState() => ProfileScreenState();
 }
 
-class ProfileScreenState extends State<ProfileScreen> {
+class ProfileScreenState extends State<ProfileScreen>
+    with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
+  bool _hasUnsavedChanges = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final profileProvider =
           Provider.of<ProfileProvider>(context, listen: false);
-      profileProvider.initialize(ApiService());
+      _initializeProfile(profileProvider);
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _checkForUnsavedChanges();
+    }
+  }
+
+  void _checkForUnsavedChanges() {
+    final profileProvider =
+        Provider.of<ProfileProvider>(context, listen: false);
+    if (profileProvider.isEditing && _hasUnsavedChanges) {
+      profileProvider.cancelEditing();
+      _hasUnsavedChanges = false;
+    }
+  }
+
+  Future<void> _initializeProfile(ProfileProvider profileProvider) async {
+    // Carregar dados do cache local
+    await _loadCachedProfile(profileProvider);
+
+    // Buscar dados atualizados do servidor
+    await profileProvider.initialize(ApiService());
+
+    // Comparar e atualizar se necessário
+    if (_profileHasChanged(profileProvider)) {
+      await _updateCachedProfile(profileProvider);
+      setState(() {}); // Atualizar a interface do usuário
+    }
+  }
+
+  Future<void> _loadCachedProfile(ProfileProvider profileProvider) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? cachedProfileJson = prefs.getString('cached_profile');
+    if (cachedProfileJson != null) {
+      Map<String, dynamic> cachedProfile = json.decode(cachedProfileJson);
+      profileProvider.loadFromCache(cachedProfile);
+    }
+  }
+
+  bool _profileHasChanged(ProfileProvider profileProvider) {
+    // Implemente a lógica de comparação aqui
+    // Retorne true se o perfil do servidor for diferente do cache local
+    // Esta é uma implementação simplificada, você pode precisar ajustá-la
+    return profileProvider.hasChanges;
+  }
+
+  Future<void> _updateCachedProfile(ProfileProvider profileProvider) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String profileJson = json.encode(profileProvider.toJson());
+    await prefs.setString('cached_profile', profileJson);
+  }
+
+  Future<bool> _onWillPop() async {
+    final profileProvider =
+        Provider.of<ProfileProvider>(context, listen: false);
+    if (profileProvider.isEditing && _hasUnsavedChanges) {
+      return await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Cancelar edição'),
+              content: const Text(
+                  'Você tem alterações não salvas. Deseja realmente sair sem salvar?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Não'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Sim'),
+                ),
+              ],
+            ),
+          ) ??
+          false;
+    }
+    return true;
   }
 
   Future<void> _logout(
@@ -102,8 +193,8 @@ class ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
+    return WillPopScope(
+      onWillPop: _onWillPop,
       child: Consumer<ProfileProvider>(
         builder: (context, profileProvider, child) {
           return Scaffold(
@@ -144,7 +235,12 @@ class ProfileScreenState extends State<ProfileScreen> {
                           _buildProfileHeader(profileProvider),
                           Form(
                             key: _formKey,
-                            onChanged: profileProvider.validateForm,
+                            onChanged: () {
+                              profileProvider.validateForm();
+                              setState(() {
+                                _hasUnsavedChanges = true;
+                              });
+                            },
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -177,19 +273,24 @@ class ProfileScreenState extends State<ProfileScreen> {
                                 _buildFormSection(
                                   title: 'Localização e Contato',
                                   children: [
-                                    CustomTextFormField(
+                                    CidadesUtil
+                                        .construirCampoAutocompleteCidade(
                                       controller:
                                           profileProvider.cityController,
-                                      labelText: 'Cidade *',
-                                      readOnly: !profileProvider.isEditing,
-                                      prefixIcon:
-                                          const Icon(Icons.location_city),
+                                      onChanged: (newValue) {
+                                        if (newValue != null) {
+                                          Future.microtask(() {
+                                            profileProvider.validateForm();
+                                          });
+                                        }
+                                      },
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return 'Por favor, insira sua cidade';
+                                          return 'Por favor, selecione uma cidade';
                                         }
                                         return null;
                                       },
+                                      readOnly: !profileProvider.isEditing,
                                     ),
                                     const SizedBox(height: 10),
                                     CustomTextFormField(
@@ -292,6 +393,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                         FocusScope.of(context).unfocus();
                         if (profileProvider.isEditing) {
                           await profileProvider.saveProfile(_formKey);
+                          setState(() {
+                            _hasUnsavedChanges = false;
+                          });
                         } else {
                           profileProvider.toggleEditing();
                         }
@@ -346,13 +450,13 @@ class ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  profileProvider.nameController.text,
+                  // Modificação aqui para exibir o primeiro e último nome
+                  _getFirstAndLastName(profileProvider.nameController.text),
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(
-                    height: 4), // Espaçamento entre o nome e o apelido
+                const SizedBox(height: 4),
                 Text(
                   profileProvider.nicknameController.text.isNotEmpty
                       ? profileProvider.nicknameController.text
@@ -366,6 +470,15 @@ class ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  String _getFirstAndLastName(String fullName) {
+    List<String> nameParts = fullName.split(' ');
+    if (nameParts.length > 1) {
+      return '${nameParts.first} ${nameParts.last}';
+    } else {
+      return fullName;
+    }
   }
 
   Widget _buildFormSection(

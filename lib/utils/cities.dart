@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
+import '../widgets/form_fields/custom_text_form_field.dart';
+import 'cities_data.dart';
 
 class CidadesUtil {
-  static List<String> cidades = [
-    'Goiânia - GO', 'Anápolis - GO', 'Aparecida de Goiânia - GO', 'Rio Verde - GO',
-    'Luziânia - GO', 'Águas Lindas de Goiás - GO', 'Valparaíso de Goiás - GO',
-    'Trindade - GO', 'Formosa - GO', 'Novo Gama - GO', 'Catalão - GO',
-    'Itumbiara - GO', 'Jataí - GO', 'Caldas Novas - GO', 'Senador Canedo - GO',
-    'Brasília - DF', 'São Paulo - SP', 'Rio de Janeiro - RJ', 'Belo Horizonte - MG',
-    'Salvador - BA', 'Curitiba - PR', 'Fortaleza - CE', 'Manaus - AM',
-    'Recife - PE', 'Porto Alegre - RS', 'Belém - PA'
-  ];
+  static List<String> get cidades => CidadesData.cidades;
 
   static List<String> filtrarCidades(String consulta) {
     return cidades
-        .where((cidade) =>
-            cidade.toLowerCase().contains(consulta.toLowerCase()))
+        .where(
+            (cidade) => cidade.toLowerCase().contains(consulta.toLowerCase()))
         .toList();
   }
 
@@ -22,64 +16,84 @@ class CidadesUtil {
     required TextEditingController controller,
     required Function(String?) onChanged,
     String? Function(String?)? validator,
+    required bool readOnly,
+    String? initialValue,
   }) {
     return Autocomplete<String>(
+      initialValue: TextEditingValue(text: controller.text),
       optionsBuilder: (TextEditingValue textEditingValue) {
-        if (textEditingValue.text == '') {
+        if (textEditingValue.text == '' || readOnly) {
           return const Iterable<String>.empty();
         }
         return filtrarCidades(textEditingValue.text);
       },
       onSelected: (String selection) {
-        controller.text = selection;
-        onChanged(selection);
+        if (!readOnly) {
+          controller.text = selection;
+          onChanged(selection);
+        }
       },
       fieldViewBuilder: (BuildContext context,
           TextEditingController fieldTextEditingController,
           FocusNode fieldFocusNode,
           VoidCallback onFieldSubmitted) {
-        return TextFormField(
-          controller: fieldTextEditingController,
-          focusNode: fieldFocusNode,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            labelText: 'Cidade *',
-            labelStyle: const TextStyle(color: Colors.white),
-            filled: true,
-            fillColor: const Color(0xFF2F2F2F),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-          ),
-          validator: validator,
+        return ValueListenableBuilder<TextEditingValue>(
+          valueListenable: controller,
+          builder: (context, value, child) {
+            fieldTextEditingController.value = value;
+            return CustomTextFormField(
+              controller: fieldTextEditingController,
+              labelText: 'Cidade *',
+              readOnly: readOnly,
+              validator: validator,
+              prefixIcon:
+                  const Icon(Icons.location_city, color: Colors.white70),
+              onTap: readOnly ? null : () {},
+              focusNode: fieldFocusNode,
+              onChanged: (value) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  controller.text = value;
+                });
+                onChanged(value);
+              },
+            );
+          },
         );
       },
       optionsViewBuilder: (BuildContext context,
-          AutocompleteOnSelected<String> onSelected,
-          Iterable<String> options) {
+          AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
         return Align(
           alignment: Alignment.topLeft,
           child: Material(
             elevation: 4.0,
-            child: Container(
-              color: Colors.grey[850],
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8.0),
-                itemCount: options.length,
-                shrinkWrap: true,
-                itemBuilder: (BuildContext context, int index) {
-                  final String option = options.elementAt(index);
-                  return GestureDetector(
-                    onTap: () {
-                      onSelected(option);
-                    },
-                    child: ListTile(
-                      title: Text(option,
-                          style: const TextStyle(color: Colors.white)),
-                    ),
-                  );
-                },
+            borderRadius: BorderRadius.circular(12),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: Container(
+                color: const Color(0xFF2F2F2F),
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  itemCount: options.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final String option = options.elementAt(index);
+                    return InkWell(
+                      onTap: () {
+                        onSelected(option);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        child: Text(
+                          option,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -88,5 +102,3 @@ class CidadesUtil {
     );
   }
 }
-
-

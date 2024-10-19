@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../models/game.dart';
 import '../../../screens/games/edit_game_screen.dart';
 import 'players_screen.dart';
@@ -129,8 +130,8 @@ class GameCard extends StatelessWidget {
   }
 
   String _formatDateTime(DateTime dateTime) {
-    return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year} '
-        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+    return dateFormat.format(dateTime);
   }
 
   void _editGame(BuildContext context) {

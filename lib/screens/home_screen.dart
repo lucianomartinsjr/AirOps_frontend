@@ -56,36 +56,68 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: const Color.fromARGB(255, 29, 29, 29),
-          title: const Text('Alerta', style: TextStyle(color: Colors.white)),
-          content: const Text(
-            'Sua senha foi recuperada. Deseja alterar a senha agora?',
-            style: TextStyle(color: Colors.white),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            'Alterar Senha',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.lock_outline,
+                size: 64,
+                color: Colors.white70,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Sua senha foi recuperada recentemente. Por segurança, recomendamos que você a altere agora.',
+                style: TextStyle(color: Colors.white70),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Deixar para depois',
-                  style: TextStyle(color: Colors.white)),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const ChangePasswordScreen(),
-                ));
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 159, 0, 0),
-                  borderRadius: BorderRadius.circular(4.0),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text(
+                      'Deixar para depois',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ),
                 ),
-                child: const Text('Alterar agora',
-                    style: TextStyle(color: Colors.white)),
-              ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const ChangePasswordScreen(),
+                      ));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 159, 0, 0),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Alterar agora',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         );
@@ -100,13 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openFilterDialog() {
-    final List<String> cityOptions =
-        Provider.of<AirsoftService>(context, listen: false)
-            .games
-            .map((game) => game.cidade)
-            .toSet()
-            .toList();
-
     final List<String> modalityOptions =
         Provider.of<AirsoftService>(context, listen: false)
             .games
@@ -139,7 +164,6 @@ class _HomeScreenState extends State<HomeScreen> {
               modality: modality,
             );
           },
-          cityOptions: cityOptions,
           modalityOptions: modalityOptions,
         );
       },

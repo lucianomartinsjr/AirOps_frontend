@@ -8,7 +8,8 @@ import '../../models/game.dart';
 import '../../services/api/api_service.dart';
 import '../../widgets/form_fields/custom_text_form_field.dart';
 import '../../widgets/form_fields/date_time_picker_field.dart';
-import '../../widgets/form_fields/custom_dropdown_form_field.dart'; // Importar aqui
+import '../../widgets/form_fields/custom_dropdown_form_field.dart';
+import '../../utils/cities.dart';
 
 class CreateGameScreen extends StatefulWidget {
   const CreateGameScreen({super.key});
@@ -36,13 +37,9 @@ class CreateGameScreenState extends State<CreateGameScreen> {
   String? _selectedPeriod;
 
   bool _isFree = false; // Controla o estado do switch
+  bool _isEditing = true; // Novo campo para controlar o estado de edição
 
-  final List<String> _cities = [
-    'Rio Verde/GO',
-    'Santa Helena/GO',
-    'Jatai/GO',
-    'Montividiu/GO',
-  ];
+  // Remova a lista _cities, pois agora usaremos CidadesUtil
 
   final List<String> _periods = [
     'Matutino',
@@ -231,63 +228,15 @@ class CreateGameScreenState extends State<CreateGameScreen> {
   }
 
   Widget _buildLocationField() {
-    return Autocomplete<String>(
-      optionsBuilder: (TextEditingValue textEditingValue) {
-        if (textEditingValue.text.isEmpty) {
-          return const Iterable<String>.empty();
-        }
-        return _cities.where((String option) {
-          return option
-              .toLowerCase()
-              .contains(textEditingValue.text.toLowerCase());
+    return CidadesUtil.construirCampoAutocompleteCidade(
+      controller: _locationController,
+      readOnly: !_isEditing, // Usa o estado de edição
+      onChanged: (value) {
+        setState(() {
+          // Atualiza o estado se necessário
         });
       },
-      onSelected: (String selection) {
-        _locationController.text = selection;
-      },
-      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-        return CustomTextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          labelText: 'Cidade/UF',
-          readOnly: false,
-          prefixIcon: const Icon(Icons.location_city, color: Colors.white),
-          validator: _validateLocation,
-        );
-      },
-      optionsViewBuilder: (context, onSelected, options) {
-        return _buildAutocompleteOptions(options, onSelected);
-      },
-    );
-  }
-
-  Widget _buildAutocompleteOptions(
-      Iterable<String> options, AutocompleteOnSelected<String> onSelected) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Material(
-        elevation: 4.0,
-        child: Container(
-          constraints: const BoxConstraints(maxHeight: 200),
-          color: Colors.grey[850],
-          child: ListView.builder(
-            padding: const EdgeInsets.all(8.0),
-            itemCount: options.length,
-            itemBuilder: (BuildContext context, int index) {
-              final String option = options.elementAt(index);
-              return InkWell(
-                onTap: () => onSelected(option),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
-                  child:
-                      Text(option, style: const TextStyle(color: Colors.white)),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
+      validator: _validateLocation,
     );
   }
 
@@ -400,6 +349,10 @@ class CreateGameScreenState extends State<CreateGameScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isEditing = false; // Desativa a edição após submeter
+      });
+
       final newGame = Game(
         titulo: _nameController.text,
         cidade: _locationController.text,

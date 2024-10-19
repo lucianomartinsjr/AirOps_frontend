@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../utils/cities_data.dart'; // Importe o arquivo cities_data.dart
 
 class CityAutocompleteField extends StatefulWidget {
   final TextEditingController controller;
-  final List<String> cityOptions;
   final String labelText;
   final FormFieldValidator<String>? validator;
 
   const CityAutocompleteField({
     super.key,
     required this.controller,
-    required this.cityOptions,
     required this.labelText,
     this.validator,
   });
@@ -45,7 +44,7 @@ class CityAutocompleteFieldState extends State<CityAutocompleteField> {
         if (textEditingValue.text.isEmpty) {
           return const Iterable<String>.empty();
         }
-        return widget.cityOptions.where((String option) {
+        return CidadesData.cidades.where((String option) {
           return option
               .toLowerCase()
               .contains(textEditingValue.text.toLowerCase());
@@ -68,8 +67,13 @@ class CityAutocompleteFieldState extends State<CityAutocompleteField> {
             filled: true,
             fillColor: const Color(0xFF2F2F2F),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
+            ),
+            prefixIcon: const Icon(Icons.location_city, color: Colors.white70),
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.clear, color: Colors.white70),
+              onPressed: () => textEditingController.clear(),
             ),
           ),
           style: const TextStyle(color: Colors.white),
@@ -81,14 +85,17 @@ class CityAutocompleteFieldState extends State<CityAutocompleteField> {
         return Align(
           alignment: Alignment.topLeft,
           child: Material(
+            elevation: 4,
             color: const Color(0xFF2F2F2F),
-            child: Container(
-              width: _fieldWidth,
-              constraints: const BoxConstraints(
-                maxHeight: 50,
+            borderRadius: BorderRadius.circular(12),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: _fieldWidth,
+                maxHeight: 200,
               ),
               child: ListView.builder(
                 padding: EdgeInsets.zero,
+                shrinkWrap: true,
                 itemCount: options.length,
                 itemBuilder: (BuildContext context, int index) {
                   final String option = options.elementAt(index);
@@ -98,6 +105,7 @@ class CityAutocompleteFieldState extends State<CityAutocompleteField> {
                     onTap: () {
                       onSelected(option);
                     },
+                    hoverColor: Colors.white.withOpacity(0.1),
                   );
                 },
               ),

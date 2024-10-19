@@ -9,6 +9,8 @@ class CustomDropdownFormField<T> extends StatelessWidget {
   final ValueChanged<T?>? onChanged;
   final String Function(T)? itemAsString;
   final Widget? prefixIcon; // Adicionado
+  final double borderRadius;
+  final EdgeInsetsGeometry contentPadding;
 
   const CustomDropdownFormField({
     super.key,
@@ -20,6 +22,9 @@ class CustomDropdownFormField<T> extends StatelessWidget {
     this.onChanged,
     this.itemAsString,
     this.prefixIcon, // Adicionado
+    this.borderRadius = 8.0,
+    this.contentPadding =
+        const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
   });
 
   @override
@@ -44,17 +49,32 @@ class CustomDropdownFormField<T> extends StatelessWidget {
           filled: true,
           fillColor: const Color(0xFF2F2F2F),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(borderRadius),
             borderSide: BorderSide.none,
           ),
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-          prefixIcon: prefixIcon, // Adicionado
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: const BorderSide(color: Colors.white, width: 2),
+          ),
+          contentPadding: contentPadding,
+          prefixIcon: prefixIcon != null
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 8),
+                  child: prefixIcon,
+                )
+              : null,
+          suffixIcon: const Icon(Icons.arrow_drop_down, color: Colors.white),
         ),
         validator: validator,
         dropdownColor: const Color(0xFF2F2F2F),
-        icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-        alignment: Alignment.centerLeft, // Ajusta o alinhamento do conteúdo
+        icon: const SizedBox.shrink(), // Remove o ícone padrão
+        isExpanded:
+            true, // Expande o dropdown para preencher o espaço disponível
+        menuMaxHeight: 300, // Limita a altura máxima do menu dropdown
       ),
     );
   }

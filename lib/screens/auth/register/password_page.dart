@@ -56,11 +56,11 @@ class PasswordPageState extends State<PasswordPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Crie sua Senha'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: widget.onPrevious,
-          ),
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
+        backgroundColor: const Color(0xFF222222),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
@@ -76,7 +76,7 @@ class PasswordPageState extends State<PasswordPage> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Sua senha deve ter pelo menos 6 caracteres e incluir uma combinação de números, letras e caracteres especiais.',
+                    'Sua senha deve ter pelo menos 6 caracteres. Recomendamos incluir uma combinação de números, letras e caracteres especiais.',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 24),

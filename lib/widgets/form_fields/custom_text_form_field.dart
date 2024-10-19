@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Adicione esta importação
 
 class CustomTextFormField extends StatefulWidget {
   final TextEditingController controller;
@@ -10,7 +11,9 @@ class CustomTextFormField extends StatefulWidget {
   final VoidCallback? onTap;
   final int? maxLines;
   final FocusNode? focusNode;
-  final Widget? prefixIcon; // Adicionado
+  final Widget? prefixIcon;
+  final List<TextInputFormatter>? inputFormatters;
+  final ValueChanged<String>? onChanged;
 
   const CustomTextFormField({
     required this.controller,
@@ -22,7 +25,9 @@ class CustomTextFormField extends StatefulWidget {
     this.onTap,
     this.maxLines = 1,
     this.focusNode,
-    this.prefixIcon, // Adicionado
+    this.prefixIcon,
+    this.inputFormatters,
+    this.onChanged,
     super.key,
   });
 
@@ -81,6 +86,8 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
         onTap: widget.onTap,
         maxLines: widget.maxLines,
         focusNode: widget.focusNode,
+        inputFormatters: widget.inputFormatters, // Adicione esta linha
+        onChanged: widget.onChanged, // Adicionado
       ),
     );
   }

@@ -6,6 +6,10 @@ import 'package:logging/logging.dart';
 import '../../../models/class.dart';
 import '../../../models/modality.dart';
 import '../../../services/api/api_service.dart';
+import '../../../utils/cities.dart';
+import '../../../widgets/form_fields/custom_dropdown_form_field.dart';
+import '../../../widgets/form_fields/custom_text_form_field.dart';
+import '../../../widgets/form_fields/modalities_grid.dart';
 
 class ProfilePage extends StatefulWidget {
   final TextEditingController nameController;
@@ -41,6 +45,7 @@ class ProfilePageState extends State<ProfilePage> {
   List<Modality> _modalities = [];
   bool _isFormValid = false;
   final _logger = Logger('ProfilePage');
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -91,226 +96,212 @@ class ProfilePageState extends State<ProfilePage> {
   void _validateForm() {
     setState(() {
       _isFormValid = _formKey.currentState?.validate() ?? false;
+      _isFormValid = _isFormValid &&
+          _selectedModalityIds.isNotEmpty &&
+          _selectedClassId != null;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            onChanged: _validateForm,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  ' -  Complete seu Perfil  -',
-                  style: TextStyle(color: Colors.white, fontSize: 24),
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: widget.nameController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Nome Completo * ',
-                    labelStyle: const TextStyle(color: Colors.white),
-                    filled: true,
-                    fillColor: const Color(0xFF2F2F2F),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  onChanged: _validateForm,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildFormSection(
+                        title: 'Informações Pessoais',
+                        children: [
+                          CustomTextFormField(
+                            controller: widget.nameController,
+                            labelText: 'Nome Completo *',
+                            readOnly: false,
+                            prefixIcon: const Icon(Icons.person),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, insira seu nome completo';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          CustomTextFormField(
+                            controller: widget.nicknameController,
+                            labelText:
+                                'Você utiliza algum apelido?  (Opcional)',
+                            readOnly: false,
+                            prefixIcon: const Icon(Icons.face),
+                          ),
+                        ],
+                      ),
+                      _buildFormSection(
+                        title: 'Localização e Contato',
+                        children: [
+                          _buildCityField(),
+                          const SizedBox(height: 10),
+                          CustomTextFormField(
+                            controller: widget.phoneController,
+                            labelText: 'Telefone *',
+                            prefixIcon: const Icon(Icons.phone),
+                            keyboardType: TextInputType.phone,
+                            inputFormatters: [
+                              MaskedInputFormatter('(##) # ####-####'),
+                            ],
+                            readOnly: false,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, insira seu telefone';
+                              } else if (value.length < 16) {
+                                return 'Por favor, insira um telefone válido';
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
+                      ),
+                      _buildFormSection(
+                        title: 'Preferências de Jogo',
+                        children: [
+                          CustomDropdownFormField<String>(
+                            value: _selectedClassId,
+                            items: _classes
+                                .where((classItem) => classItem.ativo ?? false)
+                                .map((classItem) => classItem.id.toString())
+                                .toList(),
+                            readOnly: false,
+                            labelText: 'Qual classe você mais joga? *',
+                            prefixIcon: const Icon(Icons.sports_esports),
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Por favor, selecione uma classe';
+                              }
+                              return null;
+                            },
+                            onChanged: (newValue) {
+                              setState(() {
+                                _selectedClassId = newValue;
+                              });
+                              widget.onClassChanged(newValue);
+                              _validateForm();
+                            },
+                            itemAsString: (String item) {
+                              final classItem = _classes.firstWhere(
+                                (classItem) =>
+                                    classItem.id.toString() == item &&
+                                    (classItem.ativo ?? false),
+                              );
+                              return classItem.nomeClasse;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Modalidades Preferidas *',
+                            style: TextStyle(color: Colors.white, fontSize: 18),
+                          ),
+                          const SizedBox(height: 10),
+                          ModalitiesGrid(
+                            modalities: _modalities
+                                .where((modality) => modality.ativo)
+                                .toList(),
+                            selectedModalityIds:
+                                _selectedModalityIds.map(int.parse).toList(),
+                            isEditing: true,
+                            onModalityChanged:
+                                (bool isSelected, int modalityId) {
+                              _onModalityChanged(
+                                  isSelected, modalityId.toString());
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 40),
+                      const SizedBox(height: 160),
+                    ],
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira seu nome completo';
-                    }
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: widget.nicknameController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Apelido (Opcional)',
-                    labelStyle: const TextStyle(color: Colors.white),
-                    filled: true,
-                    fillColor: const Color(0xFF2F2F2F),
-                    border: OutlineInputBorder(
+              ),
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 16,
+                child: ElevatedButton(
+                  onPressed:
+                      (_isFormValid && !isLoading) ? _handleSubmit : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
                     ),
+                    elevation: 4,
                   ),
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: _selectedClassId,
-                  items: _classes.map((Class value) {
-                    return DropdownMenuItem<String>(
-                      value: value.id.toString(),
-                      child: Text(value.nomeClasse,
-                          style: const TextStyle(color: Colors.white)),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedClassId = newValue;
-                    });
-                    widget.onClassChanged(newValue);
-                    _validateForm();
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Qual classe você mais joga? * ',
-                    labelStyle: const TextStyle(color: Colors.white),
-                    filled: true,
-                    fillColor: const Color(0xFF2F2F2F),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Por favor, selecione uma classe';
-                    }
-                    return null;
-                  },
-                  dropdownColor: const Color(0xFF2F2F2F),
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: widget.cityController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Cidade * ',
-                    labelStyle: const TextStyle(color: Colors.white),
-                    filled: true,
-                    fillColor: const Color(0xFF2F2F2F),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira sua cidade';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: widget.phoneController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Telefone  *  ',
-                    labelStyle: const TextStyle(color: Colors.white),
-                    filled: true,
-                    fillColor: const Color(0xFF2F2F2F),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  inputFormatters: [
-                    MaskedInputFormatter('(##) # ####-####'),
-                  ],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira seu telefone';
-                    } else if (value.length < 16) {
-                      return 'Por favor, insira um telefone válido no formato \n(XX) X XXXX-XXXX';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  '-  Modalidades Preferidas  -  * ',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-                const SizedBox(height: 10),
-                GridView.count(
-                  shrinkWrap: true,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 5.0,
-                  mainAxisSpacing: 5.0,
-                  childAspectRatio: 5,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: _modalities
-                      .where((modality) => modality.ativo)
-                      .map((modality) {
-                    final isSelected =
-                        _selectedModalityIds.contains(modality.id.toString());
-                    return InkWell(
-                      onTap: () {
-                        _onModalityChanged(!isSelected, modality.id.toString());
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 5.0),
-                        decoration: BoxDecoration(
-                          color: isSelected ? Colors.red : Colors.transparent,
-                          border: Border.all(
-                              color: const Color.fromARGB(255, 64, 64, 64)),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child: Text(
-                            modality.descricao,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 14),
+                  child: isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Cadastrar',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                      ),
-                    );
-                  }).toList(),
                 ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isFormValid && _selectedModalityIds.isNotEmpty
-                        ? () {
-                            FocusScope.of(context).unfocus();
-                            widget.onSubmit();
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          _isFormValid && _selectedModalityIds.isNotEmpty
-                              ? Colors.red
-                              : Colors.grey,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child:
-                        const Text('Cadastrar', style: TextStyle(fontSize: 18)),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextButton(
-                  onPressed: () {
-                    FocusScope.of(context).unfocus();
-                    widget.onPrevious();
-                  },
-                  child: const Text('Voltar',
-                      style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildFormSection(
+      {required String title, required List<Widget> children}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        ...children,
+      ],
+    );
+  }
+
+  Widget _buildCityField() {
+    return CidadesUtil.construirCampoAutocompleteCidade(
+      controller: widget.cityController,
+      readOnly: false,
+      onChanged: (value) {
+        setState(() {
+          _validateForm();
+        });
+      },
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor, insira sua cidade';
+        }
+        return null;
+      },
+    );
+  }
+
+  void _handleSubmit() {
+    if (_isFormValid && _selectedModalityIds.isNotEmpty) {
+      FocusScope.of(context).unfocus();
+      widget.onSubmit();
+    }
   }
 }

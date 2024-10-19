@@ -5,6 +5,8 @@ import '../models/profile.dart';
 import '../models/modality.dart';
 import '../services/api/api_service.dart';
 import 'package:logging/logging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 final _logger = Logger('ProfileProvider');
 
@@ -18,24 +20,113 @@ class ProfileProvider extends ChangeNotifier {
   List<Class> classes = [];
   List<Modality> modalities = [];
   bool isFormValid = false;
-  bool isEditing = false;
+  bool _isEditing = false;
   String? modalityError;
+  bool hasChanges = false;
 
   late ApiService apiService;
 
-  late Profile _originalProfile; // Armazena o perfil original para comparação
+  late Profile _originalProfile;
+  late String _originalName;
+  late String _originalNickname;
+  late String _originalCity;
+  late String _originalPhone;
+  late String? _originalClass;
+  late List<Modality> _originalModalities;
 
-  void initialize(ApiService apiService) {
+  Future<void> initialize(ApiService apiService) async {
     this.apiService = apiService;
-    loadUserProfile();
+    await loadCachedProfile();
+    await loadUserProfile();
+
+    // Armazene os valores originais
+    _originalName = nameController.text;
+    _originalNickname = nicknameController.text;
+    _originalCity = cityController.text;
+    _originalPhone = phoneController.text;
+    _originalClass = selectedClass;
+    _originalModalities = List.from(selectedModalities);
+  }
+
+  Future<void> loadCachedProfile() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cachedProfileJson = prefs.getString('cached_profile');
+      if (cachedProfileJson != null) {
+        Map<String, dynamic> cachedProfile = json.decode(cachedProfileJson);
+        loadFromCache(cachedProfile);
+      }
+    } catch (e) {
+      _logger.warning('Erro ao carregar perfil do cache', e);
+    }
+  }
+
+  void loadFromCache(Map<String, dynamic> cachedProfile) {
+    nameController.text = cachedProfile['name'] ?? '';
+    nicknameController.text = cachedProfile['nickname'] ?? '';
+    cityController.text = cachedProfile['city'] ?? '';
+    phoneController.text = cachedProfile['phone'] ?? '';
+    selectedClass = cachedProfile['classId']?.toString();
+    selectedModalities = (cachedProfile['modalities'] as List<dynamic>?)
+            ?.map((modality) => Modality(
+                id: modality['id'],
+                descricao: modality['descricao'],
+                regras: modality['regras'],
+                ativo: modality['ativo']))
+            .toList() ??
+        [];
+    notifyListeners();
   }
 
   Future<void> loadUserProfile() async {
     try {
       await _fetchProfileData();
+      if (_profileHasChanged()) {
+        await _updateCachedProfile();
+        hasChanges = true;
+      } else {
+        hasChanges = false;
+      }
+      notifyListeners();
     } catch (e) {
       _logger.warning('Erro ao carregar dados do perfil', e);
     }
+  }
+
+  bool _profileHasChanged() {
+    return !_profilesAreEqual(_originalProfile, _getCurrentProfile());
+  }
+
+  Profile _getCurrentProfile() {
+    return Profile(
+      name: nameController.text,
+      nickname: nicknameController.text,
+      city: cityController.text,
+      phone: phoneController.text,
+      classId: int.tryParse(selectedClass ?? ''),
+      modalities: selectedModalities.map((m) => m.id!).toList(),
+    );
+  }
+
+  Future<void> _updateCachedProfile() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String profileJson = json.encode(toJson());
+      await prefs.setString('cached_profile', profileJson);
+    } catch (e) {
+      _logger.warning('Erro ao atualizar perfil no cache', e);
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': nameController.text,
+      'nickname': nicknameController.text,
+      'city': cityController.text,
+      'phone': phoneController.text,
+      'classId': selectedClass,
+      'modalities': selectedModalities.map((m) => m.id).toList(),
+    };
   }
 
   Future<void> _fetchProfileData() async {
@@ -94,6 +185,10 @@ class ProfileProvider extends ChangeNotifier {
         phoneController.text.isNotEmpty &&
         selectedClass != null &&
         selectedModalities.isNotEmpty;
+  }
+
+  void updateFormValidation() {
+    validateForm();
     notifyListeners();
   }
 
@@ -129,6 +224,13 @@ class ProfileProvider extends ChangeNotifier {
           );
           isEditing = false;
           _originalProfile = updatedProfile; // Atualiza o perfil original
+          // Atualiza os valores originais
+          _originalName = nameController.text;
+          _originalNickname = nicknameController.text;
+          _originalCity = cityController.text;
+          _originalPhone = phoneController.text;
+          _originalClass = selectedClass;
+          _originalModalities = List.from(selectedModalities);
         } else {
           _logger.warning('Falha ao atualizar o perfil');
           ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
@@ -155,8 +257,26 @@ class ProfileProvider extends ChangeNotifier {
         const ListEquality().equals(original.modalities, updated.modalities);
   }
 
+  bool get isEditing => _isEditing;
+  set isEditing(bool value) {
+    _isEditing = value;
+    notifyListeners();
+  }
+
   void toggleEditing() {
-    isEditing = !isEditing;
+    _isEditing = !_isEditing;
+    notifyListeners();
+  }
+
+  void cancelEditing() {
+    _isEditing = false;
+    // Restaurar os valores originais dos controladores
+    nameController.text = _originalName;
+    nicknameController.text = _originalNickname;
+    cityController.text = _originalCity;
+    phoneController.text = _originalPhone;
+    selectedClass = _originalClass;
+    selectedModalities = List.from(_originalModalities);
     notifyListeners();
   }
 
@@ -173,6 +293,8 @@ class ProfileProvider extends ChangeNotifier {
     isFormValid = false;
     isEditing = false;
     modalityError = null;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('cached_profile');
     notifyListeners();
   }
 }
