@@ -20,32 +20,18 @@ class ProfileProvider extends ChangeNotifier {
   List<Class> classes = [];
   List<Modality> modalities = [];
   bool isFormValid = false;
-  bool _isEditing = false;
+  bool isEditing = false;
   String? modalityError;
   bool hasChanges = false;
 
   late ApiService apiService;
 
-  late Profile _originalProfile;
-  late String _originalName;
-  late String _originalNickname;
-  late String _originalCity;
-  late String _originalPhone;
-  late String? _originalClass;
-  late List<Modality> _originalModalities;
+  late Profile _originalProfile; // Armazena o perfil original para comparação
 
   Future<void> initialize(ApiService apiService) async {
     this.apiService = apiService;
     await loadCachedProfile();
     await loadUserProfile();
-
-    // Armazene os valores originais
-    _originalName = nameController.text;
-    _originalNickname = nicknameController.text;
-    _originalCity = cityController.text;
-    _originalPhone = phoneController.text;
-    _originalClass = selectedClass;
-    _originalModalities = List.from(selectedModalities);
   }
 
   Future<void> loadCachedProfile() async {
@@ -185,10 +171,6 @@ class ProfileProvider extends ChangeNotifier {
         phoneController.text.isNotEmpty &&
         selectedClass != null &&
         selectedModalities.isNotEmpty;
-  }
-
-  void updateFormValidation() {
-    validateForm();
     notifyListeners();
   }
 
@@ -224,13 +206,6 @@ class ProfileProvider extends ChangeNotifier {
           );
           isEditing = false;
           _originalProfile = updatedProfile; // Atualiza o perfil original
-          // Atualiza os valores originais
-          _originalName = nameController.text;
-          _originalNickname = nicknameController.text;
-          _originalCity = cityController.text;
-          _originalPhone = phoneController.text;
-          _originalClass = selectedClass;
-          _originalModalities = List.from(selectedModalities);
         } else {
           _logger.warning('Falha ao atualizar o perfil');
           ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
@@ -257,26 +232,8 @@ class ProfileProvider extends ChangeNotifier {
         const ListEquality().equals(original.modalities, updated.modalities);
   }
 
-  bool get isEditing => _isEditing;
-  set isEditing(bool value) {
-    _isEditing = value;
-    notifyListeners();
-  }
-
   void toggleEditing() {
-    _isEditing = !_isEditing;
-    notifyListeners();
-  }
-
-  void cancelEditing() {
-    _isEditing = false;
-    // Restaurar os valores originais dos controladores
-    nameController.text = _originalName;
-    nicknameController.text = _originalNickname;
-    cityController.text = _originalCity;
-    phoneController.text = _originalPhone;
-    selectedClass = _originalClass;
-    selectedModalities = List.from(_originalModalities);
+    isEditing = !isEditing;
     notifyListeners();
   }
 

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../../models/game.dart';
 import '../../../screens/games/edit_game_screen.dart';
 import 'players_screen.dart';
+import '../../../screens/games/create_game_screen.dart';
 
 class GameCard extends StatelessWidget {
   final Game game;
@@ -64,6 +65,15 @@ class GameCard extends StatelessWidget {
                         icon: Icons.visibility,
                         label: 'Visualizar Participantes Inscritos',
                         onPressed: () => _showParticipants(context),
+                      ),
+                    ),
+                    const SizedBox(height: 12.0),
+                    Center(
+                      child: _buildActionButton(
+                        context,
+                        icon: Icons.add,
+                        label: 'Criar Novo Jogo Baseado Neste',
+                        onPressed: () => _createNewGameBasedOnThis(context),
                       ),
                     ),
                   ],
@@ -146,6 +156,14 @@ class GameCard extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => PlayersScreen(game: game),
+      ),
+    );
+  }
+
+  void _createNewGameBasedOnThis(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => CreateGameScreen(baseGame: game),
       ),
     );
   }

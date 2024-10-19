@@ -16,42 +16,17 @@ class ProfileScreen extends StatefulWidget {
   ProfileScreenState createState() => ProfileScreenState();
 }
 
-class ProfileScreenState extends State<ProfileScreen>
-    with WidgetsBindingObserver {
+class ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool _hasUnsavedChanges = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final profileProvider =
           Provider.of<ProfileProvider>(context, listen: false);
       _initializeProfile(profileProvider);
     });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _checkForUnsavedChanges();
-    }
-  }
-
-  void _checkForUnsavedChanges() {
-    final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
-    if (profileProvider.isEditing && _hasUnsavedChanges) {
-      profileProvider.cancelEditing();
-      _hasUnsavedChanges = false;
-    }
   }
 
   Future<void> _initializeProfile(ProfileProvider profileProvider) async {
@@ -88,33 +63,6 @@ class ProfileScreenState extends State<ProfileScreen>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String profileJson = json.encode(profileProvider.toJson());
     await prefs.setString('cached_profile', profileJson);
-  }
-
-  Future<bool> _onWillPop() async {
-    final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
-    if (profileProvider.isEditing && _hasUnsavedChanges) {
-      return await showDialog<bool>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Cancelar edição'),
-              content: const Text(
-                  'Você tem alterações não salvas. Deseja realmente sair sem salvar?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Não'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('Sim'),
-                ),
-              ],
-            ),
-          ) ??
-          false;
-    }
-    return true;
   }
 
   Future<void> _logout(
@@ -193,8 +141,8 @@ class ProfileScreenState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
       child: Consumer<ProfileProvider>(
         builder: (context, profileProvider, child) {
           return Scaffold(
@@ -235,12 +183,7 @@ class ProfileScreenState extends State<ProfileScreen>
                           _buildProfileHeader(profileProvider),
                           Form(
                             key: _formKey,
-                            onChanged: () {
-                              profileProvider.validateForm();
-                              setState(() {
-                                _hasUnsavedChanges = true;
-                              });
-                            },
+                            onChanged: profileProvider.validateForm,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -279,6 +222,7 @@ class ProfileScreenState extends State<ProfileScreen>
                                           profileProvider.cityController,
                                       onChanged: (newValue) {
                                         if (newValue != null) {
+                                          // Use Future.microtask para evitar chamar setState durante a construção
                                           Future.microtask(() {
                                             profileProvider.validateForm();
                                           });
@@ -393,9 +337,6 @@ class ProfileScreenState extends State<ProfileScreen>
                         FocusScope.of(context).unfocus();
                         if (profileProvider.isEditing) {
                           await profileProvider.saveProfile(_formKey);
-                          setState(() {
-                            _hasUnsavedChanges = false;
-                          });
                         } else {
                           profileProvider.toggleEditing();
                         }

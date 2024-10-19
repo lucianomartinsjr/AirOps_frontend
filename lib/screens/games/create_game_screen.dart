@@ -12,7 +12,9 @@ import '../../widgets/form_fields/custom_dropdown_form_field.dart';
 import '../../utils/cities.dart';
 
 class CreateGameScreen extends StatefulWidget {
-  const CreateGameScreen({super.key});
+  final Game? baseGame;
+
+  const CreateGameScreen({super.key, this.baseGame});
 
   @override
   CreateGameScreenState createState() => CreateGameScreenState();
@@ -50,7 +52,9 @@ class CreateGameScreenState extends State<CreateGameScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchModalities();
+    _fetchModalities().then((_) {
+      _initializeFields();
+    });
   }
 
   Future<void> _fetchModalities() async {
@@ -65,6 +69,30 @@ class CreateGameScreenState extends State<CreateGameScreen> {
       if (kDebugMode) {
         print("Erro ao buscar modalidades: $error");
       }
+    }
+  }
+
+  void _initializeFields() {
+    if (widget.baseGame != null) {
+      final game = widget.baseGame!;
+      setState(() {
+        _nameController.text = game.titulo;
+        _locationController.text = game.cidade;
+        _detailsController.text = game.descricao;
+        _organizerController.text = game.nomeOrganizador ?? '';
+        _feeController.text = game.valor.toString();
+        _locationLinkController.text = game.linkCampo;
+        _numMaxOperadoresController.text = game.numMaxOperadores.toString();
+        _isFree = game.valor == 0;
+
+        // Encontrar a modalidade correspondente
+        if (_modalities.isNotEmpty) {
+          _selectedModality = _modalities.firstWhere(
+            (m) => m.id == game.idModalidadeJogo,
+            orElse: () => _modalities.first,
+          );
+        }
+      });
     }
   }
 
@@ -100,7 +128,8 @@ class CreateGameScreenState extends State<CreateGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Criar Novo Jogo'),
+        title: Text(
+            widget.baseGame == null ? 'Criar Novo Jogo' : 'Criar Jogo Baseado'),
         centerTitle: true,
       ),
       body: Stack(
@@ -176,7 +205,7 @@ class CreateGameScreenState extends State<CreateGameScreen> {
                               readOnly: false,
                               prefixIcon: const Icon(Icons.description,
                                   color: Colors.white),
-                              maxLines: 5,
+                              maxLines: 10,
                             ),
                           ],
                         ),
@@ -350,7 +379,7 @@ class CreateGameScreenState extends State<CreateGameScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       setState(() {
-        _isEditing = false; // Desativa a edição após submeter
+        _isEditing = false;
       });
 
       final newGame = Game(
@@ -361,16 +390,32 @@ class CreateGameScreenState extends State<CreateGameScreen> {
         periodo: _selectedPeriod!,
         nomeOrganizador: _organizerController.text,
         valor: double.parse(_feeController.text),
-        imagemCapa:
-            'https://rhtdycglcfuvyopxhhgl.supabase.co/storage/v1/object/sign/imagens/airops.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJpbWFnZW5zL2Fpcm9wcy5qcGciLCJpYXQiOjE3MjM0MDM1MjYsImV4cCI6MTc1NDkzOTUyNn0.-OEXSZO8n3LJdBW89FaL9Jc7dlk1saLCykVu46ymJts&t=2024-08-11T19%3A12%3A07.048Z',
+        imagemCapa: widget.baseGame?.imagemCapa ?? 'NO-IMAGE',
         descricao: _detailsController.text,
         linkCampo: _locationLinkController.text,
         numMaxOperadores: int.parse(_numMaxOperadoresController.text),
       );
 
       Provider.of<AirsoftService>(context, listen: false)
-          .addGame(newGame, context);
-      Navigator.of(context).pushReplacementNamed('/home-screen');
+          .addGame(newGame, context)
+          .then((_) {
+        // Verifica se o widget ainda está montado antes de continuar
+        if (!mounted) return;
+
+        Provider.of<AirsoftService>(context, listen: false).fetchGames();
+      }).then((_) {
+        // Verifica novamente se o widget está montado antes de navegar
+        if (!mounted) return;
+
+        Navigator.of(context).pushReplacementNamed('/home-screen');
+      }).catchError((error) {
+        // Trata qualquer erro que possa ocorrer durante o processo
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao criar o jogo: $error')),
+          );
+        }
+      });
     }
   }
 }

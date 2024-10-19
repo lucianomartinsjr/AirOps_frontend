@@ -82,7 +82,7 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
@@ -179,16 +179,6 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       },
                     ),
                     const SizedBox(height: 24),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        '←  Retornar ao Perfil',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 153, 153, 153),
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

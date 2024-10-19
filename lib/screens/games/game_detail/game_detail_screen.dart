@@ -22,7 +22,7 @@ class GameDetailScreenState extends State<GameDetailScreen> {
   bool isSuccess = false;
   bool isSubscribed = false;
   String errorMessage = '';
-  bool _isExpanded = false;
+  bool _isExpanded = true;
   final ScrollController _scrollController = ScrollController();
   final AirsoftService _airsoftService = AirsoftService();
 
@@ -129,13 +129,21 @@ Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*.
     }
   }
 
-  // void _scrollToDetails() {
-  //   _scrollController.animateTo(
-  //     _scrollController.position.maxScrollExtent,
-  //     duration: const Duration(milliseconds: 300),
-  //     curve: Curves.easeInOut,
-  //   );
-  // }
+  void _toggleExpanded() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+
+    if (_isExpanded) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,38 +160,42 @@ Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*.
           ),
         ],
       ),
-      body: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GameDetailHeader(game: widget.game),
-                  const SizedBox(height: 16.0),
-                  _buildInfoCard(
-                    child: GameInfoGrid(game: widget.game),
+      body: Stack(
+        children: [
+          CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GameDetailHeader(game: widget.game),
+                      const SizedBox(height: 16.0),
+                      _buildInfoCard(
+                        child: GameInfoGrid(game: widget.game),
+                      ),
+                      const SizedBox(height: 16.0),
+                      _buildDescriptionCard(),
+                      const SizedBox(height: 180.0),
+                    ],
                   ),
-                  const SizedBox(height: 16.0),
-                  _buildDescriptionCard(),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: GameDetailButtons(
-                isError: isError,
-                isSuccess: isSuccess,
-                errorMessage: errorMessage,
-                onMapTap: _openMap,
-                onInscreverTap: isSubscribed ? desinscrever : inscrever,
-                isSubscribed: isSubscribed,
-              ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: GameDetailButtons(
+              isError: isError,
+              isSuccess: isSuccess,
+              errorMessage: errorMessage,
+              onMapTap: _openMap,
+              onInscreverTap: isSubscribed ? desinscrever : inscrever,
+              isSubscribed: isSubscribed,
             ),
           ),
         ],
@@ -196,47 +208,58 @@ Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*.
       color: Colors.grey[800],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(8.0),
         child: child,
       ),
     );
   }
 
   Widget _buildDescriptionCard() {
-    return GestureDetector(
-      onTap: () {
-        if (_isExpanded) {
-          setState(() {
-            _isExpanded = false;
-          });
-        }
-      },
-      child: _buildInfoCard(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
+    return Card(
+      color: Colors.grey[800],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      child: InkWell(
+        onTap: _toggleExpanded,
+        borderRadius: BorderRadius.circular(16.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Descrição',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Informações sobre o evento',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: _isExpanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 300),
+                    child: const Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8.0),
+              const SizedBox(height: 12.0),
               AnimatedCrossFade(
                 firstChild: Text(
                   widget.game.descricao,
-                  maxLines: 2,
+                  maxLines: 6,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white, fontSize: 14.0),
+                  style: const TextStyle(
+                      color: Colors.white70, fontSize: 16.0, height: 1.5),
                 ),
                 secondChild: Text(
                   widget.game.descricao,
-                  style: const TextStyle(color: Colors.white, fontSize: 14.0),
+                  style: const TextStyle(
+                      color: Colors.white70, fontSize: 16.0, height: 1.5),
                 ),
                 crossFadeState: _isExpanded
                     ? CrossFadeState.showSecond
@@ -244,20 +267,15 @@ Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*.
                 duration: const Duration(milliseconds: 300),
                 sizeCurve: Curves.easeInOut,
               ),
-              const SizedBox(height: 8.0),
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _isExpanded = !_isExpanded;
-                    });
-                  },
+              if (_isExpanded)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
                   child: Text(
-                    _isExpanded ? 'Ver menos' : 'Ver mais',
-                    style: const TextStyle(color: Colors.white70),
+                    'Toque para recolher',
+                    style: TextStyle(
+                        color: Colors.white.withOpacity(0.6), fontSize: 14.0),
                   ),
                 ),
-              ),
             ],
           ),
         ),

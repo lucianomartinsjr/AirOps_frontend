@@ -76,8 +76,15 @@ class EmailPageState extends State<EmailPage>
   }
 
   void _onEmailChanged() {
+    String lowercaseEmail = widget.emailController.text.toLowerCase();
+    if (widget.emailController.text != lowercaseEmail) {
+      widget.emailController.value = widget.emailController.value.copyWith(
+        text: lowercaseEmail,
+        selection: TextSelection.collapsed(offset: lowercaseEmail.length),
+      );
+    }
     _validateForm();
-    if (_emailValidator(widget.emailController.text) == null) {
+    if (_emailValidator(lowercaseEmail) == null) {
       _animationController.forward();
     } else {
       _animationController.reverse();
@@ -148,6 +155,7 @@ class EmailPageState extends State<EmailPage>
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (_) =>
                             _isFormValid ? _submitForm() : null,
+                        onChanged: (_) => _onEmailChanged(),
                       ),
                     ),
                     const SizedBox(width: 8),

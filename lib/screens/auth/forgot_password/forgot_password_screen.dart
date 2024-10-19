@@ -21,7 +21,7 @@ class ForgotPasswordScreen extends HookWidget {
     }, []);
 
     Future<void> handleForgotPassword() async {
-      final email = emailController.text;
+      final email = emailController.text.toLowerCase();
 
       final shouldSendEmail = await showDialog<bool>(
         context: contextRef.value!,

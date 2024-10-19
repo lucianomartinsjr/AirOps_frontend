@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../services/api/api_service.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/services.dart';
 
 // Importe a tela de registro
 import '../register/register_screen.dart';
@@ -271,6 +272,9 @@ class LoginScreen extends HookWidget {
         cursorColor: Colors.red,
         obscureText: isPassword && !(isPasswordVisible?.value ?? false),
         style: const TextStyle(color: Colors.white),
+        // Adicione esta linha para transformar o texto em minúsculas para o campo de email
+        inputFormatters:
+            label.toLowerCase() == 'email' ? [LowerCaseTextFormatter()] : null,
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(color: Colors.grey),
@@ -380,7 +384,8 @@ class AnimatedSwitch extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  const AnimatedSwitch({super.key, required this.value, required this.onChanged});
+  const AnimatedSwitch(
+      {super.key, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -446,4 +451,15 @@ Route _createRoute() {
       );
     },
   );
+}
+
+class LowerCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text.toLowerCase(),
+      selection: newValue.selection,
+    );
+  }
 }
