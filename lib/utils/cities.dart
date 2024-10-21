@@ -37,10 +37,16 @@ class CidadesUtil {
           TextEditingController fieldTextEditingController,
           FocusNode fieldFocusNode,
           VoidCallback onFieldSubmitted) {
-        return ValueListenableBuilder<TextEditingValue>(
-          valueListenable: controller,
-          builder: (context, value, child) {
-            fieldTextEditingController.value = value;
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            if (fieldTextEditingController.text != controller.text) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                setState(() {
+                  fieldTextEditingController.text = controller.text;
+                });
+              });
+            }
+
             return CustomTextFormField(
               controller: fieldTextEditingController,
               labelText: 'Cidade *',
@@ -51,9 +57,7 @@ class CidadesUtil {
               onTap: readOnly ? null : () {},
               focusNode: fieldFocusNode,
               onChanged: (value) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  controller.text = value;
-                });
+                controller.text = value;
                 onChanged(value);
               },
             );

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../models/game.dart';
 import '../../services/api/airsoft_service.dart';
 import '../../widgets/games/game_item_detailed/game_list.dart';
-import '../home_screen.dart';
 import 'create_game_screen.dart';
 import 'history_game_screen.dart';
 import 'manage_games_screen.dart';
