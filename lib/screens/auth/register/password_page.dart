@@ -104,16 +104,15 @@ class PasswordPageState extends State<PasswordPage> {
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: 'Senha',
-        labelStyle: const TextStyle(color: Colors.white),
-        prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
+        labelStyle: TextStyle(color: Colors.grey[400]),
+        filled: true,
+        fillColor: const Color(0xFF2F2F2F),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
         suffixIcon: _buildVisibilityToggle(
             _isPasswordVisible, (value) => _isPasswordVisible = value),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
       ),
       validator: _validatePassword,
     );
@@ -126,16 +125,15 @@ class PasswordPageState extends State<PasswordPage> {
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: 'Confirme a Senha',
-        labelStyle: const TextStyle(color: Colors.white),
-        prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
+        labelStyle: TextStyle(color: Colors.grey[400]),
+        filled: true,
+        fillColor: const Color(0xFF2F2F2F),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
         suffixIcon: _buildVisibilityToggle(_isConfirmPasswordVisible,
             (value) => _isConfirmPasswordVisible = value),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
       ),
       validator: _validateConfirmPassword,
     );

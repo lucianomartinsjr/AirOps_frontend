@@ -50,11 +50,14 @@ class EmailPageState extends State<EmailPage>
   }
 
   Future<void> _checkEmail() async {
+    if (!mounted) return;
     bool emailExists = await Provider.of<ApiService>(context, listen: false)
         .checkEmail(widget.emailController.text);
-    setState(() {
-      _emailExists = emailExists;
-    });
+    if (mounted) {
+      setState(() {
+        _emailExists = emailExists;
+      });
+    }
   }
 
   void _validateForm() {
@@ -199,14 +202,13 @@ class EmailPageState extends State<EmailPage>
   Future<void> _submitForm() async {
     FocusScope.of(context).unfocus();
     await _checkEmail();
+    if (!mounted) return; // Verifica se o widget ainda está montado
     if (!_emailExists) {
       widget.onNext();
     } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Este e-mail já está cadastrado')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Este e-mail já está cadastrado')),
+      );
     }
   }
 }
