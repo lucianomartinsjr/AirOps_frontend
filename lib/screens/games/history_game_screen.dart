@@ -202,9 +202,9 @@ class HistoryScreenState extends State<HistoryScreen> {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Icon(Icons.arrow_back, color: Colors.white),
             SizedBox(width: 8),
             Text(

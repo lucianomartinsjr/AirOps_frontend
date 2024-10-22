@@ -1,4 +1,4 @@
 class ApiConstants {
-  static const String baseUrl = 'https://airops-backend.up.railway.app';
-  // static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl =
+      'https://airops-backend-production.up.railway.app';
 }

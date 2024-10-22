@@ -65,7 +65,7 @@ class FilterDialogState extends State<FilterDialog> {
       title: const Text(
         'Filtrar por',
         style: TextStyle(
-            color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+            color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
       ),
       content: SingleChildScrollView(
         child: SizedBox(
@@ -101,6 +101,7 @@ class FilterDialogState extends State<FilterDialog> {
                         _selectedPeriod = newValue!;
                       });
                     },
+                    prefixIcon: const Icon(Icons.access_time),
                   )),
               _buildFilterSection(
                   'Modalidade',
@@ -114,6 +115,7 @@ class FilterDialogState extends State<FilterDialog> {
                         _selectedModality = newValue!;
                       });
                     },
+                    prefixIcon: const Icon(Icons.category),
                   )),
               const SizedBox(height: 16),
               SwitchListTile(
@@ -128,63 +130,70 @@ class FilterDialogState extends State<FilterDialog> {
                   });
                 },
                 activeColor: Colors.red,
+                secondary:
+                    const Icon(Icons.monetization_on, color: Colors.white),
               ),
             ],
           ),
         ),
       ),
       actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
           children: [
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+            if (_areFiltersApplied)
+              TextButton.icon(
+                onPressed: _clearFilters,
+                icon: const Icon(Icons.clear, color: Colors.red),
+                label: const Text(
+                  'Limpar Filtros',
+                  style: TextStyle(color: Colors.red, fontSize: 16),
+                ),
               ),
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              ),
-              child: const Text(
-                'Aplicar',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              onPressed: () {
-                widget.onApplyFilters(
-                  widget.cityController.text,
-                  widget.dateController.text,
-                  _isFree,
-                  _selectedPeriod,
-                  _selectedModality,
-                );
-                Navigator.of(context).pop();
-              },
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
+                  ),
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
+                  ),
+                  icon: const Icon(Icons.check, color: Colors.white),
+                  label: const Text(
+                    'Aplicar',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  onPressed: () {
+                    widget.onApplyFilters(
+                      widget.cityController.text,
+                      widget.dateController.text,
+                      _isFree,
+                      _selectedPeriod,
+                      _selectedModality,
+                    );
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
           ],
         ),
-        if (_areFiltersApplied)
-          Center(
-            child: TextButton(
-              onPressed: _clearFilters,
-              child: const Text(
-                'Limpar Filtros',
-                style: TextStyle(color: Colors.red, fontSize: 16),
-              ),
-            ),
-          ),
       ],
     );
   }

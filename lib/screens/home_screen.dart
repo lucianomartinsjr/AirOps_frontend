@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedModality = 'Any';
   bool _isAdmin = false;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  bool _filtersApplied = false;
 
   @override
   void initState() {
@@ -155,6 +156,11 @@ class _HomeScreenState extends State<HomeScreen> {
               _isFree = isFree;
               _selectedPeriod = period;
               _selectedModality = modality;
+              _filtersApplied = city.isNotEmpty ||
+                  date.isNotEmpty ||
+                  isFree ||
+                  period != 'Any' ||
+                  modality != 'Any';
             });
             Provider.of<AirsoftService>(context, listen: false).applyFilters(
               city: city,
@@ -252,12 +258,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 10),
                     ClipOval(
                       child: Material(
-                        color: Colors.white.withOpacity(0.1),
+                        color: _filtersApplied
+                            ? Colors.red.withOpacity(0.8)
+                            : Colors.white.withOpacity(0.1),
                         child: InkWell(
                           onTap: _openFilterDialog,
-                          child: const Padding(
-                            padding: EdgeInsets.all(12),
-                            child: Icon(Icons.filter_list, color: Colors.white),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Icon(
+                              Icons.filter_list,
+                              color: _filtersApplied
+                                  ? Colors.white
+                                  : Colors.white70,
+                            ),
                           ),
                         ),
                       ),
