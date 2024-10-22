@@ -32,19 +32,20 @@ class GamesScreenState extends State<GamesScreen> with RouteAware {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Registrar a página para monitorar eventos de navegação
     RouteObserver<ModalRoute>().subscribe(this, ModalRoute.of(context)!);
   }
 
   @override
   void didPopNext() {
-    // Recarregar os jogos inscritos ao retornar para a página
+    _reloadGames();
+  }
+
+  void _reloadGames() {
     Provider.of<AirsoftService>(context, listen: false).fetchSubscribedGames();
   }
 
   @override
   void dispose() {
-    // Cancelar a inscrição no RouteObserver
     RouteObserver<ModalRoute>().unsubscribe(this);
     super.dispose();
   }
@@ -59,8 +60,6 @@ class GamesScreenState extends State<GamesScreen> with RouteAware {
       body: Consumer<AirsoftService>(
         builder: (context, airsoftService, child) {
           final games = airsoftService.subscribedGames;
-
-          // Opções dinâmicas para os filtros, formatando a data
           final dateOptions = games
               .map((game) => _formatDate(game.dataEvento))
               .toSet()
@@ -104,10 +103,14 @@ class GamesScreenState extends State<GamesScreen> with RouteAware {
                           context,
                           icon: Icons.manage_search,
                           label: 'Gerenciar\n Meus Jogos',
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
+                          onTap: () async {
+                            final result = await Navigator.of(context)
+                                .push(MaterialPageRoute(
                               builder: (context) => const ManageGamesScreen(),
                             ));
+                            if (result == true) {
+                              _reloadGames();
+                            }
                           },
                           width: buttonWidth,
                         ),
@@ -115,10 +118,14 @@ class GamesScreenState extends State<GamesScreen> with RouteAware {
                           context,
                           icon: Icons.add,
                           label: 'Registrar \nNovo Jogo',
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
+                          onTap: () async {
+                            final result = await Navigator.of(context)
+                                .push(MaterialPageRoute(
                               builder: (context) => const CreateGameScreen(),
                             ));
+                            if (result == true) {
+                              _reloadGames();
+                            }
                           },
                           width: buttonWidth,
                         ),
@@ -147,7 +154,7 @@ class GamesScreenState extends State<GamesScreen> with RouteAware {
               Expanded(
                 child: filteredGames.isEmpty
                     ? _buildNoResults(games.isEmpty)
-                    : GameList(games: filteredGames),
+                    : GameList(games: filteredGames, isLargeView: false),
               ),
             ],
           );
@@ -394,7 +401,7 @@ class GamesScreenState extends State<GamesScreen> with RouteAware {
   }
 
   List<Game> _applyFilters(List<Game> games) {
-    return games.where((game) {
+    List<Game> filteredGames = games.where((game) {
       final matchesSearchQuery =
           game.titulo.toLowerCase().contains(_searchQuery);
       final matchesDate = _selectedDate == null ||
@@ -409,6 +416,11 @@ class GamesScreenState extends State<GamesScreen> with RouteAware {
           matchesModality &&
           matchesLocation;
     }).toList();
+
+    // Ordenar os jogos por data
+    filteredGames.sort((a, b) => a.dataEvento.compareTo(b.dataEvento));
+
+    return filteredGames;
   }
 
   void _clearFilters() {

@@ -292,7 +292,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     } else {
-                      return GameList(games: airsoftService.games);
+                      return GameList(
+                          games: airsoftService.games, isLargeView: true);
                     }
                   },
                 ),

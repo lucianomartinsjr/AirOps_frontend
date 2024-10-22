@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../../constants/api_contants.dart';
 import '../../models/game.dart';
 
-class AirsoftService with ChangeNotifier {
+class AirsoftService extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   final String _baseUrl = ApiConstants.baseUrl;
 
@@ -73,6 +73,10 @@ class AirsoftService with ChangeNotifier {
         final List<dynamic> data = json.decode(response.body);
         _games = data.map((json) => Game.fromJson(json)).toList();
         _filteredGames = [];
+
+        // Ordena os jogos por data, com as datas mais próximas primeiro
+        _games.sort((a, b) => a.dataEvento.compareTo(b.dataEvento));
+
         notifyListeners();
       } else {
         throw Exception('Erro ao buscar jogos');

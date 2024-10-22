@@ -132,7 +132,8 @@ class EditGameScreenState extends State<EditGameScreen> {
         await Provider.of<AirsoftService>(context, listen: false)
             .updateGame(widget.game.id ?? 0, updatedGame);
         if (mounted) {
-          Navigator.of(context).pop();
+          // Notificar a tela anterior para recarregar os jogos
+          Navigator.of(context).pop(true);
         }
       } catch (e) {
         if (mounted) {

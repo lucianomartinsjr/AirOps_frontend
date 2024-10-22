@@ -7,11 +7,20 @@ import '../../../screens/games/create_game_screen.dart';
 
 class GameCard extends StatelessWidget {
   final Game game;
+  final Function(Game) onCancelGame;
 
-  const GameCard({super.key, required this.game});
+  const GameCard({
+    super.key,
+    required this.game,
+    required this.onCancelGame,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final bool isCancelled = game.dataEvento.year == 1900 &&
+        game.dataEvento.month == 1 &&
+        game.dataEvento.day == 1;
+
     return Card(
       elevation: 4,
       color: Colors.grey[850],
@@ -19,84 +28,79 @@ class GameCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
       ),
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Cabeçalho
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.8),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16.0),
-                  ),
-                ),
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  game.titulo,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-              ),
-              // Conteúdo
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildInfoRow(
-                        Icons.event, _formatDateTime(game.dataEvento)),
-                    const SizedBox(height: 12.0),
-                    _buildInfoRow(Icons.schedule, 'Período: ${game.periodo}'),
-                    const SizedBox(height: 12.0),
-                    _buildInfoRow(Icons.group,
-                        '${game.quantidadeJogadoresInscritos} Participante(s)'),
-                    const SizedBox(height: 24.0),
-                    Center(
-                      child: _buildActionButton(
-                        context,
-                        icon: Icons.visibility,
-                        label: 'Visualizar Participantes Inscritos',
-                        onPressed: () => _showParticipants(context),
-                      ),
-                    ),
-                    const SizedBox(height: 12.0),
-                    Center(
-                      child: _buildActionButton(
-                        context,
-                        icon: Icons.add,
-                        label: 'Criar Novo Jogo Baseado Neste',
-                        onPressed: () => _createNewGameBasedOnThis(context),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            top: 8.0,
-            right: 8.0,
-            child: Container(
+      child: InkWell(
+        onTap: isCancelled ? null : () => _showParticipants(context),
+        borderRadius: BorderRadius.circular(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Cabeçalho
+            Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8.0),
+                color: Theme.of(context).primaryColor.withOpacity(0.8),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16.0),
+                ),
               ),
-              child: IconButton(
-                icon: const Icon(Icons.edit, color: Colors.white),
-                onPressed: () => _editGame(context),
-                tooltip: 'Editar',
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      game.titulo,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0,
+                        color: Colors.white,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy_all, color: Colors.blueAccent),
+                    onPressed: () => _createNewGameBasedOnThis(context),
+                    tooltip: 'Clonar Evento',
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.edit,
+                        color: Colors.green
+                            .withOpacity(game.ativo == true ? 1.0 : 0.2)),
+                    onPressed:
+                        game.ativo == true ? () => _editGame(context) : null,
+                    tooltip: 'Editar',
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.cancel_rounded,
+                        color: Colors.red
+                            .withOpacity(game.ativo == true ? 1.0 : 0.2)),
+                    onPressed:
+                        game.ativo == true ? () => onCancelGame(game) : null,
+                    tooltip: 'Cancelar',
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+            // Conteúdo
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInfoRow(Icons.event, _formatDateTime(game.dataEvento)),
+                  const SizedBox(height: 8.0),
+                  _buildInfoRow(Icons.schedule, 'Período: ${game.periodo}'),
+                  const SizedBox(height: 16.0),
+                  _buildPlayerCountIndicator(),
+                  const SizedBox(height: 16.0),
+                  if (!isCancelled) _buildViewPlayersIndicator(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -118,30 +122,51 @@ class GameCard extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton.icon(
-      icon: Icon(icon),
-      label: Text(label),
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: Theme.of(context).primaryColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
+  Widget _buildPlayerCountIndicator() {
+    final currentPlayers = game.quantidadeJogadoresInscritos ?? 0;
+    final maxPlayers = game.numMaxOperadores;
+    final progress = currentPlayers / maxPlayers!;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Jogadores: $currentPlayers/$maxPlayers',
+              style: const TextStyle(color: Colors.white70, fontSize: 14.0),
+            ),
+            Text(
+              '${(progress * 100).toStringAsFixed(0)}%',
+              style: TextStyle(
+                color: progress >= 0.9 ? Colors.red : Colors.white70,
+                fontWeight:
+                    progress >= 0.9 ? FontWeight.bold : FontWeight.normal,
+                fontSize: 14.0,
+              ),
+            ),
+          ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      ),
+        const SizedBox(height: 4.0),
+        LinearProgressIndicator(
+          value: progress,
+          backgroundColor: Colors.grey[700],
+          valueColor: AlwaysStoppedAnimation<Color>(
+            progress >= 0.9 ? Colors.red : const Color.fromARGB(255, 233, 0, 0),
+          ),
+        ),
+      ],
     );
   }
 
   String _formatDateTime(DateTime dateTime) {
+    if (dateTime.year == 1900 && dateTime.month == 1 && dateTime.day == 1) {
+      return 'JOGO CANCELADO';
+    }
+    final adjustedDateTime = dateTime.subtract(const Duration(hours: 3));
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
-    return dateFormat.format(dateTime);
+    return dateFormat.format(adjustedDateTime);
   }
 
   void _editGame(BuildContext context) {
@@ -165,6 +190,24 @@ class GameCard extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => CreateGameScreen(baseGame: game),
       ),
+    );
+  }
+
+  Widget _buildViewPlayersIndicator() {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.people, color: Colors.white70, size: 18.0),
+        SizedBox(width: 8.0),
+        Text(
+          'Toque para ver os jogadores inscritos',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14.0,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
     );
   }
 }

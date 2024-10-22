@@ -68,7 +68,7 @@ class HistoryScreenState extends State<HistoryScreen> {
                           ? _buildEmptyState()
                           : _buildGameList(gameHistory),
                     ),
-                    _buildReturnButton(),
+                    _buildReturnButton(context),
                   ],
                 );
               },
@@ -195,22 +195,27 @@ class HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildReturnButton() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      child: ElevatedButton(
-        onPressed: () => Navigator.pop(context),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        child: const Text(
-          'Retornar',
-          style: TextStyle(fontSize: 18),
+  Widget _buildReturnButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pop();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.arrow_back, color: Colors.white),
+            SizedBox(width: 8),
+            Text(
+              'Voltar',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

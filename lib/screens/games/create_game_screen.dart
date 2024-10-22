@@ -128,8 +128,9 @@ class CreateGameScreenState extends State<CreateGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            widget.baseGame == null ? 'Criar Novo Jogo' : 'Criar Jogo Baseado'),
+        title: Text(widget.baseGame == null
+            ? 'Criar Novo Jogo'
+            : 'Duplicar Jogo Existente'),
         centerTitle: true,
       ),
       body: Stack(

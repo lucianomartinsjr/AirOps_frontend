@@ -14,7 +14,7 @@ class Game {
   final int idModalidadeJogo;
   final String imagemCapa;
   final String? modalidadesJogos;
-  final int numMaxOperadores;
+  final int? numMaxOperadores;
   final DateTime? criadoEM;
   final int? quantidadeJogadoresInscritos;
   final List<Player>? players;
@@ -34,7 +34,7 @@ class Game {
     required this.linkCampo,
     required this.idModalidadeJogo,
     required this.imagemCapa,
-    required this.numMaxOperadores,
+    this.numMaxOperadores,
     this.criadoEM,
     this.quantidadeJogadoresInscritos,
     this.modalidadesJogos,

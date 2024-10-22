@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/game.dart';
 import '../../services/api/airsoft_service.dart';
 import '../../widgets/games/game_card_resumed/game_list_view.dart';
 import 'create_game_screen.dart';
@@ -14,7 +15,7 @@ class ManageGamesScreen extends StatefulWidget {
 class ManageGamesScreenState extends State<ManageGamesScreen> {
   bool _isLoading = true;
   String _searchQuery = '';
-  String _filter = 'Ativos'; // Define "Ativos" como padrão
+  String _filter = 'Agendados';
 
   @override
   void initState() {
@@ -42,7 +43,7 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Meus jogos"),
-        backgroundColor: Colors.grey[850], // Cinza escuro para o AppBar
+        backgroundColor: Colors.grey[850],
         elevation: 0,
       ),
       body: _isLoading
@@ -55,8 +56,13 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
                       .toLowerCase()
                       .contains(_searchQuery.toLowerCase());
                   final matchesFilter = _filter == 'Todos' ||
-                      (_filter == 'Ativos' && (game.ativo ?? false)) ||
-                      (_filter == 'Inativos' && !(game.ativo ?? true));
+                      (_filter == 'Agendados' && (game.ativo ?? false)) ||
+                      (_filter == 'Concluídos' &&
+                          !(game.ativo ?? true) &&
+                          (game.dataEvento.isAfter(DateTime(1900, 1, 1)))) ||
+                      (_filter == 'Cancelados' &&
+                          game.dataEvento
+                              .isAtSameMomentAs(DateTime(1900, 1, 1)));
                   return matchesSearchQuery && matchesFilter;
                 }).toList();
 
@@ -112,8 +118,12 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
                                     const EdgeInsets.symmetric(horizontal: 12),
                               ),
                               dropdownColor: Colors.grey[800],
-                              items: ['Todos', 'Ativos', 'Inativos']
-                                  .map((String value) {
+                              items: [
+                                'Todos',
+                                'Agendados',
+                                'Concluídos',
+                                'Cancelados'
+                              ].map((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(value,
@@ -142,7 +152,13 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
                                 textAlign: TextAlign.center,
                               ),
                             )
-                          : GameListView(games: organizerGames),
+                          : GameListView(
+                              games: organizerGames,
+                              onCancelGame: (game) {
+                                _showCancelGameDialog(
+                                    context, game, airsoftService);
+                              },
+                            ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -194,6 +210,157 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
                 );
               },
             ),
+    );
+  }
+
+  void _showCancelGameDialog(
+      BuildContext context, Game game, AirsoftService airsoftService) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black45,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (BuildContext buildContext, Animation animation,
+          Animation secondaryAnimation) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation as Animation<double>,
+            curve: Curves.easeOutBack,
+          ),
+          child: AlertDialog(
+            backgroundColor: Colors.grey[850],
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text(
+              'Cancelar Jogo',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Tem certeza que deseja cancelar o jogo:',
+                  style: TextStyle(color: Colors.white70),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[800],
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 5,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    '"${game.titulo}"',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded,
+                        color: Colors.amber, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Esta ação não pode ser desfeita.',
+                        style:
+                            TextStyle(color: Colors.amber[300], fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                child:
+                    const Text('Não', style: TextStyle(color: Colors.white70)),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  elevation: 5,
+                ),
+                child: const Text('Sim, cancelar'),
+                onPressed: () {
+                  Game updatedGame = Game(
+                    id: game.id,
+                    dataEvento: DateTime(1900, 1, 1),
+                    titulo: game.titulo,
+                    cidade: game.cidade,
+                    descricao: game.descricao,
+                    valor: game.valor,
+                    periodo: game.periodo,
+                    linkCampo: game.linkCampo,
+                    idModalidadeJogo: game.idModalidadeJogo,
+                    imagemCapa: game.imagemCapa,
+                  );
+                  airsoftService.updateGame(game.id!, updatedGame).then((_) {
+                    Navigator.of(context).pop();
+                    _showCancelConfirmation(context);
+                  }).catchError((error) {
+                    Navigator.of(context).pop();
+                    _showErrorMessage(
+                        context, 'Erro ao cancelar o jogo: $error');
+                  });
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCancelConfirmation(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: 12),
+            Text('Jogo cancelado com sucesso'),
+          ],
+        ),
+        backgroundColor: const Color.fromARGB(255, 0, 151, 0),
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).size.height * 0.12,
+          left: 16,
+          right: 16,
+        ),
+      ),
+    );
+  }
+
+  void _showErrorMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 }

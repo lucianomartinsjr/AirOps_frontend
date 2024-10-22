@@ -59,124 +59,209 @@ class GamesAdminScreenState extends State<GamesAdminScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Jogos'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              // Lógica para adicionar novo jogo
-            },
-          ),
-        ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Pesquisar',
-                      labelStyle: const TextStyle(color: Colors.white70),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+      body: RefreshIndicator(
+        onRefresh: _fetchGames,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Pesquisar jogos',
+                        hintStyle: const TextStyle(color: Colors.white54),
+                        prefixIcon:
+                            const Icon(Icons.search, color: Colors.white70),
+                        filled: true,
+                        fillColor: Colors.grey[800],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
                       ),
-                      prefixIcon:
-                          const Icon(Icons.search, color: Colors.white70),
-                      filled: true,
-                      fillColor:
-                          Colors.grey[800], // Cor de fundo da barra de pesquisa
-                    ),
-                    style: const TextStyle(color: Colors.white),
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value;
-                        _filterGames();
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8.0),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  decoration: BoxDecoration(
-                    color:
-                        Colors.grey[900], // Cor de fundo um pouco mais escura
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: Colors.grey[800]!),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: selectedFilter,
-                      items: ['Todos', 'Ativos', 'Inativos']
-                          .map((filter) => DropdownMenuItem(
-                                value: filter,
-                                child: Text(filter),
-                              ))
-                          .toList(),
+                      style: const TextStyle(color: Colors.white),
                       onChanged: (value) {
                         setState(() {
-                          selectedFilter = value!;
+                          searchQuery = value;
                           _filterGames();
                         });
                       },
-                      dropdownColor: Colors.grey[900],
-                      style: const TextStyle(color: Colors.white),
-                      iconEnabledColor: Colors.white,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 16.0),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[900],
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: selectedFilter,
+                          items: ['Todos', 'Ativos', 'Inativos']
+                              .map((filter) => DropdownMenuItem(
+                                    value: filter,
+                                    child: Text(filter),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedFilter = value!;
+                              _filterGames();
+                            });
+                          },
+                          dropdownColor: Colors.grey[900],
+                          style: const TextStyle(color: Colors.white),
+                          iconEnabledColor: Colors.white,
+                          isExpanded: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredGames.length,
-              itemBuilder: (context, index) {
-                final game = filteredGames[index];
-                return Card(
-                  color: Colors.grey[850], // Cor de fundo do card
-                  margin: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 4.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: ListTile(
-                    title: Text(
-                      game.titulo,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.0,
-                        color: Colors.white,
+            Expanded(
+              child: filteredGames.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Nenhum jogo encontrado',
+                        style: TextStyle(color: Colors.white70),
                       ),
-                    ),
-                    subtitle: Text(
-                      'Data: ${_formatDate(game.dataEvento)}\nOperador: ${game.nomeOrganizador}\nModalidades: ${game.modalidadesJogos}\nJogadores: ${game.quantidadeJogadoresInscritos}/${game.numMaxOperadores}',
-                      style: const TextStyle(
-                        fontSize: 14.0,
-                        height: 1.4,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    trailing: IconButton(
-                      icon:
-                          const Icon(Icons.remove_red_eye, color: Colors.white),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => PlayersScreen(game: game),
+                    )
+                  : ListView.builder(
+                      itemCount: filteredGames.length,
+                      itemBuilder: (context, index) {
+                        final game = filteredGames[index];
+                        return Card(
+                          color: Colors.grey[850],
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      PlayersScreen(game: game),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(15.0),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          game.titulo,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18.0,
+                                            color: Colors.white,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0, vertical: 4.0),
+                                        decoration: BoxDecoration(
+                                          color: game.ativo!
+                                              ? Colors.green
+                                              : Colors.red,
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                        ),
+                                        child: Text(
+                                          game.ativo! ? 'Ativo' : 'Inativo',
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12.0),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8.0),
+                                  Text(
+                                    'Data: ${_formatDate(game.dataEvento)}',
+                                    style:
+                                        const TextStyle(color: Colors.white70),
+                                  ),
+                                  Text(
+                                    'Operador: ${game.nomeOrganizador}',
+                                    style:
+                                        const TextStyle(color: Colors.white70),
+                                  ),
+                                  Text(
+                                    'Modalidades: ${game.modalidadesJogos}',
+                                    style:
+                                        const TextStyle(color: Colors.white70),
+                                  ),
+                                  const SizedBox(height: 8.0),
+                                  _buildPlayerCountIndicator(game),
+                                ],
+                              ),
+                            ),
                           ),
                         );
                       },
                     ),
-                  ),
-                );
-              },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildPlayerCountIndicator(Game game) {
+    final currentPlayers = game.quantidadeJogadoresInscritos ?? 0;
+    final maxPlayers = game.numMaxOperadores;
+    final progress = currentPlayers / maxPlayers!;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LinearProgressIndicator(
+          value: progress,
+          backgroundColor: Colors.grey[700],
+          valueColor: AlwaysStoppedAnimation<Color>(
+            progress >= 0.9 ? Colors.red : const Color.fromARGB(255, 233, 0, 0),
+          ),
+        ),
+        const SizedBox(height: 4.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Jogadores: $currentPlayers/$maxPlayers',
+              style: const TextStyle(color: Colors.white70),
+            ),
+            Text(
+              '${(progress * 100).toStringAsFixed(0)}%',
+              style: TextStyle(
+                color: progress >= 0.9 ? Colors.red : Colors.white70,
+                fontWeight:
+                    progress >= 0.9 ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
