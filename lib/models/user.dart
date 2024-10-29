@@ -34,4 +34,17 @@ class User {
       criadoEm: DateTime.parse(json['criadoEm']),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'idClasseOperador': idClasseOperador,
+      'nome': nome,
+      'apelido': apelido,
+      'contato': contato,
+      'cidade': cidade,
+      'email': email,
+      'isAdmin': isAdmin,
+    };
+  }
 }

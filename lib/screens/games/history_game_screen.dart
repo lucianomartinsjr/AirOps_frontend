@@ -46,7 +46,38 @@ class HistoryScreenState extends State<HistoryScreen> {
         elevation: 0,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: CircularProgressIndicator(
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.red[600]!),
+                        strokeWidth: 4,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Carregando seu histórico de jogos...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
           : Consumer<AirsoftService>(
               builder: (context, airsoftService, child) {
                 final gameHistory = airsoftService.gameHistory

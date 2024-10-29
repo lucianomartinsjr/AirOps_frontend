@@ -34,11 +34,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _searchController.dispose();
+    _cityController.dispose();
+    _dateController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   Future<void> _loadInitialData() async {
+    if (!mounted) return;
     await Provider.of<AirsoftService>(context, listen: false).fetchGames();
     await _checkIfAdmin();
     await _checkPasswordChange();
@@ -53,9 +57,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Future<void> _checkIfAdmin() async {
     String? isAdmin = await _secureStorage.read(key: 'isAdmin');
-    setState(() {
-      _isAdmin = isAdmin == 'true';
-    });
+    if (mounted) {
+      setState(() {
+        _isAdmin = isAdmin == 'true';
+      });
+    }
   }
 
   Future<void> _checkPasswordChange() async {
@@ -168,16 +174,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           selectedPeriod: _selectedPeriod,
           selectedModality: _selectedModality,
           onApplyFilters: (city, date, isFree, period, modality) {
-            setState(() {
-              _isFree = isFree;
-              _selectedPeriod = period;
-              _selectedModality = modality;
-              _filtersApplied = city.isNotEmpty ||
-                  date.isNotEmpty ||
-                  isFree ||
-                  period != 'Any' ||
-                  modality != 'Any';
-            });
+            if (mounted) {
+              setState(() {
+                _isFree = isFree;
+                _selectedPeriod = period;
+                _selectedModality = modality;
+                _filtersApplied = city.isNotEmpty ||
+                    date.isNotEmpty ||
+                    isFree ||
+                    period != 'Any' ||
+                    modality != 'Any';
+              });
+            }
             Provider.of<AirsoftService>(context, listen: false).applyFilters(
               city: city,
               date: date,
@@ -196,149 +204,158 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Air Ops',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-        centerTitle: true,
-        elevation: 0,
-        actions: [
-          if (_isAdmin)
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: _openAdminScreen,
-            ),
-        ],
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [theme.primaryColor, theme.scaffoldBackgroundColor],
-          ),
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (didPop) async {
+        await Provider.of<AirsoftService>(context, listen: false).fetchGames();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Air Ops',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+          centerTitle: true,
+          elevation: 0,
+          actions: [
+            if (_isAdmin)
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: _openAdminScreen,
+              ),
+          ],
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Theme(
-                        data: Theme.of(context).copyWith(
-                          inputDecorationTheme: InputDecorationTheme(
-                            filled: true,
-                            fillColor: Colors.transparent,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide.none,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [theme.primaryColor, theme.scaffoldBackgroundColor],
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            inputDecorationTheme: InputDecorationTheme(
+                              filled: true,
+                              fillColor: Colors.transparent,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide.none,
+                              ),
                             ),
                           ),
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: TextField(
-                            controller: _searchController,
-                            decoration: const InputDecoration(
-                              hintText: 'Pesquisar jogos',
-                              hintStyle: TextStyle(color: Colors.white70),
-                              prefixIcon:
-                                  Icon(Icons.search, color: Colors.white70),
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 15),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(30),
                             ),
-                            style: const TextStyle(color: Colors.white),
-                            onChanged: (value) {
-                              Provider.of<AirsoftService>(context,
-                                      listen: false)
-                                  .searchGames(value);
-                              setState(() {}); // Adicione esta linha
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    ClipOval(
-                      child: Material(
-                        color: _filtersApplied
-                            ? Colors.red.withOpacity(0.8)
-                            : Colors.white.withOpacity(0.1),
-                        child: InkWell(
-                          onTap: _openFilterDialog,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Icon(
-                              Icons.filter_list,
-                              color: _filtersApplied
-                                  ? Colors.white
-                                  : Colors.white70,
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: const InputDecoration(
+                                hintText: 'Pesquisar jogos',
+                                hintStyle: TextStyle(color: Colors.white70),
+                                prefixIcon:
+                                    Icon(Icons.search, color: Colors.white70),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 15),
+                              ),
+                              style: const TextStyle(color: Colors.white),
+                              onChanged: (value) {
+                                if (context.mounted) {
+                                  Provider.of<AirsoftService>(context,
+                                          listen: false)
+                                      .searchGames(value);
+                                }
+                              },
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Consumer<AirsoftService>(
-                  builder: (context, airsoftService, child) {
-                    if (airsoftService.games.isEmpty) {
-                      return const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.event, size: 100, color: Colors.white38),
-                            SizedBox(height: 20),
-                            Text(
-                              'Nenhum jogo disponível no momento.',
-                              style: TextStyle(
-                                  fontSize: 18, color: Colors.white70),
-                              textAlign: TextAlign.center,
+                      const SizedBox(width: 10),
+                      ClipOval(
+                        child: Material(
+                          color: _filtersApplied
+                              ? Colors.red.withOpacity(0.8)
+                              : Colors.white.withOpacity(0.1),
+                          child: InkWell(
+                            onTap: _openFilterDialog,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Icon(
+                                Icons.filter_list,
+                                color: _filtersApplied
+                                    ? Colors.white
+                                    : Colors.white70,
+                              ),
                             ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Tente ajustar os filtros ou volte mais tarde.',
-                              style: TextStyle(
-                                  fontSize: 16, color: Colors.white54),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                          ),
                         ),
-                      );
-                    } else {
-                      return RefreshIndicator(
-                        onRefresh: () async {
-                          await Provider.of<AirsoftService>(context,
-                                  listen: false)
-                              .fetchGames();
-                        },
-                        color: Colors.red,
-                        backgroundColor: const Color.fromARGB(255, 29, 29, 29),
-                        strokeWidth: 3.0,
-                        displacement: 40.0,
-                        child: GameList(
-                            games: airsoftService.games, isLargeView: true),
-                      );
-                    }
-                  },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: Consumer<AirsoftService>(
+                    builder: (context, airsoftService, child) {
+                      if (airsoftService.games.isEmpty) {
+                        return const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.event,
+                                  size: 100, color: Colors.white38),
+                              SizedBox(height: 20),
+                              Text(
+                                'Nenhum jogo disponível no momento.',
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.white70),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                'Tente ajustar os filtros ou volte mais tarde.',
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white54),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        return RefreshIndicator(
+                          onRefresh: () async {
+                            await Provider.of<AirsoftService>(context,
+                                    listen: false)
+                                .fetchGames();
+                          },
+                          color: Colors.red,
+                          backgroundColor:
+                              const Color.fromARGB(255, 29, 29, 29),
+                          strokeWidth: 3.0,
+                          displacement: 40.0,
+                          child: GameList(
+                              games: airsoftService.games, isLargeView: true),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

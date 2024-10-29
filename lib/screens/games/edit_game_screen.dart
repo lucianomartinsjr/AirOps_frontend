@@ -313,6 +313,7 @@ class EditGameScreenState extends State<EditGameScreen> {
                       Row(
                         children: [
                           Expanded(
+                            flex: 2,
                             child: CustomTextFormField(
                               controller: _numMaxOperadoresController,
                               labelText: 'Máx. Operadores',
@@ -330,6 +331,7 @@ class EditGameScreenState extends State<EditGameScreen> {
                           ),
                           const SizedBox(width: 10),
                           Expanded(
+                            flex: 1,
                             child: CustomTextFormField(
                               controller: _feeController,
                               labelText: 'Taxa',

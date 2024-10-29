@@ -65,7 +65,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
             borderSide: BorderSide.none,
           ),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
-          prefixIcon: widget.prefixIcon, // Adicionado
+          prefixIcon: widget.prefixIcon,
           suffixIcon: widget.obscureText && widget.maxLines == 1
               ? IconButton(
                   icon: Icon(
@@ -86,8 +86,8 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
         onTap: widget.onTap,
         maxLines: widget.maxLines,
         focusNode: widget.focusNode,
-        inputFormatters: widget.inputFormatters, // Adicione esta linha
-        onChanged: widget.onChanged, // Adicionado
+        inputFormatters: widget.inputFormatters,
+        onChanged: widget.onChanged,
       ),
     );
   }

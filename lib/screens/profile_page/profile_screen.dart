@@ -18,6 +18,7 @@ class ProfileScreen extends StatefulWidget {
 
 class ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  bool _mounted = true;
 
   @override
   void initState() {
@@ -27,6 +28,12 @@ class ProfileScreenState extends State<ProfileScreen> {
           Provider.of<ProfileProvider>(context, listen: false);
       _initializeProfile(profileProvider);
     });
+  }
+
+  @override
+  void dispose() {
+    _mounted = false;
+    super.dispose();
   }
 
   Future<void> _initializeProfile(ProfileProvider profileProvider) async {
@@ -39,7 +46,10 @@ class ProfileScreenState extends State<ProfileScreen> {
     // Comparar e atualizar se necessário
     if (_profileHasChanged(profileProvider)) {
       await _updateCachedProfile(profileProvider);
-      setState(() {}); // Atualizar a interface do usuário
+      if (_mounted) {
+        setState(
+            () {}); // Atualizar a interface do usuário apenas se o widget ainda estiver montado
+      }
     }
   }
 

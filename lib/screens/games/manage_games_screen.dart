@@ -47,7 +47,38 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
         elevation: 0,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: CircularProgressIndicator(
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.red[600]!),
+                        strokeWidth: 4,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Carregando seus eventos criados ...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
           : Consumer<AirsoftService>(
               builder: (context, airsoftService, child) {
                 final organizerGames =
@@ -332,21 +363,28 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
                             decoration: BoxDecoration(
                               color: Colors.grey[850],
                               borderRadius: BorderRadius.circular(15),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
                             ),
-                            child: const Column(
+                            child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 SizedBox(
-                                  width: 50,
-                                  height: 50,
+                                  width: 60,
+                                  height: 60,
                                   child: CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.red),
-                                    strokeWidth: 3,
+                                        Colors.red[600]!),
+                                    strokeWidth: 4,
                                   ),
                                 ),
-                                SizedBox(height: 20),
-                                Text(
+                                const SizedBox(height: 20),
+                                const Text(
                                   'Cancelando jogo...',
                                   style: TextStyle(
                                     color: Colors.white,
@@ -361,15 +399,18 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
                       },
                     );
 
+                    final scaffoldMessenger = ScaffoldMessenger.of(context);
+                    final navigator = Navigator.of(context);
+
                     await airsoftService.updateGame(game.id!, updatedGame);
                     await airsoftService.fetchOrganizerGames();
 
-                    if (mounted) {
-                      Navigator.of(context).pop();
-                      _showCancelConfirmation(context);
+                    if (context.mounted) {
+                      navigator.pop();
+                      _showCancelConfirmation(scaffoldMessenger);
                     }
                   } catch (error) {
-                    if (mounted) {
+                    if (context.mounted) {
                       Navigator.of(context).pop();
                       _showErrorMessage(
                           context, 'Erro ao cancelar o jogo: $error');
@@ -384,8 +425,8 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
     );
   }
 
-  void _showCancelConfirmation(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
+  void _showCancelConfirmation(ScaffoldMessengerState scaffoldMessenger) {
+    scaffoldMessenger.showSnackBar(
       SnackBar(
         content: const Row(
           children: [
@@ -398,11 +439,7 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
         duration: const Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: EdgeInsets.only(
-          bottom: MediaQuery.of(context).size.height * 0.12,
-          left: 16,
-          right: 16,
-        ),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
   }

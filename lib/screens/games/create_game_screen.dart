@@ -300,51 +300,41 @@ class CreateGameScreenState extends State<CreateGameScreen> {
     return Row(
       children: [
         Expanded(
-          flex: 3,
-          child: _buildMaxOperatorsField(),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
           flex: 2,
-          child: _buildFeeFieldWithSwitch(),
+          child: CustomTextFormField(
+            controller: _numMaxOperadoresController,
+            labelText: 'Máx. Operadores',
+            readOnly: false,
+            prefixIcon: const Icon(Icons.group, color: Colors.white),
+            keyboardType: TextInputType.number,
+            validator: (value) =>
+                value?.isEmpty ?? true ? 'Campo obrigatório' : null,
+          ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildMaxOperatorsField() {
-    return CustomTextFormField(
-      controller: _numMaxOperadoresController,
-      labelText: 'Máx. Operadores',
-      readOnly: false,
-      prefixIcon: const Icon(Icons.group, color: Colors.white),
-      keyboardType: TextInputType.number,
-      validator: (value) => value?.isEmpty ?? true ? 'Campo obrigatório' : null,
-    );
-  }
-
-  Widget _buildFeeFieldWithSwitch() {
-    return Row(
-      children: [
+        const SizedBox(width: 10),
         Expanded(
+          flex: 1,
           child: CustomTextFormField(
             controller: _feeController,
             labelText: 'Taxa',
             readOnly: _isFree,
             prefixIcon: const Icon(Icons.attach_money, color: Colors.white),
             keyboardType: TextInputType.number,
-            validator: (value) => _isFree || (value?.isNotEmpty ?? false)
-                ? null
-                : 'Insira a taxa',
+            validator: (value) {
+              if (_isFree || (value != null && value.isNotEmpty)) {
+                return null;
+              }
+              return 'Insira a taxa';
+            },
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
         Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min, // Ajuda a manter a coluna compacta
           children: [
-            const SizedBox(height: 8),
+            const Text('Gratuito', style: TextStyle(fontSize: 12)),
             Transform.scale(
-              scale: 0.8,
+              scale: 0.6, // Reduzido de 0.8 para 0.6
               child: Switch(
                 value: _isFree,
                 onChanged: (value) {
@@ -352,22 +342,15 @@ class CreateGameScreenState extends State<CreateGameScreen> {
                     _isFree = value;
                     if (_isFree) {
                       _feeController.text = '0';
-                    } else {
-                      _feeController.text = '';
                     }
                   });
                 },
-                activeColor: Colors.green,
-                activeTrackColor: Colors.green.withOpacity(0.5),
-                inactiveThumbColor: Colors.grey[400],
-                inactiveTrackColor: Colors.grey[700],
+                activeColor: Colors.red,
+                activeTrackColor: Colors.red.withOpacity(0.5),
+                inactiveThumbColor: Colors.grey,
+                inactiveTrackColor: Colors.grey.withOpacity(0.5),
               ),
             ),
-            const Text('Gratuito',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey,
-                )),
           ],
         ),
       ],

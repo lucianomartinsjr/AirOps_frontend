@@ -15,6 +15,8 @@ class SplashScreenState extends State<SplashScreen>
   late AnimationController _animationController;
   late Animation<double> _animation;
 
+  bool _mounted = true;
+
   @override
   void initState() {
     super.initState();
@@ -35,23 +37,32 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _initializeApp() async {
-    // Garante que a tela de splash seja exibida por pelo menos 3 segundos
-    await Future.wait([
-      _checkInternetConnection(),
-      Future.delayed(const Duration(seconds: 3)),
-    ]);
+    try {
+      await Future.wait([
+        _checkInternetConnection(),
+        Future.delayed(const Duration(seconds: 3)),
+      ]);
+    } catch (e) {
+      if (_mounted) {
+        _showErrorDialog("Erro ao inicializar o aplicativo");
+      }
+    }
   }
 
   Future<void> _checkInternetConnection() async {
     try {
       final connectivityResult = await Connectivity().checkConnectivity();
+      if (!_mounted) return;
+
       if (connectivityResult == ConnectivityResult.none) {
         _showNoInternetDialog();
       } else {
         _navigateToLogin();
       }
     } catch (e) {
-      _showErrorDialog("Erro ao verificar a conexão");
+      if (_mounted) {
+        _showErrorDialog("Erro ao verificar a conexão");
+      }
     }
   }
 
@@ -139,6 +150,7 @@ class SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
+    _mounted = false;
     _animationController.dispose();
     super.dispose();
   }

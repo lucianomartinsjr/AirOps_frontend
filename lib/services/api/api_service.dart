@@ -71,20 +71,39 @@ class ApiService extends ChangeNotifier {
   }
 
   Future<void> updateUser(User user) async {
-    final token = await _storage.read(key: 'jwt_token');
-    final response = await http.patch(
-      Uri.parse('$baseUrl/usuarios/${user.id}/admin'),
-      headers: {
+    try {
+      // Log do ID do usuário e status de admin
+      _logger.info(
+          'Tentando atualizar usuário - ID: ${user.id}, isAdmin: ${user.isAdmin}');
+
+      final token = await _storage.read(key: 'jwt_token');
+      // Verificar se o token existe
+      if (token == null) {
+        _logger.severe('Token não encontrado');
+        throw Exception('Token de autenticação não encontrado');
+      }
+      _logger.info('Token obtido com sucesso');
+
+      final url = Uri.parse('$baseUrl/usuarios/${user.id}/admin');
+      _logger.info('URL da requisição: $url');
+
+      final response = await http.patch(url, headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({
-        'isAdmin': user.isAdmin,
-      }),
-    );
+      });
+      _logger.info('Status code: ${response.statusCode}');
+      _logger.info('Resposta do servidor: ${response.body}');
 
-    if (response.statusCode != 200) {
-      throw Exception('Falha ao atualizar usuário');
+      if (response.statusCode != 200) {
+        _logger.severe(
+            'Erro na resposta: ${response.statusCode} - ${response.body}');
+        throw Exception('Falha ao atualizar usuário: ${response.statusCode}');
+      }
+
+      _logger.info('Usuário atualizado com sucesso');
+    } catch (e) {
+      _logger.severe('Exceção ao atualizar usuário: $e');
+      throw Exception('Erro ao atualizar usuário: $e');
     }
   }
 
@@ -269,8 +288,6 @@ class ApiService extends ChangeNotifier {
         'Authorization': 'Bearer ${await _storage.read(key: 'jwt_token')}',
       };
       _logger.info('Request Headers: $headers');
-
-      // Verifique o valor de `ativo` antes de enviar a requisição
       _logger.info('Modality active value before request: ${modality.ativo}');
 
       final body = jsonEncode(modality.toJson());
