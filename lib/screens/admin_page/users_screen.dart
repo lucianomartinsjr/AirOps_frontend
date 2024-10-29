@@ -181,27 +181,39 @@ class UsersScreenState extends State<UsersScreen> {
                                       Switch(
                                         value: user.isAdmin,
                                         onChanged: (value) async {
-                                          user.isAdmin = value;
                                           try {
+                                            setState(() {
+                                              user.isAdmin = value;
+                                            });
+
                                             await Provider.of<ApiService>(
                                                     _context,
                                                     listen: false)
                                                 .updateUser(user);
+
                                             if (mounted) {
                                               ScaffoldMessenger.of(_context)
                                                   .showSnackBar(
                                                 const SnackBar(
-                                                    content: Text(
-                                                        'Usuário atualizado com sucesso')),
+                                                  content: Text(
+                                                      'Status de admin atualizado com sucesso'),
+                                                  backgroundColor: Colors.green,
+                                                ),
                                               );
                                             }
                                           } catch (error) {
+                                            setState(() {
+                                              user.isAdmin = !value;
+                                            });
+
                                             if (mounted) {
                                               ScaffoldMessenger.of(_context)
                                                   .showSnackBar(
                                                 SnackBar(
-                                                    content: Text(
-                                                        'Erro ao atualizar usuário: $error')),
+                                                  content: Text(
+                                                      'Erro ao atualizar status de admin: $error'),
+                                                  backgroundColor: Colors.red,
+                                                ),
                                               );
                                             }
                                           }

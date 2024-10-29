@@ -95,4 +95,33 @@ class Game {
       'numMaxOperadores': numMaxOperadores,
     };
   }
+
+  Game copyWith({
+    int? id,
+    String? descricao,
+    DateTime? dataEvento,
+    String? cidade,
+    String? linkCampo,
+    String? nomeOrganizador,
+    bool? inscrito,
+    String? valor,
+    String? periodo,
+    int? idModalidadeJogo,
+    String? imagemCapa,
+  }) {
+    return Game(
+      id: id ?? this.id,
+      titulo: titulo,
+      descricao: descricao ?? this.descricao,
+      dataEvento: dataEvento ?? this.dataEvento,
+      valor: this.valor,
+      periodo: periodo ?? this.periodo,
+      idModalidadeJogo: idModalidadeJogo ?? this.idModalidadeJogo,
+      imagemCapa: imagemCapa ?? this.imagemCapa,
+      cidade: cidade ?? this.cidade,
+      linkCampo: linkCampo ?? this.linkCampo,
+      nomeOrganizador: nomeOrganizador ?? this.nomeOrganizador,
+      inscrito: inscrito ?? this.inscrito,
+    );
+  }
 }

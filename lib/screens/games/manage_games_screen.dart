@@ -300,27 +300,81 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
                   elevation: 5,
                 ),
                 child: const Text('Sim, cancelar'),
-                onPressed: () {
-                  Game updatedGame = Game(
-                    id: game.id,
-                    dataEvento: DateTime(1900, 1, 1),
-                    titulo: game.titulo,
-                    cidade: game.cidade,
-                    descricao: game.descricao,
-                    valor: game.valor,
-                    periodo: game.periodo,
-                    linkCampo: game.linkCampo,
-                    idModalidadeJogo: game.idModalidadeJogo,
-                    imagemCapa: game.imagemCapa,
-                  );
-                  airsoftService.updateGame(game.id!, updatedGame).then((_) {
+                onPressed: () async {
+                  try {
+                    Game updatedGame = Game(
+                      id: game.id,
+                      dataEvento: DateTime(1900, 1, 1),
+                      titulo: game.titulo,
+                      cidade: game.cidade,
+                      descricao: game.descricao,
+                      valor: game.valor,
+                      periodo: game.periodo,
+                      linkCampo: game.linkCampo,
+                      numMaxOperadores: game.numMaxOperadores,
+                      idModalidadeJogo: game.idModalidadeJogo,
+                      imagemCapa: game.imagemCapa,
+                    );
+
                     Navigator.of(context).pop();
-                    _showCancelConfirmation(context);
-                  }).catchError((error) {
-                    Navigator.of(context).pop();
-                    _showErrorMessage(
-                        context, 'Erro ao cancelar o jogo: $error');
-                  });
+
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          backgroundColor: Colors.grey[850],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[850],
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: const Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 50,
+                                  height: 50,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.red),
+                                    strokeWidth: 3,
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                Text(
+                                  'Cancelando jogo...',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+
+                    await airsoftService.updateGame(game.id!, updatedGame);
+                    await airsoftService.fetchOrganizerGames();
+
+                    if (mounted) {
+                      Navigator.of(context).pop();
+                      _showCancelConfirmation(context);
+                    }
+                  } catch (error) {
+                    if (mounted) {
+                      Navigator.of(context).pop();
+                      _showErrorMessage(
+                          context, 'Erro ao cancelar o jogo: $error');
+                    }
+                  }
                 },
               ),
             ],
@@ -340,7 +394,7 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
             Text('Jogo cancelado com sucesso'),
           ],
         ),
-        backgroundColor: const Color.fromARGB(255, 0, 151, 0),
+        backgroundColor: Colors.green,
         duration: const Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -356,10 +410,22 @@ class ManageGamesScreenState extends State<ManageGamesScreen> {
   void _showErrorMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).size.height * 0.12,
+          left: 16,
+          right: 16,
+        ),
       ),
     );
   }

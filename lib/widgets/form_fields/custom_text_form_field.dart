@@ -64,7 +64,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide.none,
           ),
-          floatingLabelBehavior: FloatingLabelBehavior.always,
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
           prefixIcon: widget.prefixIcon, // Adicionado
           suffixIcon: widget.obscureText && widget.maxLines == 1
               ? IconButton(

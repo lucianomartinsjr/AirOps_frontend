@@ -300,12 +300,12 @@ class CreateGameScreenState extends State<CreateGameScreen> {
     return Row(
       children: [
         Expanded(
-          flex: 2,
+          flex: 3,
           child: _buildMaxOperatorsField(),
         ),
         const SizedBox(width: 16),
         Expanded(
-          flex: 3,
+          flex: 2,
           child: _buildFeeFieldWithSwitch(),
         ),
       ],
@@ -324,11 +324,9 @@ class CreateGameScreenState extends State<CreateGameScreen> {
   }
 
   Widget _buildFeeFieldWithSwitch() {
-    return Stack(
-      alignment: Alignment.centerRight,
+    return Row(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 60),
+        Expanded(
           child: CustomTextFormField(
             controller: _feeController,
             labelText: 'Taxa',
@@ -340,39 +338,38 @@ class CreateGameScreenState extends State<CreateGameScreen> {
                 : 'Insira a taxa',
           ),
         ),
-        Positioned(
-          right: 8,
-          child: _buildFreeSwitch(),
+        const SizedBox(width: 8),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Transform.scale(
+              scale: 0.8,
+              child: Switch(
+                value: _isFree,
+                onChanged: (value) {
+                  setState(() {
+                    _isFree = value;
+                    if (_isFree) {
+                      _feeController.text = '0';
+                    } else {
+                      _feeController.text = '';
+                    }
+                  });
+                },
+                activeColor: Colors.green,
+                activeTrackColor: Colors.green.withOpacity(0.5),
+                inactiveThumbColor: Colors.grey[400],
+                inactiveTrackColor: Colors.grey[700],
+              ),
+            ),
+            const Text('Gratuito',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey,
+                )),
+          ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildFreeSwitch() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Transform.scale(
-          scale: 0.7,
-          child: Switch(
-            value: _isFree,
-            onChanged: (value) {
-              setState(() {
-                _isFree = value;
-                if (_isFree) {
-                  _feeController.text = '0';
-                } else {
-                  _feeController.text = '';
-                }
-              });
-            },
-            activeColor: Colors.green,
-            activeTrackColor: Colors.green.withOpacity(0.5),
-            inactiveThumbColor: Colors.grey[400],
-            inactiveTrackColor: Colors.grey[700],
-          ),
-        ),
-        const Text('Gratuito', style: TextStyle(fontSize: 9)),
       ],
     );
   }

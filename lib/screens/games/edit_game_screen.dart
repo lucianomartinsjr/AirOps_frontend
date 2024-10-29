@@ -171,11 +171,13 @@ class EditGameScreenState extends State<EditGameScreen> {
                       const SizedBox(height: 5),
                       CustomTextFormField(
                         controller: _nameController,
-                        labelText: 'Nome *',
+                        labelText: 'Título do Jogo',
                         readOnly: false,
+                        prefixIcon:
+                            const Icon(Icons.title, color: Colors.white),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor, insira o nome do jogo';
+                            return 'Campo obrigatório';
                           }
                           return null;
                         },
@@ -204,9 +206,11 @@ class EditGameScreenState extends State<EditGameScreen> {
                           return CustomTextFormField(
                             controller: fieldTextEditingController,
                             focusNode: fieldFocusNode,
-                            labelText: 'Cidade/UF *',
+                            labelText: 'Localização',
                             readOnly: false,
                             maxLines: 1,
+                            prefixIcon: const Icon(Icons.location_on,
+                                color: Colors.white),
                           );
                         },
                         optionsViewBuilder: (BuildContext context,
@@ -249,10 +253,12 @@ class EditGameScreenState extends State<EditGameScreen> {
                           Expanded(
                             child: DateTimePickerField(
                               controller: _dateController,
-                              labelText: 'Data e Hora *',
+                              labelText: 'Data e Hora',
+                              prefixIcon:
+                                  const Icon(Icons.event, color: Colors.white),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Por favor, selecione a data e a hora';
+                                  return 'Selecione a data e hora';
                                 }
                                 return null;
                               },
@@ -263,8 +269,10 @@ class EditGameScreenState extends State<EditGameScreen> {
                             child: CustomDropdownFormField<String>(
                               value: _selectedPeriod,
                               items: _periods,
-                              labelText: 'Perodo *',
+                              labelText: 'Período',
                               readOnly: false,
+                              prefixIcon: const Icon(Icons.access_time,
+                                  color: Colors.white),
                               onChanged: (String? newValue) {
                                 setState(() {
                                   _selectedPeriod = newValue;
@@ -284,8 +292,10 @@ class EditGameScreenState extends State<EditGameScreen> {
                       CustomDropdownFormField<Modality>(
                         value: _selectedModality,
                         items: _modalities,
-                        labelText: 'Modalidade *',
+                        labelText: 'Modalidade',
                         readOnly: false,
+                        prefixIcon:
+                            const Icon(Icons.category, color: Colors.white),
                         itemAsString: (Modality modality) => modality.descricao,
                         onChanged: (Modality? newValue) {
                           setState(() {
@@ -305,8 +315,10 @@ class EditGameScreenState extends State<EditGameScreen> {
                           Expanded(
                             child: CustomTextFormField(
                               controller: _numMaxOperadoresController,
-                              labelText: 'Núm. Máx. de Operadores *',
+                              labelText: 'Máx. Operadores',
                               readOnly: false,
+                              prefixIcon:
+                                  const Icon(Icons.group, color: Colors.white),
                               keyboardType: TextInputType.number,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -320,8 +332,10 @@ class EditGameScreenState extends State<EditGameScreen> {
                           Expanded(
                             child: CustomTextFormField(
                               controller: _feeController,
-                              labelText: 'Taxa *',
+                              labelText: 'Taxa',
                               readOnly: _isFree,
+                              prefixIcon: const Icon(Icons.attach_money,
+                                  color: Colors.white),
                               keyboardType: TextInputType.number,
                               validator: (value) {
                                 if (_isFree ||
@@ -362,8 +376,9 @@ class EditGameScreenState extends State<EditGameScreen> {
                       const SizedBox(height: 10),
                       CustomTextFormField(
                         controller: _locationLinkController,
-                        labelText: 'Link do Maps *',
+                        labelText: 'Link do Maps',
                         readOnly: false,
+                        prefixIcon: const Icon(Icons.map, color: Colors.white),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor, insira o link do Maps';
@@ -374,8 +389,10 @@ class EditGameScreenState extends State<EditGameScreen> {
                       const SizedBox(height: 10),
                       CustomTextFormField(
                         controller: _detailsController,
-                        labelText: 'Detalhes',
+                        labelText: 'Detalhes do Jogo',
                         readOnly: false,
+                        prefixIcon:
+                            const Icon(Icons.description, color: Colors.white),
                         maxLines: 5,
                       ),
                       const SizedBox(

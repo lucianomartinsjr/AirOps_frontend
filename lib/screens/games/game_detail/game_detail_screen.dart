@@ -6,12 +6,19 @@ import '../../../services/api/airsoft_service.dart';
 import 'game_detail_header.dart';
 import 'game_info_grid.dart';
 import 'game_detail_buttons.dart';
+import 'package:provider/provider.dart';
 
 class GameDetailScreen extends StatefulWidget {
   final Game game;
   final String token;
+  final Function(int gameId, bool isSubscribed)? onSubscriptionChanged;
 
-  const GameDetailScreen({super.key, required this.game, required this.token});
+  const GameDetailScreen({
+    super.key,
+    required this.game,
+    required this.token,
+    this.onSubscriptionChanged,
+  });
 
   @override
   GameDetailScreenState createState() => GameDetailScreenState();
@@ -25,11 +32,28 @@ class GameDetailScreenState extends State<GameDetailScreen> {
   bool _isExpanded = true;
   final ScrollController _scrollController = ScrollController();
   final AirsoftService _airsoftService = AirsoftService();
+  late ScaffoldMessengerState _scaffoldMessenger;
 
   @override
   void initState() {
     super.initState();
     isSubscribed = widget.game.inscrito!;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scaffoldMessenger = ScaffoldMessenger.of(context);
+  }
+
+  @override
+  void didUpdateWidget(GameDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.game.inscrito != widget.game.inscrito) {
+      setState(() {
+        isSubscribed = widget.game.inscrito!;
+      });
+    }
   }
 
   Future<void> inscrever() async {
@@ -46,9 +70,33 @@ class GameDetailScreenState extends State<GameDetailScreen> {
         isSuccess = true;
         isSubscribed = true;
       });
+
+      Provider.of<AirsoftService>(context, listen: false)
+          .updateGameSubscriptionStatus(widget.game.id!, true);
+
+      widget.onSubscriptionChanged?.call(widget.game.id!, true);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Inscrição realizada com sucesso!')),
+      _scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 12.0),
+              Text('Inscrição realizada com sucesso!'),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.of(context).size.height * 0.14,
+            left: 16,
+            right: 16,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
@@ -73,9 +121,33 @@ class GameDetailScreenState extends State<GameDetailScreen> {
         isSuccess = true;
         isSubscribed = false;
       });
+
+      Provider.of<AirsoftService>(context, listen: false)
+          .updateGameSubscriptionStatus(widget.game.id!, false);
+
+      widget.onSubscriptionChanged?.call(widget.game.id!, false);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Desinscrição realizada com sucesso!')),
+      _scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 12.0),
+              Text('Desinscrição realizada com sucesso!'),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.of(context).size.height * 0.14,
+            left: 16,
+            right: 16,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
@@ -93,7 +165,7 @@ class GameDetailScreenState extends State<GameDetailScreen> {
       await launchUrl(googleMapsUrl);
     } else {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      _scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Não foi possível abrir o Google Maps')),
       );
     }
@@ -123,7 +195,7 @@ Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*.
       await launchUrl(whatsappUrl);
     } else {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      _scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Ocorreu um erro')),
       );
     }
@@ -281,5 +353,11 @@ Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*.
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scaffoldMessenger.clearSnackBars();
+    super.dispose();
   }
 }

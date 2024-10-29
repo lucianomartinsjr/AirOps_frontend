@@ -206,13 +206,17 @@ class AirsoftService extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        await fetchSubscribedGames();
+        await Future.wait([
+          fetchGames(),
+          fetchSubscribedGames(),
+        ]);
         notifyListeners();
       } else {
         throw Exception('Erro ao desinscrever do evento');
       }
     } catch (e) {
       debugPrint('Erro ao desinscrever do evento: $e');
+      rethrow;
     }
   }
 
@@ -282,6 +286,14 @@ class AirsoftService extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Erro ao buscar histórico de jogos: $e');
+    }
+  }
+
+  void updateGameSubscriptionStatus(int gameId, bool isSubscribed) {
+    final gameIndex = games.indexWhere((game) => game.id == gameId);
+    if (gameIndex != -1) {
+      games[gameIndex] = games[gameIndex].copyWith(inscrito: isSubscribed);
+      notifyListeners();
     }
   }
 }

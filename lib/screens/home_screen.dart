@@ -14,7 +14,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -28,11 +28,27 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addObserver(this);
+    _loadInitialData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  Future<void> _loadInitialData() async {
+    await Provider.of<AirsoftService>(context, listen: false).fetchGames();
+    await _checkIfAdmin();
+    await _checkPasswordChange();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
       Provider.of<AirsoftService>(context, listen: false).fetchGames();
-      _checkIfAdmin();
-      _checkPasswordChange();
-    });
+    }
   }
 
   Future<void> _checkIfAdmin() async {
@@ -305,8 +321,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     } else {
-                      return GameList(
-                          games: airsoftService.games, isLargeView: true);
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          await Provider.of<AirsoftService>(context,
+                                  listen: false)
+                              .fetchGames();
+                        },
+                        color: Colors.red,
+                        backgroundColor: const Color.fromARGB(255, 29, 29, 29),
+                        strokeWidth: 3.0,
+                        displacement: 40.0,
+                        child: GameList(
+                            games: airsoftService.games, isLargeView: true),
+                      );
                     }
                   },
                 ),

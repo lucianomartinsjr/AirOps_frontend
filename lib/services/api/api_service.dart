@@ -71,16 +71,20 @@ class ApiService extends ChangeNotifier {
   }
 
   Future<void> updateUser(User user) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl/operadores/${user.id}'),
-      headers: {'Content-Type': 'application/json'},
+    final token = await _storage.read(key: 'jwt_token');
+    final response = await http.patch(
+      Uri.parse('$baseUrl/usuarios/${user.id}/admin'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
       body: jsonEncode({
         'isAdmin': user.isAdmin,
       }),
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to update user');
+      throw Exception('Falha ao atualizar usuário');
     }
   }
 
