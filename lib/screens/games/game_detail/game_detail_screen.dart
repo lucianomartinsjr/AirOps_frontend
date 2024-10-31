@@ -172,32 +172,76 @@ class GameDetailScreenState extends State<GameDetailScreen> {
   }
 
   void _shareViaWhatsApp() async {
+    final descricao = widget.game.descricao.replaceAll(RegExp(r'[*_~]'), '');
+    final organizador =
+        widget.game.nomeOrganizador?.replaceAll(RegExp(r'[*_~]'), '') ??
+            'Não informado';
+    final cidade =
+        widget.game.cidade?.replaceAll(RegExp(r'[*_~]'), '') ?? 'Não informado';
+    final valor = widget.game.valor?.toStringAsFixed(2) ?? '0.00';
+
+    String dataFormatada = 'Data não informada';
+    String horaFormatada = 'Hora não informada';
+    try {
+      dataFormatada = DateFormat('dd/MM/yyyy').format(widget.game.dataEvento);
+      horaFormatada = DateFormat('HH:mm').format(widget.game.dataEvento);
+    } catch (e) {
+      debugPrint('Erro ao formatar data: $e');
+    }
+
     final text = '''
-🏟️ *Evento:* ${widget.game.descricao}
-👥 *Organizador:* ${widget.game.nomeOrganizador}
-📅 *Data:* ${DateFormat('dd/MM/yyyy').format(widget.game.dataEvento)}
-📍 *Local:* ${widget.game.cidade}
+🎮 *NOVO JOGO DE AIRSOFT!*
 
-ℹ️ *Detalhes:* 
-  ${widget.game.descricao}
+🏟️ *Evento:* $descricao
+👥 *Organizador:* $organizador
+📅 *Data:* $dataFormatada
+⏰ *Horário:* $horaFormatada
+📍 *Local:* $cidade
+💰 *Taxa:* R\$ $valor
+👥 *Vagas:* ${widget.game.quantidadeJogadoresInscritos ?? 0}/${widget.game.numMaxOperadores ?? 0}
 
-Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*. 
+ℹ️ *Detalhes do Evento:* 
+$descricao
+
+📱 *Baixe o AirOps para participar:*
+https://play.google.com/store/apps/details?id=com.fasoft.airops
 ''';
 
-    final whatsappUrl = Uri(
-      scheme: 'https',
-      host: 'api.whatsapp.com',
-      path: 'send',
-      queryParameters: {'text': text},
-    );
+    try {
+      final maxLength = 4000;
+      final messageToShare =
+          text.length > maxLength ? '${text.substring(0, maxLength)}...' : text;
 
-    if (await canLaunchUrl(whatsappUrl)) {
-      await launchUrl(whatsappUrl);
-    } else {
+      final encodedText =
+          Uri.encodeComponent(messageToShare).replaceAll('+', '%20');
+
+      final whatsappUrlApp = Uri.parse('whatsapp://send?text=$encodedText');
+      final whatsappUrlWeb = Uri.parse('https://wa.me/?text=$encodedText');
+
+      bool launched = false;
+
+      if (await canLaunchUrl(whatsappUrlApp)) {
+        launched = await launchUrl(
+          whatsappUrlApp,
+          mode: LaunchMode.externalNonBrowserApplication,
+        );
+      }
+
+      if (!launched && await canLaunchUrl(whatsappUrlWeb)) {
+        launched = await launchUrl(
+          whatsappUrlWeb,
+          mode: LaunchMode.externalApplication,
+        );
+      }
+
+      if (!launched && mounted) {
+        _showErrorSnackBar(
+            'Não foi possível abrir o WhatsApp. Verifique se o aplicativo está instalado.');
+      }
+    } catch (e) {
+      debugPrint('Erro ao compartilhar: $e');
       if (!mounted) return;
-      _scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('Ocorreu um erro')),
-      );
+      _showErrorSnackBar('Ocorreu um erro ao tentar compartilhar');
     }
   }
 
@@ -351,6 +395,17 @@ Para se inscrever e saber mais detalhes, instale o aplicativo *AirOps*.
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    _scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }

@@ -325,6 +325,10 @@ class EditGameScreenState extends State<EditGameScreen> {
                                 if (value == null || value.isEmpty) {
                                   return 'Por favor, insira o número máximo de operadores';
                                 }
+                                final number = int.tryParse(value);
+                                if (number == null || number <= 0) {
+                                  return 'Digite um número válido maior que zero';
+                                }
                                 return null;
                               },
                             ),
@@ -340,11 +344,15 @@ class EditGameScreenState extends State<EditGameScreen> {
                                   color: Colors.white),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (_isFree ||
-                                    (value != null && value.isNotEmpty)) {
-                                  return null;
+                                if (_isFree) return null;
+                                if (value == null || value.isEmpty) {
+                                  return 'Por favor, insira a taxa';
                                 }
-                                return 'Por favor, insira a taxa';
+                                final number = double.tryParse(value);
+                                if (number == null || number < 0) {
+                                  return 'Valor inválido';
+                                }
+                                return null;
                               },
                             ),
                           ),

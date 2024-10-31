@@ -307,8 +307,16 @@ class CreateGameScreenState extends State<CreateGameScreen> {
             readOnly: false,
             prefixIcon: const Icon(Icons.group, color: Colors.white),
             keyboardType: TextInputType.number,
-            validator: (value) =>
-                value?.isEmpty ?? true ? 'Campo obrigatório' : null,
+            validator: (value) {
+              if (value?.isEmpty ?? true) {
+                return 'Campo obrigatório';
+              }
+              final number = int.tryParse(value!);
+              if (number == null || number <= 0) {
+                return 'Digite um número válido maior que zero';
+              }
+              return null;
+            },
           ),
         ),
         const SizedBox(width: 10),
@@ -321,10 +329,15 @@ class CreateGameScreenState extends State<CreateGameScreen> {
             prefixIcon: const Icon(Icons.attach_money, color: Colors.white),
             keyboardType: TextInputType.number,
             validator: (value) {
-              if (_isFree || (value != null && value.isNotEmpty)) {
-                return null;
+              if (_isFree) return null;
+              if (value?.isEmpty ?? true) {
+                return 'Insira a taxa';
               }
-              return 'Insira a taxa';
+              final number = double.tryParse(value!);
+              if (number == null || number < 0) {
+                return 'Valor inválido';
+              }
+              return null;
             },
           ),
         ),
