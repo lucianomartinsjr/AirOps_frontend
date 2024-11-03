@@ -7,6 +7,7 @@ import 'game_detail_header.dart';
 import 'game_info_grid.dart';
 import 'game_detail_buttons.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class GameDetailScreen extends StatefulWidget {
   final Game game;
@@ -171,14 +172,14 @@ class GameDetailScreenState extends State<GameDetailScreen> {
     }
   }
 
-  void _shareViaWhatsApp() async {
+  void _shareEvent() async {
+    final titulo = widget.game.titulo.replaceAll(RegExp(r'[*_~]'), '');
     final descricao = widget.game.descricao.replaceAll(RegExp(r'[*_~]'), '');
     final organizador =
         widget.game.nomeOrganizador?.replaceAll(RegExp(r'[*_~]'), '') ??
             'Não informado';
-    final cidade =
-        widget.game.cidade?.replaceAll(RegExp(r'[*_~]'), '') ?? 'Não informado';
-    final valor = widget.game.valor?.toStringAsFixed(2) ?? '0.00';
+    final cidade = widget.game.cidade.replaceAll(RegExp(r'[*_~]'), '');
+    final valor = widget.game.valor.toStringAsFixed(2);
 
     String dataFormatada = 'Data não informada';
     String horaFormatada = 'Hora não informada';
@@ -190,54 +191,25 @@ class GameDetailScreenState extends State<GameDetailScreen> {
     }
 
     final text = '''
-🎮 *NOVO JOGO DE AIRSOFT!*
+🎮 NOVO JOGO DE AIRSOFT!
 
-🏟️ *Evento:* $descricao
-👥 *Organizador:* $organizador
-📅 *Data:* $dataFormatada
-⏰ *Horário:* $horaFormatada
-📍 *Local:* $cidade
-💰 *Taxa:* R\$ $valor
-👥 *Vagas:* ${widget.game.quantidadeJogadoresInscritos ?? 0}/${widget.game.numMaxOperadores ?? 0}
+🏟️ Evento: $titulo
+👥 Organizador: $organizador
+📅 Data: $dataFormatada
+⏰ Horário: $horaFormatada
+📍 Local: $cidade
+💰 Taxa: R\$ $valor
+👥 Jogadores Inscritos: ${widget.game.quantidadeJogadoresInscritos ?? 0}/${widget.game.numMaxOperadores ?? 0}
 
-ℹ️ *Detalhes do Evento:* 
+ℹ️ Detalhes do Evento: 
 $descricao
 
-📱 *Baixe o AirOps para participar:*
+📱 Baixe o AirOps para participar:
 https://play.google.com/store/apps/details?id=com.fasoft.airops
 ''';
 
     try {
-      final maxLength = 4000;
-      final messageToShare =
-          text.length > maxLength ? '${text.substring(0, maxLength)}...' : text;
-
-      final encodedText =
-          Uri.encodeComponent(messageToShare).replaceAll('+', '%20');
-
-      final whatsappUrlApp = Uri.parse('whatsapp://send?text=$encodedText');
-      final whatsappUrlWeb = Uri.parse('https://wa.me/?text=$encodedText');
-
-      bool launched = false;
-
-      if (await canLaunchUrl(whatsappUrlApp)) {
-        launched = await launchUrl(
-          whatsappUrlApp,
-          mode: LaunchMode.externalNonBrowserApplication,
-        );
-      }
-
-      if (!launched && await canLaunchUrl(whatsappUrlWeb)) {
-        launched = await launchUrl(
-          whatsappUrlWeb,
-          mode: LaunchMode.externalApplication,
-        );
-      }
-
-      if (!launched && mounted) {
-        _showErrorSnackBar(
-            'Não foi possível abrir o WhatsApp. Verifique se o aplicativo está instalado.');
-      }
+      await Share.share(text);
     } catch (e) {
       debugPrint('Erro ao compartilhar: $e');
       if (!mounted) return;
@@ -272,7 +244,7 @@ https://play.google.com/store/apps/details?id=com.fasoft.airops
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
-            onPressed: _shareViaWhatsApp,
+            onPressed: _shareEvent,
           ),
         ],
       ),
